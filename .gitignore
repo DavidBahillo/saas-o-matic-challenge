@@ -29,3 +29,6 @@ Thumbs.db
 
 # Buffers locales de los hooks (lo importante se documenta con /log en ai-workspace/)
 .claude/logs/
+
+# Base de datos SQLite del backend
+backend/data/

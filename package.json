@@ -1,0 +1,27 @@
+{
+  "name": "saas-o-matic",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Simulador y presupuestador interno de suscripciones SaaS multidivisa.",
+  "workspaces": [
+    "shared",
+    "backend"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @saas-o-matic/backend",
+    "test": "vitest run",
+    "lint": "eslint . && tsc -p shared && tsc -p backend"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "24.19.2",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "4.1.12"
+  }
+}

@@ -35,14 +35,14 @@ Si ves archivos que no deberían subirse (`.env`, `*.db`, `node_modules/`, crede
 
 ### Paso 2: proponer el mensaje y detenerse
 1. Genera la mejor propuesta de mensaje según los cambios detectados.
-2. Muéstrala en un bloque de código. Si el cambio es extenso, añade una segunda opción con cuerpo explicativo (*commit body*).
+2. Muéstrala en un bloque de código. **Siempre con cuerpo explicativo** (*commit body*), por preferencia del usuario: una línea en blanco tras el título y viñetas `- ` en imperativo que expliquen qué cambia y por qué (con un ancho máximo de 72 caracteres). Si el commit cierra una spec, añade `Spec: NNN-nombre` al final del cuerpo.
 3. **PUNTO DE DETENCIÓN OBLIGATORIO.** No ejecutes ningún comando que modifique nada. Pregunta al usuario:
    > *"¿Apruebas este mensaje para hacer `commit` y `push` a GitHub, o prefieres ajustar algo?"*
 
 ### Paso 3: confirmación y push
 **Solo si el usuario responde afirmativamente** ("sí", "adelante", "aprobado", "ok"):
 1. Ejecuta `git add -A` (o solo los archivos pertinentes).
-2. Ejecuta `git commit -m "<mensaje aprobado>"`.
+2. Ejecuta `git commit` con el mensaje aprobado completo, título y cuerpo (por ejemplo, `git commit -F -` con un heredoc para conservar los saltos de línea).
 3. Ejecuta `git push` a la rama remota correspondiente. Si la rama no tiene upstream, usa `git push -u origin <rama>`.
 4. Muestra un resumen con el hash del commit y la rama remota actualizada.
 
