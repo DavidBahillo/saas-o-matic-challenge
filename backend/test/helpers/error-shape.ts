@@ -12,6 +12,7 @@ export const STATUS_BY_CODE: Readonly<Record<ApiErrorCode, 400 | 404 | 409 | 500
   PAYLOAD_TOO_LARGE: 400,
   MALFORMED_JSON: 400,
   CUSTOMER_NOT_FOUND: 404,
+  SIMULATION_NOT_FOUND: 404,
   NOT_FOUND: 404,
   CUSTOMER_ALREADY_EXISTS: 409,
   INTERNAL_ERROR: 500,
@@ -31,7 +32,12 @@ export const FIELD_CODES: readonly FieldErrorCode[] = [
   'TAX_ID_INVALID_CHECKSUM',
 ];
 
-const REASONS: readonly string[] = ['COUNTRY_PREFIX', 'ALL_ZEROS', 'FIRST_DIGIT', 'IT_OFFICE_CODE'];
+/** Códigos de campo de la 002/003; FIELD_CODES sigue siendo el catálogo exacto de la 001. */
+const ALL_FIELD_CODES: readonly string[] = [...FIELD_CODES, 'INVALID_USERS', 'INVALID_RESOURCE'];
+
+const REASONS: readonly string[] = ['COUNTRY_PREFIX', 'ALL_ZEROS', 'FIRST_DIGIT', 'IT_OFFICE_CODE',
+  // 002/003: motivos de INVALID_USERS e INVALID_RESOURCE.
+  'NOT_INTEGER', 'NEGATIVE', 'TOO_LARGE'];
 const FIELD_KEYS: readonly string[] = ['field', 'code', 'message', 'taxIdType', 'reason', 'suggestion'];
 
 function expectSubset(keys: readonly string[], allowed: readonly string[]): void {
@@ -42,7 +48,7 @@ function expectFieldError(entry: unknown): void {
   const fieldError = entry as Record<string, unknown>;
   expectSubset(Object.keys(fieldError), FIELD_KEYS);
   expect(typeof fieldError.field).toBe('string');
-  expect(FIELD_CODES).toContain(fieldError.code);
+  expect(ALL_FIELD_CODES).toContain(fieldError.code);
   expect(typeof fieldError.message).toBe('string');
   if ('reason' in fieldError) expect(REASONS).toContain(fieldError.reason);
   if ('taxIdType' in fieldError) expect(TAX_ID_TYPES).toContain(fieldError.taxIdType);

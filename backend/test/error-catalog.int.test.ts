@@ -37,6 +37,7 @@ const CASES: readonly Case[] = [
   ['JSON mal formado', json('{'), 'MALFORMED_JSON', null],
   ['cuerpo vacío', json(''), 'MALFORMED_JSON', null],
   ['cliente inexistente', get('/customers/99'), 'CUSTOMER_NOT_FOUND', null],
+  ['simulación inexistente', get('/simulations/999'), 'SIMULATION_NOT_FOUND', null],
   ['ruta inexistente', get('/foo'), 'NOT_FOUND', null],
   ['método inexistente', (t) => request(t.app).delete('/customers/1'), 'NOT_FOUND', null],
   ['alta duplicada', create({}), 'CUSTOMER_ALREADY_EXISTS', null],

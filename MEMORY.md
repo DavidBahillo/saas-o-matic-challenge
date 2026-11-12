@@ -16,13 +16,14 @@ Breve: menos de 60 líneas. Solo decisiones vigentes y estado. El histórico est
 - D11 · Listado de clientes ordenado con colación española y desempate por id. La búsqueda no ignora tildes. `frontend/` se crea en la spec 005.
 - D12 · Versiones: better-sqlite3 12 (la 11.x no tiene binario para Node 24 en win32), zod 4 y vitest 4 (las 3.x tenían vulnerabilidades altas o críticas). Quedan 7 avisos moderados de minimatch vía typescript-eslint, solo en desarrollo y aceptados. Node ≥ 22.
 - D13 · Tramos (spec 002): fijos y congelados en `shared/` (10 €, 8 € y 5 €; límites 10 y 50), con usuarios de 0 a 100 000. El IVA va en la 002 y solo sobre la base de tramos, half-up al céntimo y una sola vez. El desglose lleva siempre los tres tramos. País estricto sin normalizar, con los códigos de la 001. Los campos ajenos se ignoran (Zod los rechaza en la 003). Errores tipados, nunca excepciones. La spec está redactada en euros y la implementación trabaja en céntimos. *Descartado:* tramos configurables, IVA sobre bases arbitrarias y BigInt.
+- D14 · Simulaciones (spec 003): ligadas a un cliente existente (`customerId`); el país del IVA es el del cliente (404 `CUSTOMER_NOT_FOUND`). Precio congelado (desglose, base, país, tipo de IVA, IVA y total, siempre con `calculateQuote`; las lecturas no recalculan). `storage` (GB) y `apiCalls` (llamadas/mes): opcionales, 0 por defecto, enteros 0–1 000 000, no suman (D4). Zod estricto: `UNKNOWN_FIELD` en el orden del cuerpo. Endpoints: `POST /simulations`, `GET /simulations/:id`, `GET /customers/:id/simulations` (`createdAt` DESC, `id` DESC, sin paginación). Inmutables. Códigos nuevos: `INVALID_RESOURCE` (`NOT_INTEGER`/`NEGATIVE`/`TOO_LARGE`) y `SIMULATION_NOT_FOUND`. `PRAGMA foreign_keys = ON` siempre y FK `ON DELETE RESTRICT`. *Descartado:* sin cliente, recalcular al leer, paginación, listado global, borrado.
 
 ## Estado de specs
 | Spec | Estado |
 |---|---|
 | 001-customers-taxid | completada · reviewer APROBADO (2 vueltas de corrección) |
 | 002-tiered-pricing | completada · reviewer APROBADO (1 vuelta de corrección) |
-| 003-simulations | pendiente |
+| 003-simulations | completada · reviewer APROBADO (0 vueltas de corrección) |
 | 004-currency | pendiente |
 | 005-dashboard-ui | pendiente |
 | 006-readme-seed | pendiente |

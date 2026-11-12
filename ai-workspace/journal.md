@@ -110,3 +110,28 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 1092/1092 tests y lint limpio. Las propiedades se comprueban de forma exhaustiva de 0 a 100 000 usuarios en 8 países. La regla de pureza se probó con un `Date.now()` temporal, que hizo fallar el lint.
 
 **Lección.** Dos sesiones sobre la misma carpeta necesitan coordinación explícita; el aviso de un subagente evitó que se pisaran más.
+
+---
+
+## Etapa 5 · Simulaciones guardadas con precio congelado (spec 003)
+**12 nov 2026**
+
+**Punto de partida.** Con la regla de precio pura lista (002), faltaba el borde HTTP: guardar presupuestos ligados a un cliente y rechazar con Zod los campos ajenos, como dejó pendiente D13.
+
+**Qué se hizo.** Recorrí `/sdd` entero. El `planner` planteó cinco preguntas cerradas y elegí sus recomendaciones: simulación ligada al cliente (el país del IVA sale de él), precio congelado, `storage`/`apiCalls` opcionales a 0, tres endpoints de lectura e inmutabilidad. El plan salió con 10 tareas, que el `implementer` hizo una por llamada con TDD; yo comprobé `npm test` tras cada una.
+
+**Decisiones.**
+- Precio congelado al guardar. *Descartado:* recalcular al leer, porque un presupuesto no debe cambiar si cambian los tramos o el IVA.
+- `PRAGMA foreign_keys = ON` en toda conexión y FK `ON DELETE RESTRICT`. *Descartado:* borrado físico o lógico de simulaciones.
+- Validación pura en `shared/src/simulations/` envuelta por Zod. *Descartado:* `z.strictObject`, que no da el orden de errores de la spec.
+
+**Corrección de rumbo / control de calidad.** El QA de la spec devolvió NECESITA CAMBIOS (4 importantes, entre ellos que SQLite no aplicaba las FK sin el PRAGMA) y el `planner` los corrigió antes de que la aprobara. La validación final dio APROBADO a la primera (20 RF y 7 CA).
+
+**Incidencias.**
+- La T1 rompía el catálogo de errores de la 001: decidí mover `SIMULATION_NOT_FOUND` a la T7, junto a su endpoint, en vez de debilitar el test.
+- Con `RESTRICT`, SQLite señala el borrado como `SQLITE_CONSTRAINT_TRIGGER` y no `FOREIGNKEY`: mantuve RESTRICT y corregí el plan.
+- Al empezar, la 002 apareció ya commiteada desde otra sesión; lo verifiqué antes de seguir.
+
+**Verificación.** 1281/1281 tests y lint limpio. Quedan tres mejoras opcionales del reviewer (helper de errores por spec, `parseRouteId`, salto de línea final).
+
+**Lección.** Cuando el plan choca con la realidad (SQLite, un test existente), es mejor parar y decidir que adaptar el test en silencio.

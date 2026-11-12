@@ -67,3 +67,7 @@ export function customerAlreadyExists(country: string, existingId: number): Http
 export function internalError(): HttpError {
   return new HttpError(500, 'INTERNAL_ERROR', API_MESSAGES.INTERNAL_ERROR);
 }
+
+export function simulationNotFound(id: number): HttpError {
+  return new HttpError(404, 'SIMULATION_NOT_FOUND', `No existe la simulación ${String(id)}.`);
+}

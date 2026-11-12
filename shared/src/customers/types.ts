@@ -20,7 +20,10 @@ export type TaxIdReason = 'COUNTRY_PREFIX' | 'ALL_ZEROS' | 'FIRST_DIGIT' | 'IT_O
 /** Motivo de un INVALID_USERS (spec 002, R2). */
 export type UsersReason = 'NOT_FINITE' | 'NOT_INTEGER' | 'NEGATIVE' | 'TOO_LARGE';
 
-export type FieldErrorReason = TaxIdReason | UsersReason;
+/** Motivo de un INVALID_RESOURCE (spec 003, RF8). */
+export type ResourceReason = 'NOT_INTEGER' | 'NEGATIVE' | 'TOO_LARGE';
+
+export type FieldErrorReason = TaxIdReason | UsersReason | ResourceReason;
 
 export type FieldErrorCode =
   | 'REQUIRED'
@@ -34,7 +37,8 @@ export type FieldErrorCode =
   | 'INVALID_ID'
   | 'TAX_ID_INVALID_FORMAT'
   | 'TAX_ID_INVALID_CHECKSUM'
-  | 'INVALID_USERS';
+  | 'INVALID_USERS'
+  | 'INVALID_RESOURCE';
 
 export interface FieldError {
   field: string;
@@ -71,6 +75,7 @@ export type ApiErrorCode =
   | 'PAYLOAD_TOO_LARGE'
   | 'MALFORMED_JSON'
   | 'CUSTOMER_NOT_FOUND'
+  | 'SIMULATION_NOT_FOUND'
   | 'NOT_FOUND'
   | 'CUSTOMER_ALREADY_EXISTS'
   | 'INTERNAL_ERROR';

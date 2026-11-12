@@ -13,7 +13,7 @@ import { API_MESSAGES } from '../http/errors';
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; errors: FieldError[] };
 
-const BODY_INVALID_TYPE: FieldError = {
+export const BODY_INVALID_TYPE: FieldError = {
   field: 'body',
   code: 'INVALID_TYPE',
   message: API_MESSAGES.BODY_INVALID_TYPE,
@@ -21,7 +21,7 @@ const BODY_INVALID_TYPE: FieldError = {
 
 const PlainObjectSchema = z.record(z.string(), z.unknown());
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
   return PlainObjectSchema.safeParse(value).success;
 }
 
@@ -38,7 +38,7 @@ function isFieldError(value: unknown): value is FieldError {
   return typeof value === 'object' && value !== null && 'field' in value && 'code' in value;
 }
 
-function toFieldErrors(issues: readonly z.core.$ZodIssue[]): FieldError[] {
+export function toFieldErrors(issues: readonly z.core.$ZodIssue[]): FieldError[] {
   const errors: FieldError[] = [];
   for (const issue of issues) {
     const candidate: unknown = issue.code === 'custom' ? issue.params?.fieldError : undefined;

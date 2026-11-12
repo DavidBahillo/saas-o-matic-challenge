@@ -11,6 +11,7 @@ export type {
   FieldErrorCode,
   FieldErrorReason,
   NewCustomer,
+  ResourceReason,
   TaxIdReason,
   TaxIdType,
   UsersReason,
@@ -91,3 +92,10 @@ export { VAT_RATES_PERCENT, vatRatePercentFor } from './pricing/vat-rates';
 export type { VatTableCountry } from './pricing/vat-rates';
 export { validateVatCountry } from './pricing/validate-vat-country';
 export { calculateQuote } from './pricing/calculate-quote';
+
+export { RESOURCE_MAX, SIMULATION_FIELDS } from './simulations/types';
+export type { Simulation, SimulationInput } from './simulations/types';
+export { RESOURCE_MESSAGES, validateResource } from './simulations/validate-resource';
+export { CUSTOMER_REF_MESSAGES, validateCustomerRef } from './simulations/validate-customer-ref';
+export { validateSimulationInput } from './simulations/validate-simulation-input';
+export type { SimulationInputResult } from './simulations/validate-simulation-input';
