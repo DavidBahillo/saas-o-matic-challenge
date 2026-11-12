@@ -19,6 +19,15 @@ function normalizeCountry(raw: string): string {
   return trimWhitespace(raw).replace(/[a-z]/g, (c) => c.toUpperCase());
 }
 
+/** Comprueba un código ya normalizado: UK → INVALID_COUNTRY con suggestion GB; fuera de la lista ISO → INVALID_COUNTRY. */
+export function checkCountryCode(code: string): FieldResult<string> {
+  if (code === 'UK') {
+    return fail(FIELD, 'INVALID_COUNTRY', COUNTRY_MESSAGES.UK_SUGGESTION, { suggestion: 'GB' });
+  }
+  if (!isIsoAlpha2(code)) return fail(FIELD, 'INVALID_COUNTRY', COUNTRY_MESSAGES.INVALID_COUNTRY);
+  return ok(code);
+}
+
 export function validateCountry(raw: unknown): FieldResult<string> {
   const text = readText(
     FIELD,
@@ -26,11 +35,5 @@ export function validateCountry(raw: unknown): FieldResult<string> {
     { required: COUNTRY_MESSAGES.REQUIRED, invalidType: COUNTRY_MESSAGES.INVALID_TYPE },
     normalizeCountry,
   );
-  if (!text.ok) return text;
-  const code = text.value;
-  if (code === 'UK') {
-    return fail(FIELD, 'INVALID_COUNTRY', COUNTRY_MESSAGES.UK_SUGGESTION, { suggestion: 'GB' });
-  }
-  if (!isIsoAlpha2(code)) return fail(FIELD, 'INVALID_COUNTRY', COUNTRY_MESSAGES.INVALID_COUNTRY);
-  return ok(code);
+  return text.ok ? checkCountryCode(text.value) : text;
 }

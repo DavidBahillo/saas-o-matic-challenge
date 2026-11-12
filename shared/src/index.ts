@@ -9,16 +9,18 @@ export type {
   CustomerList,
   FieldError,
   FieldErrorCode,
+  FieldErrorReason,
   NewCustomer,
   TaxIdReason,
   TaxIdType,
+  UsersReason,
 } from './customers/types';
 export { PLANS, isPlan } from './customers/plans';
 export type { Plan } from './customers/plans';
 export { fail, ok, readText } from './customers/field-result';
 export type { FieldErrorExtras, FieldResult, TextFieldMessages } from './customers/field-result';
 export { ISO_3166_ALPHA2, isIsoAlpha2 } from './countries/iso3166-alpha2';
-export { COUNTRY_MESSAGES, validateCountry } from './countries/validate-country';
+export { COUNTRY_MESSAGES, checkCountryCode, validateCountry } from './countries/validate-country';
 export {
   COMPANY_NAME_MAX_LENGTH,
   COMPANY_NAME_MESSAGES,
@@ -71,3 +73,21 @@ export { codePointLength, hasControlChars } from './text/code-points';
 export { toSearchKey } from './text/search-key';
 export { compareByNameEs, sortByNameEs } from './search/sort-customers';
 export type { Named } from './search/sort-customers';
+
+export { MAX_USERS, PRICING_TIERS } from './pricing/tiers';
+export type { PricingTier, TierNumber } from './pricing/tiers';
+export type {
+  BaseCost,
+  BaseCostResult,
+  PricingResult,
+  Quote,
+  QuoteResult,
+  TierLine,
+} from './pricing/types';
+export { USERS_MESSAGES, validateUsers } from './pricing/validate-users';
+export { INPUT_MESSAGES } from './pricing/pricing-input';
+export { calculateBaseCost } from './pricing/calculate-base-cost';
+export { VAT_RATES_PERCENT, vatRatePercentFor } from './pricing/vat-rates';
+export type { VatTableCountry } from './pricing/vat-rates';
+export { validateVatCountry } from './pricing/validate-vat-country';
+export { calculateQuote } from './pricing/calculate-quote';

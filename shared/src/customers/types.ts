@@ -17,6 +17,11 @@ export type TaxIdType = (typeof TAX_ID_TYPES)[number];
 
 export type TaxIdReason = 'COUNTRY_PREFIX' | 'ALL_ZEROS' | 'FIRST_DIGIT' | 'IT_OFFICE_CODE';
 
+/** Motivo de un INVALID_USERS (spec 002, R2). */
+export type UsersReason = 'NOT_FINITE' | 'NOT_INTEGER' | 'NEGATIVE' | 'TOO_LARGE';
+
+export type FieldErrorReason = TaxIdReason | UsersReason;
+
 export type FieldErrorCode =
   | 'REQUIRED'
   | 'INVALID_TYPE'
@@ -28,14 +33,15 @@ export type FieldErrorCode =
   | 'INVALID_PLAN'
   | 'INVALID_ID'
   | 'TAX_ID_INVALID_FORMAT'
-  | 'TAX_ID_INVALID_CHECKSUM';
+  | 'TAX_ID_INVALID_CHECKSUM'
+  | 'INVALID_USERS';
 
 export interface FieldError {
   field: string;
   code: FieldErrorCode;
   message: string;
   taxIdType?: TaxIdType;
-  reason?: TaxIdReason;
+  reason?: FieldErrorReason;
   suggestion?: string;
 }
 

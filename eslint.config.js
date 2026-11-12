@@ -24,6 +24,24 @@ export default tseslint.config(
     rules: { 'max-lines-per-function': 'off' },
   },
   {
+    // Pureza de la regla de precios (spec 002, CA2/RF14, D-P6): ejecutable en el navegador y determinista.
+    files: ['shared/src/pricing/**/*.ts'],
+    ignores: ['shared/src/pricing/**/*.test.ts'],
+    rules: {
+      'no-restricted-globals': ['error',
+        ...['Date', 'process', 'window', 'document', 'fetch', 'localStorage', 'Intl'].map((name) => ({
+          name, message: 'La lógica de precios debe ser pura (RF14).',
+        })),
+      ],
+      'no-restricted-properties': ['error',
+        { object: 'Math', property: 'random', message: 'La lógica de precios no usa azar (RF14).' },
+      ],
+      'no-restricted-imports': ['error', {
+        patterns: [{ group: ['node:*'], message: 'La lógica de precios no depende de Node (CA2).' }],
+      }],
+    },
+  },
+  {
     files: ['*.js', '*.ts'],
     ...tseslint.configs.disableTypeChecked,
   },

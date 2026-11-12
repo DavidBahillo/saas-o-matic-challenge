@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { COUNTRY_MESSAGES, validateCountry } from './validate-country';
+import { COUNTRY_MESSAGES, checkCountryCode, validateCountry } from './validate-country';
 
 describe('validateCountry (RF2, RF3, RF6)', () => {
   it.each([
@@ -46,6 +46,31 @@ describe('validateCountry (RF2, RF3, RF6)', () => {
         message: '¿Querías decir GB?',
         suggestion: 'GB',
       },
+    });
+  });
+});
+
+describe('checkCountryCode (spec 002, R1: código ya normalizado)', () => {
+  it('ES → ok', () => {
+    expect(checkCountryCode('ES')).toEqual({ ok: true, value: 'ES' });
+  });
+
+  it('UK → INVALID_COUNTRY con sugerencia GB', () => {
+    expect(checkCountryCode('UK')).toEqual({
+      ok: false,
+      error: {
+        field: 'country',
+        code: 'INVALID_COUNTRY',
+        message: '¿Querías decir GB?',
+        suggestion: 'GB',
+      },
+    });
+  });
+
+  it.each([['uk'], [' ES '], ['   '], ['XX']])('%j → INVALID_COUNTRY sin sugerencia', (input) => {
+    expect(checkCountryCode(input)).toEqual({
+      ok: false,
+      error: { field: 'country', code: 'INVALID_COUNTRY', message: COUNTRY_MESSAGES.INVALID_COUNTRY },
     });
   });
 });

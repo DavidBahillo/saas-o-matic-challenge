@@ -86,3 +86,27 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 938/938 tests y lint limpio. El revisor de reglas probó la API real (HTTP y servidor con BD temporal). El de cobertura comprobó que 14 de 15 mutaciones mueren; la que sobrevive es equivalente, porque `JSON.parse` ya rechaza el BOM. Falta probar `npm install` en un clon limpio.
 
 **Lección.** Un informe del implementer no es una prueba: lo que no tiene test, no está hecho.
+
+---
+
+## Etapa 4 · Tramos e IVA como regla pura compartida (spec 002)
+**12 nov 2026**
+
+**Punto de partida.** El cálculo por tramos es lo que el enunciado evalúa como "cálculo preciso", y la misma cifra tiene que verse en el slider (005) y en la simulación guardada (003). Por eso quería una sola regla pura en `shared/` antes de tocar endpoints.
+
+**Qué se hizo.** Recorrí `/sdd` entero. El `planner` redactó la spec con cinco preguntas, que respondí una a una. El `reviewer` la revisó dos veces como QA y recalculó todos los importes. El plan salió con 5 tareas, que el `implementer` hizo una por llamada con TDD, y yo comprobé `npm test` y el lint después de cada una. El resultado es `shared/src/pricing/`, con `calculateBaseCost` y `calculateQuote`, que nunca lanzan excepciones.
+
+**Decisiones.**
+- Los tramos son fijos y están congelados en `shared/`. *Descartado:* configurarlos por entorno o en la BD, porque obligaría a sincronizar el frontend en tiempo de ejecución.
+- El IVA entra en la 002 y solo se aplica sobre la base de tramos, con half-up y enteros. *Descartado:* una función de IVA sobre bases arbitrarias, porque base × tipo podía superar el entero seguro, que era el bloqueante del QA.
+- El país es estricto, sin normalizar, con los mismos códigos que la 001. Se extrajo `checkCountryCode` del validador de la 001 para no duplicarlo.
+- Los campos ajenos (`storage`, `apiCalls`, `plan`) se ignoran, y Zod los rechazará en la 003.
+- Un bloque de ESLint prohíbe `Date`, `Intl`, `Math.random` y `node:*` en `pricing/` para garantizar la pureza.
+
+**Corrección de rumbo / control de calidad.** Rechacé que la spec mostrara los importes en céntimos, porque no se podía contrastar con el enunciado. Primero añadimos los euros al lado, y al final la spec quedó solo en euros, con una nota que fija la implementación en céntimos (D2). En la validación, el `reviewer` de reglas dio APROBADO (16/16 RF) y el de cobertura CAMBIOS NECESARIOS, porque las filas `-0` y `1e1` no fijaban el desglose. Bastó una vuelta de corrección.
+
+**Incidencias.** En la T4 escribió también otro agente, de la sesión de la spec 003, que trabajaba en la misma carpeta: mi `implementer` encontró el código ya hecho y sus tests sustituidos. Paré antes de la T5, pausé la 003 y pedí al `reviewer` que examinara línea a línea esos archivos, que encajaban con el plan.
+
+**Verificación.** 1092/1092 tests y lint limpio. Las propiedades se comprueban de forma exhaustiva de 0 a 100 000 usuarios en 8 países. La regla de pureza se probó con un `Date.now()` temporal, que hizo fallar el lint.
+
+**Lección.** Dos sesiones sobre la misma carpeta necesitan coordinación explícita; el aviso de un subagente evitó que se pisaran más.

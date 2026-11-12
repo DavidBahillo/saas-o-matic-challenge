@@ -21,7 +21,7 @@ Breve: menos de 60 líneas. Solo decisiones vigentes y estado. El histórico est
 | Spec | Estado |
 |---|---|
 | 001-customers-taxid | completada · reviewer APROBADO (2 vueltas de corrección) |
-| 002-tiered-pricing | spec aprobada · plan en curso |
+| 002-tiered-pricing | completada · reviewer APROBADO (1 vuelta de corrección) |
 | 003-simulations | pendiente |
 | 004-currency | pendiente |
 | 005-dashboard-ui | pendiente |
