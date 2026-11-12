@@ -1,0 +1,28 @@
+# Material de referencia privado (no publicar)
+*.pdf
+*.docx
+insightdeck-DESIGN.md
+
+# Dependencias y builds
+node_modules/
+dist/
+build/
+coverage/
+
+# Base de datos local y entorno
+*.db
+*.db-journal
+*.sqlite
+.env
+.env.*
+!.env.example
+
+# Claude Code (ajustes personales)
+.claude/settings.local.json
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
