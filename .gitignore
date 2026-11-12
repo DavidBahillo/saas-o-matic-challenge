@@ -26,3 +26,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# Buffers locales de los hooks (lo importante se documenta con /log en ai-workspace/)
+.claude/logs/

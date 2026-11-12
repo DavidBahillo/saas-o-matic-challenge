@@ -1,24 +1,51 @@
 ---
-description: Guarda un resumen breve y autodocumentado de la sesión en ai-workspace/journal.md, con los prompts clave
-argument-hint: [título opcional de la entrada]
+description: Documenta el PROCESO de la sesión en ai-workspace/journal.md (contexto, qué se hizo, decisiones, incidencias, verificación) y actualiza el inventario de herramientas
+argument-hint: [título opcional de la etapa]
 ---
 
-Registra lo más importante de esta sesión de forma **breve**. Título sugerido: $ARGUMENTS
+Documenta **el proceso** de esta sesión como una nueva etapa del diario. No es una lista de prompts: es el relato de cómo se trabajó y por qué. Título sugerido: $ARGUMENTS
 
-1. Lee `ai-workspace/journal.md` para ver la fecha y hora de la última entrada.
-2. Lee `ai-workspace/prompts-log.jsonl` y quédate con los prompts posteriores a esa entrada (ignora los de `/log`).
-3. Revisa `git log --oneline` y `git diff --stat` desde la última entrada (si hay repositorio git).
-4. Añade al FINAL de `journal.md` una entrada con este formato exacto, de 8 líneas como máximo:
+## Fuentes (buffers locales, no versionados)
+- `.claude/logs/prompts.jsonl`: lo que pidió el usuario (sirve para reconstruir la intención, no para copiarlo).
+- `.claude/logs/activity.jsonl`: skills y subagentes usados.
+- `git log --oneline` y `git diff --stat` desde la última etapa, más los cambios en `specs/` y `MEMORY.md`.
+
+## 1. Escribir la etapa al FINAL de `ai-workspace/journal.md`
+Numera con la siguiente etapa libre. Prosa breve, entre 10 y 25 líneas en total:
 
 ```
-## AAAA-MM-DD HH:MM · <título>
-- **Objetivo:** <1 línea>
-- **Prompt clave:** > "<cita literal y recortada del prompt que más dirigió el trabajo>"
-- **La IA propuso → yo decidí:** <qué se aceptó, qué se rechazó o corrigió y por qué>
-- **Resultado:** <tests X/X · archivos o specs tocados · commit>
-- **Aprendizaje:** <1 línea, opcional>
+---
+
+## Etapa N · <título que describa el avance, no la tarea>
+**<fecha>**
+
+**Punto de partida.** <qué problema o necesidad había y por qué importaba>
+
+**Qué se hizo.** <cómo se abordó: fases de /sdd recorridas, qué agente hizo qué, qué se construyó>
+
+**Decisiones.** <lista breve: decisión + alternativa descartada + motivo>
+
+**Corrección de rumbo / control de calidad.** <qué propuso la IA que se rechazó o corrigió y por qué; veredictos del reviewer y cuántas vueltas hubo>
+
+**Incidencias.** <problemas de herramientas o del plan y cómo se resolvieron> (omitir si no hubo)
+
+**Verificación.** <tests (X/X), comprobaciones manuales, navegador o móvil>
+
+**Lección.** <1 línea, solo si hay una de verdad>
 ```
 
-5. Si algún prompt de la sesión es reutilizable y especialmente efectivo, añádelo a `ai-workspace/prompt-library.md` en su categoría, con una línea de por qué funciona. No dupliques los que ya existen.
-6. Si cambió alguna decisión de arquitectura, actualiza `MEMORY.md` (sin pasar de 60 líneas).
-7. Responde con la entrada añadida y nada más.
+Reglas:
+- Escribe en primera persona del desarrollador ("rechacé", "decidí"): el responsable es la persona, la IA ejecuta.
+- Cita un prompt **solo** si explica un punto de inflexión, y como mucho uno por etapa, recortado a 150 caracteres.
+- Menciona las skills y subagentes dentro del relato (por ejemplo, "el reviewer devolvió CAMBIOS NECESARIOS por…"), no en una lista suelta.
+- Nada de relleno: si una sección no aporta nada, se omite.
+
+## 2. Actualizar los registros de apoyo
+- `ai-workspace/ai-tooling.md`: añade o actualiza la fila de cualquier skill, subagente, comando o hook usado por primera vez o modificado.
+- `ai-workspace/prompt-library.md`: solo si apareció un prompt reutilizable nuevo, con una línea de por qué funciona.
+- `MEMORY.md`: solo si cambió una decisión vigente.
+
+## 3. Vaciar los buffers
+Deja vacíos `.claude/logs/prompts.jsonl` y `.claude/logs/activity.jsonl`.
+
+Responde solo con la etapa añadida.

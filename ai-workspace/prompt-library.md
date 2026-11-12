@@ -25,6 +25,11 @@ Prompts que funcionaron, con el motivo. Se curan con `/log`.
 
 *Por qué funciona:* acota el alcance y define qué significa "hecho".
 
+**Pedir una mejora del proceso con criterio**
+> "Arregla cómo se guardan los prompts y documenta si se usa alguna skill; no guardes todos, solo los importantes para este proyecto."
+
+*Por qué funciona:* nombra el problema (ruido), el objetivo (relevancia) y lo que falta (trazabilidad de herramientas), y deja que la IA proponga el mecanismo.
+
 ## Git
 **Commit con aprobación humana**
 > "/git-commit"
