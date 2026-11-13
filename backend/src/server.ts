@@ -2,6 +2,7 @@
 import { createApp } from './app';
 import { ConfigError, loadConfig } from './config';
 import { openDatabase } from './db/connection';
+import { createFrankfurterProvider } from './rates/frankfurter.provider';
 import { migrate } from './repositories/schema';
 
 function fail(message: string, error?: unknown): never {
@@ -13,7 +14,7 @@ function main(): void {
   const config = loadConfig(process.env);
   const db = openDatabase(config.dbPath);
   migrate(db);
-  const app = createApp({ db });
+  const app = createApp({ db, rateProvider: createFrankfurterProvider({ baseUrl: config.exchangeRatesUrl }) });
   app.listen(config.port, (error?: Error) => {
     if (error) fail('No se pudo arrancar el backend:', error);
     console.log(`SaaS-O-Matic backend escuchando en http://localhost:${String(config.port)}`);

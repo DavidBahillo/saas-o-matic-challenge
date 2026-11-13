@@ -3,7 +3,7 @@
 Principios innegociables. Si una spec o un plan los contradice, gana la constitución, salvo que se modifique aquí primero.
 
 1. **Spec antes que código.** Ninguna feature se implementa sin `spec.md` aprobada por el usuario.
-2. **Precisión monetaria.** Todo importe se calcula y se guarda en céntimos enteros. El redondeo solo se aplica al IVA (half-up, a céntimo) y la conversión de divisa ocurre únicamente en la capa de presentación.
+2. **Precisión monetaria.** El precio se calcula siempre en céntimos enteros de euro. El redondeo solo se aplica al IVA y a la conversión de divisa (half-up, al céntimo). La conversión con valor para el cliente se hace una sola vez, al crear la simulación, y su resultado se congela junto con el tipo y su fecha. La interfaz puede convertir con la misma función compartida solo como vista previa, sin valor ni persistencia.
 3. **Una sola fuente de verdad.** El cálculo de tramos e IVA vive en `shared/` y lo importan tanto el backend como el frontend. El backend siempre recalcula y nunca confía en un total que envíe el cliente.
 4. **Validación estricta en el borde.** Toda entrada HTTP se valida con Zod. Si el país es España, el identificador fiscal tiene que pasar el algoritmo oficial (DNI, NIE o CIF); en otro caso, la respuesta es 400 con un código de error legible.
 5. **Lógica pura y testeada.** Las funciones de dominio no tienen efectos secundarios y se escriben con TDD: primero el test en rojo, luego el código.

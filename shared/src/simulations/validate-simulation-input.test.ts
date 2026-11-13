@@ -12,7 +12,7 @@ describe('validateSimulationInput (RF4–RF8)', () => {
   it('cuerpo válido sin recursos da storage 0 y apiCalls 0', () => {
     expect(validateSimulationInput({ customerId: 7, users: 15 })).toEqual({
       ok: true,
-      value: { customerId: 7, users: 15, storage: 0, apiCalls: 0 },
+      value: { customerId: 7, users: 15, storage: 0, apiCalls: 0, currency: 'EUR' },
     });
   });
 
@@ -66,6 +66,45 @@ describe('validateSimulationInput (RF4–RF8)', () => {
     expect(fieldsOf({ apiCalls: '1', storage: 2.5, customerId: 7, users: 1 })).toEqual([
       ['storage', 'INVALID_RESOURCE'],
       ['apiCalls', 'INVALID_TYPE'],
+    ]);
+  });
+
+  it('currency USD se conserva', () => {
+    expect(validateSimulationInput({ customerId: 7, users: 1, currency: 'USD' })).toEqual({
+      ok: true,
+      value: { customerId: 7, users: 1, storage: 0, apiCalls: 0, currency: 'USD' },
+    });
+  });
+
+  it('orden fijo con currency: customerId, users, currency y desconocidos', () => {
+    expect(fieldsOf({ customerId: 'x', users: -1, currency: 'JPY', foo: 1 })).toEqual([
+      ['customerId', 'INVALID_TYPE'],
+      ['users', 'INVALID_USERS'],
+      ['currency', 'CURRENCY_NOT_AVAILABLE'],
+      ['foo', 'UNKNOWN_FIELD'],
+    ]);
+  });
+
+  it('currency va después de storage y apiCalls', () => {
+    expect(fieldsOf({ currency: 'JPY', apiCalls: -1, storage: -1, customerId: 7, users: 15 })).toEqual([
+      ['storage', 'INVALID_RESOURCE'],
+      ['apiCalls', 'INVALID_RESOURCE'],
+      ['currency', 'CURRENCY_NOT_AVAILABLE'],
+    ]);
+  });
+
+  it.each([['USD\n', 'INVALID_CURRENCY'], [null, 'INVALID_TYPE'], ['usd', 'INVALID_CURRENCY']])(
+    'currency %j da %s',
+    (currency, code) => {
+      expect(fieldsOf({ customerId: 7, users: 15, currency })).toEqual([['currency', code]]);
+    },
+  );
+
+  it('exchangeRate y los importes de salida son UNKNOWN_FIELD (RF3)', () => {
+    const raw = { customerId: 7, users: 15, currency: 'USD', exchangeRate: '2', convertedTotalCents: 1 };
+    expect(fieldsOf(raw)).toEqual([
+      ['exchangeRate', 'UNKNOWN_FIELD'],
+      ['convertedTotalCents', 'UNKNOWN_FIELD'],
     ]);
   });
 });

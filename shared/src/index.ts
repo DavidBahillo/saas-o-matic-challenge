@@ -93,6 +93,21 @@ export type { VatTableCountry } from './pricing/vat-rates';
 export { validateVatCountry } from './pricing/validate-vat-country';
 export { calculateQuote } from './pricing/calculate-quote';
 
+export {
+  CURRENCIES,
+  EUR_MICROS,
+  MICROS_PER_UNIT,
+  RATE_MAX_MICROS,
+  RATE_MIN_MICROS,
+} from './currency/types';
+export type { ConvertedAmounts, Currency, ForeignCurrency, RateMicros } from './currency/types';
+export { parseRateText } from './currency/parse-rate';
+export type { ParseRateResult } from './currency/parse-rate';
+export { formatRate } from './currency/format-rate';
+export { convertCents } from './currency/convert-cents';
+export { convertQuote } from './currency/convert-quote';
+export { CURRENCY_MESSAGES, validateCurrency } from './currency/validate-currency';
+
 export { RESOURCE_MAX, SIMULATION_FIELDS } from './simulations/types';
 export type { Simulation, SimulationInput } from './simulations/types';
 export { RESOURCE_MESSAGES, validateResource } from './simulations/validate-resource';

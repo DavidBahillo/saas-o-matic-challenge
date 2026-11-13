@@ -1,5 +1,7 @@
 // Tests del repositorio de simulaciones (T5): insert/findById con toEqual, listByCustomer
 // ordenado por created_at DESC, id DESC, integridad de FK (RF13) y valores congelados (RF20).
+import { formatRate } from '@saas-o-matic/shared';
+import type { Simulation } from '@saas-o-matic/shared';
 import type Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { openDatabase } from '../db/connection';
@@ -26,7 +28,29 @@ const SIM: SimulationInsert = {
   vatRatePercent: 21,
   vatCents: 2940,
   totalCents: 16940,
+  currency: 'EUR',
+  exchangeRateMicros: 1_000_000,
+  exchangeRateAt: T0,
+  convertedBaseCents: 14000,
+  convertedVatCents: 2940,
+  convertedTotalCents: 16940,
   createdAt: T0,
+};
+
+/** Lo que devuelve el repositorio para un insert: el tipo pasa a texto de 6 decimales. */
+function stored(insert: SimulationInsert, id: number): Simulation {
+  const { exchangeRateMicros, ...rest } = insert;
+  return { ...rest, id, exchangeRate: formatRate(exchangeRateMicros) };
+}
+
+const USD_SIM: SimulationInsert = {
+  ...SIM,
+  currency: 'USD',
+  exchangeRateMicros: 1_100_000,
+  exchangeRateAt: T1,
+  convertedBaseCents: 15400,
+  convertedVatCents: 3234,
+  convertedTotalCents: 18634,
 };
 
 let db: Database.Database;
@@ -59,8 +83,8 @@ afterEach(() => {
 describe('insert y findById', () => {
   it('insert devuelve la simulación con id; findById es toEqual', () => {
     const created = repo.insert(SIM);
-    expect(created).toEqual({ ...SIM, id: 1 });
-    expect(repo.findById(created.id)).toEqual({ ...SIM, id: 1 });
+    expect(created).toEqual(stored(SIM, 1));
+    expect(repo.findById(created.id)).toEqual(stored(SIM, 1));
   });
 
   it('el tramo 3 conserva to: null y no aparece -0', () => {
@@ -81,6 +105,28 @@ describe('insert y findById', () => {
     expect(repo.findById(id)?.baseCents).toBe(99900);
   });
 
+  it('insert y findById con USD son toEqual, con tipo en texto y sin -0 (RF8, RF19)', () => {
+    const created = repo.insert(USD_SIM);
+    expect(created).toEqual(stored(USD_SIM, 1));
+    expect(created.exchangeRate).toBe('1.100000');
+    const found = repo.findById(created.id);
+    expect(found).toEqual(stored(USD_SIM, 1));
+    for (const v of [found?.convertedBaseCents, found?.convertedVatCents, found?.convertedTotalCents]) {
+      expect(Object.is(v, -0)).toBe(false);
+    }
+  });
+
+  it('una fila con converted_base_cents 99900 se lee con 99900 (congelación)', () => {
+    const id = repo.insert({ ...USD_SIM, convertedBaseCents: 99900 }).id;
+    expect(repo.findById(id)?.convertedBaseCents).toBe(99900);
+  });
+
+  it('un tipo fuera de rango lo rechaza el CHECK de la BD', () => {
+    expect(() => repo.insert({ ...USD_SIM, exchangeRateMicros: 9_999 })).toThrow(
+      expect.objectContaining({ code: 'SQLITE_CONSTRAINT_CHECK' }),
+    );
+  });
+
   it('un customer_id inexistente lanza SQLITE_CONSTRAINT_FOREIGNKEY', () => {
     expect(() => repo.insert({ ...SIM, customerId: 999 })).toThrow(
       expect.objectContaining({ code: 'SQLITE_CONSTRAINT_FOREIGNKEY' }),
@@ -91,7 +137,7 @@ describe('insert y findById', () => {
     repo.insert(SIM);
     migrate(db);
     migrate(db);
-    expect(repo.findById(1)).toEqual({ ...SIM, id: 1 });
+    expect(repo.findById(1)).toEqual(stored(SIM, 1));
     expect(createCustomersRepository(db).findById(1)).toBeDefined();
   });
 });

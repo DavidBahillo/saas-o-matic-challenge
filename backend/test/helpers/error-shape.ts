@@ -15,6 +15,7 @@ export const STATUS_BY_CODE: Readonly<Record<ApiErrorCode, 400 | 404 | 409 | 500
   SIMULATION_NOT_FOUND: 404,
   NOT_FOUND: 404,
   CUSTOMER_ALREADY_EXISTS: 409,
+  EXCHANGE_RATE_UNAVAILABLE: 500,
   INTERNAL_ERROR: 500,
 };
 
@@ -33,7 +34,9 @@ export const FIELD_CODES: readonly FieldErrorCode[] = [
 ];
 
 /** Códigos de campo de la 002/003; FIELD_CODES sigue siendo el catálogo exacto de la 001. */
-const ALL_FIELD_CODES: readonly string[] = [...FIELD_CODES, 'INVALID_USERS', 'INVALID_RESOURCE'];
+const ALL_FIELD_CODES: readonly string[] = [...FIELD_CODES, 'INVALID_USERS', 'INVALID_RESOURCE',
+  // 004: divisa.
+  'INVALID_CURRENCY', 'CURRENCY_NOT_AVAILABLE'];
 
 const REASONS: readonly string[] = ['COUNTRY_PREFIX', 'ALL_ZEROS', 'FIRST_DIGIT', 'IT_OFFICE_CODE',
   // 002/003: motivos de INVALID_USERS e INVALID_RESOURCE.

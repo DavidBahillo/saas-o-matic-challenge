@@ -38,7 +38,9 @@ export type FieldErrorCode =
   | 'TAX_ID_INVALID_FORMAT'
   | 'TAX_ID_INVALID_CHECKSUM'
   | 'INVALID_USERS'
-  | 'INVALID_RESOURCE';
+  | 'INVALID_RESOURCE'
+  | 'INVALID_CURRENCY'
+  | 'CURRENCY_NOT_AVAILABLE';
 
 export interface FieldError {
   field: string;
@@ -78,6 +80,7 @@ export type ApiErrorCode =
   | 'SIMULATION_NOT_FOUND'
   | 'NOT_FOUND'
   | 'CUSTOMER_ALREADY_EXISTS'
+  | 'EXCHANGE_RATE_UNAVAILABLE'
   | 'INTERNAL_ERROR';
 
 export interface ApiErrorBody {

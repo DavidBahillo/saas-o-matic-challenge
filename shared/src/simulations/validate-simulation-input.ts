@@ -1,6 +1,7 @@
 // Validación agregada del cuerpo de una simulación (RF4–RF8). Nunca lanza.
 import type { FieldResult } from '../customers/field-result';
 import type { FieldError } from '../customers/types';
+import { validateCurrency } from '../currency/validate-currency';
 import { UNKNOWN_FIELD_MESSAGE } from '../customers/validate-customer-input';
 import { validateUsers } from '../pricing/validate-users';
 import { SIMULATION_FIELDS } from './types';
@@ -31,13 +32,20 @@ export function validateSimulationInput(raw: Readonly<Record<string, unknown>>):
   const users = validateUsers(own(raw, 'users'));
   const storage = validateResource('storage', own(raw, 'storage'));
   const apiCalls = validateResource('apiCalls', own(raw, 'apiCalls'));
-  const results: FieldResult<number>[] = [customerId, users, storage, apiCalls];
+  const currency = validateCurrency(own(raw, 'currency'));
+  const results: FieldResult<unknown>[] = [customerId, users, storage, apiCalls, currency];
   const errors = results.flatMap((r) => (r.ok ? [] : [r.error])).concat(unknownFieldErrors(raw));
-  if (!customerId.ok || !users.ok || !storage.ok || !apiCalls.ok || errors.length > 0) {
+  if (!customerId.ok || !users.ok || !storage.ok || !apiCalls.ok || !currency.ok || errors.length > 0) {
     return { ok: false, errors };
   }
   return {
     ok: true,
-    value: { customerId: customerId.value, users: users.value, storage: storage.value, apiCalls: apiCalls.value },
+    value: {
+      customerId: customerId.value,
+      users: users.value,
+      storage: storage.value,
+      apiCalls: apiCalls.value,
+      currency: currency.value,
+    },
   };
 }

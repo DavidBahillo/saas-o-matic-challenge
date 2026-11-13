@@ -2,11 +2,12 @@
 import { isAbsolute, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ConfigError, DEFAULT_DB_PATH, DEFAULT_PORT, loadConfig } from './config';
+import { DEFAULT_EXCHANGE_RATES_URL } from './rates/constants';
 
 describe('loadConfig · valores por defecto', () => {
   it('sin variables usa el puerto 3000 y la BD en backend/data', () => {
     const config = loadConfig({});
-    expect(config).toEqual({ port: DEFAULT_PORT, dbPath: DEFAULT_DB_PATH });
+    expect(config).toEqual({ port: DEFAULT_PORT, dbPath: DEFAULT_DB_PATH, exchangeRatesUrl: DEFAULT_EXCHANGE_RATES_URL });
     expect(config.port).toBe(3000);
   });
 
@@ -19,6 +20,7 @@ describe('loadConfig · valores por defecto', () => {
     expect(loadConfig({ HOME: '/home/x', NODE_ENV: 'test' })).toEqual({
       port: DEFAULT_PORT,
       dbPath: DEFAULT_DB_PATH,
+      exchangeRatesUrl: DEFAULT_EXCHANGE_RATES_URL,
     });
   });
 });
@@ -59,5 +61,28 @@ describe('loadConfig · DB_PATH', () => {
 
   it('el mensaje de error nombra la variable', () => {
     expect(() => loadConfig({ DB_PATH: '' })).toThrow(/DB_PATH/);
+  });
+});
+
+describe('loadConfig · EXCHANGE_RATES_URL', () => {
+  it('por defecto es la URL de Frankfurter', () => {
+    expect(loadConfig({}).exchangeRatesUrl).toBe('https://api.frankfurter.dev/v1/latest');
+  });
+
+  it('acepta una URL https', () => {
+    expect(loadConfig({ EXCHANGE_RATES_URL: 'https://rates.example.test/latest' }).exchangeRatesUrl).toBe(
+      'https://rates.example.test/latest',
+    );
+  });
+
+  it.each(['', 'http://rates.example.test', 'ftp://x.test', 'no es una url', 'https://'])(
+    'EXCHANGE_RATES_URL=%j → ConfigError',
+    (raw) => {
+      expect(() => loadConfig({ EXCHANGE_RATES_URL: raw })).toThrow(ConfigError);
+    },
+  );
+
+  it('el mensaje de error nombra la variable', () => {
+    expect(() => loadConfig({ EXCHANGE_RATES_URL: 'http://x.test' })).toThrow(/EXCHANGE_RATES_URL/);
   });
 });

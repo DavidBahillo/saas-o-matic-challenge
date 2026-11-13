@@ -6,8 +6,8 @@ import { readJsonBody, requireJsonContentType } from '../http/json-body';
 
 export function createSimulationsRouter(controller: SimulationsController): Router {
   const router = Router();
-  router.post('/simulations', requireJsonContentType, ...readJsonBody, (req, res) => {
-    controller.create(req, res);
+  router.post('/simulations', requireJsonContentType, ...readJsonBody, async (req, res) => {
+    await controller.create(req, res);
   });
   router.get('/simulations/:id', (req, res) => {
     controller.getById(req, res);

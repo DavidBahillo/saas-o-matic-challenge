@@ -14,6 +14,7 @@ export const API_MESSAGES = {
   MALFORMED_JSON: 'El cuerpo de la petición no es un JSON válido.',
   NOT_FOUND: 'La ruta solicitada no existe.',
   INTERNAL_ERROR: 'Error interno del servidor.',
+  EXCHANGE_RATE_UNAVAILABLE: 'No se pudo obtener el tipo de cambio. Inténtalo de nuevo más tarde.',
   BODY_INVALID_TYPE: 'El cuerpo debe ser un objeto JSON.',
 } as const;
 
@@ -70,4 +71,9 @@ export function internalError(): HttpError {
 
 export function simulationNotFound(id: number): HttpError {
   return new HttpError(404, 'SIMULATION_NOT_FOUND', `No existe la simulación ${String(id)}.`);
+}
+
+/** 500 sin `details`: la causa va a console.error, nunca a la respuesta (RF16). */
+export function exchangeRateUnavailable(): HttpError {
+  return new HttpError(500, 'EXCHANGE_RATE_UNAVAILABLE', API_MESSAGES.EXCHANGE_RATE_UNAVAILABLE);
 }

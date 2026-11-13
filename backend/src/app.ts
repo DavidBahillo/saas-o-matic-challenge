@@ -4,18 +4,24 @@ import express from 'express';
 import type { Express } from 'express';
 import type Database from 'better-sqlite3';
 import { createCustomersController } from './controllers/customers.controller';
+import { createExchangeRatesController } from './controllers/exchange-rates.controller';
 import { createSimulationsController } from './controllers/simulations.controller';
 import { errorHandler } from './http/error-handler';
 import { notFound } from './http/not-found';
 import { rejectOptions } from './http/reject-options';
+import { DEFAULT_EXCHANGE_RATES_URL } from './rates/constants';
+import { createFrankfurterProvider } from './rates/frankfurter.provider';
+import type { RateProvider } from './rates/rate-provider';
 import { createCustomersRepository } from './repositories/customers.repository';
 import type { CustomersRepository } from './repositories/customers.repository';
 import { createSimulationsRepository } from './repositories/simulations.repository';
 import type { SimulationsRepository } from './repositories/simulations.repository';
 import { createCustomersRouter } from './routes/customers.routes';
+import { createExchangeRatesRouter } from './routes/exchange-rates.routes';
 import { createSimulationsRouter } from './routes/simulations.routes';
 import { createCustomersService } from './services/customers.service';
 import type { Clock } from './services/customers.service';
+import { createExchangeRatesService } from './services/exchange-rates.service';
 import { createSimulationsService } from './services/simulations.service';
 
 export interface AppDeps {
@@ -26,6 +32,8 @@ export interface AppDeps {
   repository?: CustomersRepository;
   /** Sustituye al repositorio real de simulaciones (tests de RF12). */
   simulationsRepository?: SimulationsRepository;
+  /** Proveedor de tipos de cambio; por defecto Frankfurter. Los tests inyectan uno falso (004). */
+  rateProvider?: RateProvider;
 }
 
 export function createApp(deps: AppDeps): Express {
@@ -37,9 +45,14 @@ export function createApp(deps: AppDeps): Express {
   const repository = deps.repository ?? createCustomersRepository(deps.db);
   const now = deps.now ?? (() => new Date());
   const service = createCustomersService(repository, now);
+  const rates = createExchangeRatesService({
+    provider: deps.rateProvider ?? createFrankfurterProvider({ baseUrl: DEFAULT_EXCHANGE_RATES_URL }),
+    now,
+  });
   const simulations = createSimulationsService({
     customers: repository,
     simulations: deps.simulationsRepository ?? createSimulationsRepository(deps.db),
+    rates,
     now,
     runInTransaction: (fn) => deps.db.transaction(fn)(),
   });
@@ -47,6 +60,7 @@ export function createApp(deps: AppDeps): Express {
   app.use(rejectOptions);
   app.use(createCustomersRouter(createCustomersController(service)));
   app.use(createSimulationsRouter(createSimulationsController(simulations)));
+  app.use(createExchangeRatesRouter(createExchangeRatesController(rates)));
 
   app.use(notFound);
   app.use(errorHandler);

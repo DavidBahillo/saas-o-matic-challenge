@@ -6,7 +6,7 @@ describe('parseCreateSimulationBody', () => {
   it('un cuerpo válido sin recursos da storage y apiCalls 0 (RF4)', () => {
     expect(parseCreateSimulationBody({ customerId: 7, users: 15 })).toEqual({
       ok: true,
-      value: { customerId: 7, users: 15, storage: 0, apiCalls: 0 },
+      value: { customerId: 7, users: 15, storage: 0, apiCalls: 0, currency: 'EUR' },
     });
   });
 

@@ -7,6 +7,8 @@ import { openDatabase } from '../../src/db/connection';
 import { createCustomersRepository } from '../../src/repositories/customers.repository';
 import type { CustomersRepository } from '../../src/repositories/customers.repository';
 import { migrate } from '../../src/repositories/schema';
+import { createFakeRates } from './fake-rates';
+import type { FakeRates } from './fake-rates';
 
 export const FIXED_NOW = '2026-11-12T10:00:00.000Z';
 
@@ -14,6 +16,9 @@ export interface TestApp {
   app: Express;
   db: Database.Database;
   repository: CustomersRepository;
+  /** Proveedor de tipos falso y reloj movible (004). */
+  rates: FakeRates;
+  setNow(date: Date): void;
   countCustomers(): number;
   close(): void;
 }
@@ -28,11 +33,17 @@ export function createTestApp(options: TestAppOptions = {}): TestApp {
   migrate(db);
   const real = createCustomersRepository(db);
   const repository = options.wrapRepository?.(real) ?? real;
-  const app = createApp({ db, repository, now: () => new Date(FIXED_NOW) });
+  const rates = createFakeRates();
+  let current = new Date(FIXED_NOW);
+  const app = createApp({ db, repository, now: () => current, rateProvider: rates.provider });
   return {
     app,
     db,
     repository: real,
+    rates,
+    setNow: (date) => {
+      current = date;
+    },
     countCustomers: () => real.search().length,
     close: () => {
       db.close();

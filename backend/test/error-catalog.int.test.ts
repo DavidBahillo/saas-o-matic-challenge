@@ -4,6 +4,7 @@
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ApiErrorCode, FieldErrorCode } from '@saas-o-matic/shared';
+import { providerDown } from './helpers/fake-rates';
 import { CONTRACT_REQUEST, createTestApp } from './helpers/test-app';
 import type { TestApp } from './helpers/test-app';
 import { FIELD_CODES, STATUS_BY_CODE, expectErrorShape, fieldCodesOf } from './helpers/error-shape';
@@ -15,6 +16,13 @@ const JSON_TYPE = 'application/json';
 const json = (body: string): Send => (t) => request(t.app).post('/customers').set('Content-Type', JSON_TYPE).send(body);
 const create = (patch: Record<string, unknown>): Send => json(JSON.stringify({ ...CONTRACT_REQUEST, ...patch }));
 const get = (path: string): Send => (t) => request(t.app).get(path);
+const rateDown: Send = (t) => {
+  t.rates.answers.USD = providerDown();
+  return request(t.app)
+    .post('/simulations')
+    .set('Content-Type', JSON_TYPE)
+    .send(JSON.stringify({ customerId: 1, users: 5, currency: 'USD' }));
+};
 
 const CASES: readonly Case[] = [
   ['campo obligatorio vacío', create({ plan: '' }), 'VALIDATION_ERROR', 'REQUIRED'],
@@ -41,12 +49,18 @@ const CASES: readonly Case[] = [
   ['ruta inexistente', get('/foo'), 'NOT_FOUND', null],
   ['método inexistente', (t) => request(t.app).delete('/customers/1'), 'NOT_FOUND', null],
   ['alta duplicada', create({}), 'CUSTOMER_ALREADY_EXISTS', null],
+  ['tipo de cambio no disponible', rateDown, 'EXCHANGE_RATE_UNAVAILABLE', null],
+  ['GET /exchange-rates con el proveedor caído', (t) => {
+    t.rates.answers.GBP = providerDown();
+    return request(t.app).get('/exchange-rates');
+  }, 'EXCHANGE_RATE_UNAVAILABLE', null],
 ];
 
 let t: TestApp;
 
 beforeEach(async () => {
   t = createTestApp();
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
   await create({})(t).expect(201);
 });
 

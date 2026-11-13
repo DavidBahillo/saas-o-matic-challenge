@@ -3,6 +3,7 @@
 // company_name_search = toSearchKey(company_name); si toSearchKey cambia, hay que recalcularla
 // con una migración (plan §6.1).
 import type Database from 'better-sqlite3';
+import { migrateSimulationCurrency } from './simulations-migration';
 
 const DDL = `
 CREATE TABLE IF NOT EXISTS customers (
@@ -30,7 +31,14 @@ CREATE TABLE IF NOT EXISTS simulations (
   vat_rate_percent INTEGER NOT NULL CHECK (vat_rate_percent >= 0),
   vat_cents        INTEGER NOT NULL CHECK (vat_cents >= 0),
   total_cents      INTEGER NOT NULL CHECK (total_cents >= 0),
-  created_at       TEXT    NOT NULL
+  created_at       TEXT    NOT NULL,
+  currency              TEXT    NOT NULL DEFAULT 'EUR' CHECK (currency IN ('EUR','USD','GBP')),
+  exchange_rate_micros  INTEGER NOT NULL DEFAULT 1000000
+                          CHECK (exchange_rate_micros BETWEEN 10000 AND 100000000),
+  exchange_rate_at      TEXT    NOT NULL DEFAULT '',
+  converted_base_cents  INTEGER NOT NULL DEFAULT 0 CHECK (converted_base_cents >= 0),
+  converted_vat_cents   INTEGER NOT NULL DEFAULT 0 CHECK (converted_vat_cents >= 0),
+  converted_total_cents INTEGER NOT NULL DEFAULT 0 CHECK (converted_total_cents >= 0)
 );
 CREATE INDEX IF NOT EXISTS simulations_customer_created_idx
   ON simulations (customer_id, created_at DESC, id DESC);
@@ -39,4 +47,5 @@ CREATE INDEX IF NOT EXISTS simulations_customer_created_idx
 /** Crea customers (UNIQUE country, tax_id) y simulations (FK RESTRICT, RF13). Idempotente. */
 export function migrate(db: Database.Database): void {
   db.exec(DDL);
+  migrateSimulationCurrency(db);
 }

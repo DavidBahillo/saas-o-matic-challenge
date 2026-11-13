@@ -28,6 +28,12 @@ const SHAPE_KEYS = [
   'vatRatePercent',
   'vatCents',
   'totalCents',
+  'currency',
+  'exchangeRate',
+  'exchangeRateAt',
+  'convertedBaseCents',
+  'convertedVatCents',
+  'convertedTotalCents',
   'createdAt',
 ];
 
@@ -78,6 +84,12 @@ describe('RF1 · forma normativa', () => {
       vatRatePercent: 21,
       vatCents: 2940,
       totalCents: 16940,
+      currency: 'EUR',
+      exchangeRate: '1.000000',
+      exchangeRateAt: FIXED_NOW,
+      convertedBaseCents: 14000,
+      convertedVatCents: 2940,
+      convertedTotalCents: 16940,
       createdAt: FIXED_NOW,
     });
     expect(t.countSimulations()).toBe(1);

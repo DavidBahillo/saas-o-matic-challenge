@@ -8,7 +8,7 @@ import { parseCreateSimulationBody } from '../schemas/simulation-body.schema';
 import type { SimulationsService } from '../services/simulations.service';
 
 export interface SimulationsController {
-  create(req: Request, res: Response): void;
+  create(req: Request, res: Response): Promise<void>;
   getById(req: Request, res: Response): void;
   listByCustomer(req: Request, res: Response): void;
 }
@@ -21,11 +21,11 @@ function requireId(req: Request): number {
 
 export function createSimulationsController(service: SimulationsService): SimulationsController {
   return {
-    create(req, res) {
+    async create(req, res) {
       const body: unknown = req.body;
       const parsed = parseCreateSimulationBody(body);
       if (!parsed.ok) throw validationError(parsed.errors);
-      res.status(201).json(service.create(parsed.value));
+      res.status(201).json(await service.create(parsed.value));
     },
     getById(req, res) {
       const id = requireId(req);

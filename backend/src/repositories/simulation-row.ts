@@ -1,7 +1,8 @@
 // Fila de la tabla simulations y su conversión a Simulation (plan §3 y §6).
 // tiers_json se valida al leer: los datos de la BD también son una entrada externa.
 import { z } from 'zod';
-import type { Simulation, TierLine } from '@saas-o-matic/shared';
+import { formatRate } from '@saas-o-matic/shared';
+import type { Currency, Simulation, TierLine } from '@saas-o-matic/shared';
 
 export interface SimulationRow {
   id: number;
@@ -16,11 +17,18 @@ export interface SimulationRow {
   vat_cents: number;
   total_cents: number;
   created_at: string;
+  currency: Currency;
+  exchange_rate_micros: number;
+  exchange_rate_at: string;
+  converted_base_cents: number;
+  converted_vat_cents: number;
+  converted_total_cents: number;
 }
 
 export const SIMULATION_COLUMNS =
   'id, customer_id, users, storage, api_calls, tiers_json, base_cents, country, ' +
-  'vat_rate_percent, vat_cents, total_cents, created_at';
+  'vat_rate_percent, vat_cents, total_cents, created_at, currency, exchange_rate_micros, ' +
+  'exchange_rate_at, converted_base_cents, converted_vat_cents, converted_total_cents';
 
 const cents = z.number().int().nonnegative();
 
@@ -69,6 +77,12 @@ export function rowToSimulation(row: SimulationRow): Simulation {
     vatRatePercent: row.vat_rate_percent,
     vatCents: row.vat_cents,
     totalCents: row.total_cents,
+    currency: row.currency,
+    exchangeRate: formatRate(row.exchange_rate_micros),
+    exchangeRateAt: row.exchange_rate_at,
+    convertedBaseCents: row.converted_base_cents,
+    convertedVatCents: row.converted_vat_cents,
+    convertedTotalCents: row.converted_total_cents,
     createdAt: row.created_at,
   };
 }

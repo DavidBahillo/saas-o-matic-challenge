@@ -135,3 +135,27 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 1281/1281 tests y lint limpio. Quedan tres mejoras opcionales del reviewer (helper de errores por spec, `parseRouteId`, salto de línea final).
 
 **Lección.** Cuando el plan choca con la realidad (SQLite, un test existente), es mejor parar y decidir que adaptar el test en silencio.
+
+---
+
+## Etapa 6 · Presupuestos multidivisa con el tipo de cambio congelado (spec 004)
+**2026-11-13**
+
+**Punto de partida.** Los presupuestos solo existían en euros. El equipo comercial necesita presentarlos en USD y GBP sin que el importe cambie con el mercado después de enviarlos.
+
+**Qué se hizo.** Recorrí `/sdd` completo. El planner redactó la spec y dejó abiertas cinco dudas, que resolví una a una. El reviewer hizo la clarificación. El planner preparó plan y tareas: 6 tareas en dos bloques. El implementer hizo el bloque A (enmiendas a la constitución, a la 003 y a MEMORY, y la conversión pura en `shared/`) y luego el bloque B (migración, proveedor Frankfurter con caché, alta asíncrona y `GET /exchange-rates`).
+
+**Decisiones.**
+- Tipos de una API externa (Frankfurter/BCE, sin clave) con caché de 24 h en memoria y por divisa. Si no hay tipo vigente, 500 `EXCHANGE_RATE_UNAVAILABLE`. *Descartado:* tabla fija, que es lo que proponía la IA, porque quería tipos reales.
+- El tipo y la fecha se congelan al crear la simulación, y `currency` es un campo opcional con EUR por defecto. *Descartado:* convertir al leer.
+- Base e IVA se convierten por separado con half-up, y el total es la suma. Los tramos se quedan en euros.
+- El tipo se maneja en micro-unidades enteras, en el rango de 0,01 a 100, para mantener la exactitud sin BigInt ni float.
+- La UI de la 005 puede mostrar una vista previa con `GET /exchange-rates`, pero lo que vale es lo congelado.
+
+**Corrección de rumbo / control de calidad.** Al elegir una API externa obligué a enmendar el principio 2 de la constitución y la 003. En la clarificación, el reviewer devolvió CAMBIOS NECESARIOS con 7 bloqueantes. El más serio: ninguna fila de ejemplo distinguía "total = suma" de "convertir el total", así que una implementación incorrecta habría pasado todos los tests. También faltaban el formato del tipo y su cota frente a overflow. En la validación final el reviewer dio APROBADO sin vueltas de corrección.
+
+**Incidencias.** El planner escribió de memoria la URL y la forma de la respuesta de Frankfurter. Las verificó el implementer con una petición real, sin cambios. El TDD no se vio en rojo en la configuración ni en los tests HTTP.
+
+**Verificación.** 1512/1512 tests y lint limpio. Ningún test usa la red: el proveedor y el reloj se inyectan.
+
+**Lección.** Una tabla de casos solo sirve si alguna fila hace fallar la implementación equivocada.
