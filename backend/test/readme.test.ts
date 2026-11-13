@@ -81,7 +81,7 @@ describe('README coherente con el proyecto', () => {
     const db = openDatabase(':memory:');
     migrate(db);
     await runSeed(db);
-    const app = createApp({ db, rateProvider: { fetchRate: () => Promise.reject(new Error('sin red')) } });
+    const app = createApp({ db, rateProvider: { fetchRates: () => Promise.reject(new Error('sin red')) } });
     const res = await request(app).post('/simulations').set('Content-Type', 'application/json').send(body);
     expect(res.status).toBe(201);
     db.close();

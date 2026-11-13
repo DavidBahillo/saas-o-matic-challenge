@@ -4,7 +4,7 @@ import type Database from 'better-sqlite3';
 
 /** Columnas nuevas, todas NOT NULL; el DEFAULT es solo el valor transitorio que exige SQLite. */
 export const CURRENCY_COLUMNS: readonly string[] = [
-  `currency TEXT NOT NULL DEFAULT 'EUR' CHECK (currency IN ('EUR','USD','GBP'))`,
+  `currency TEXT NOT NULL DEFAULT 'EUR' CHECK (length(currency) = 3)`,
   `exchange_rate_micros INTEGER NOT NULL DEFAULT 1000000 CHECK (exchange_rate_micros BETWEEN 10000 AND 100000000)`,
   `exchange_rate_at TEXT NOT NULL DEFAULT ''`,
   `converted_base_cents INTEGER NOT NULL DEFAULT 0 CHECK (converted_base_cents >= 0)`,

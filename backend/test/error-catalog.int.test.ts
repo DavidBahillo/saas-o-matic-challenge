@@ -17,7 +17,7 @@ const json = (body: string): Send => (t) => request(t.app).post('/customers').se
 const create = (patch: Record<string, unknown>): Send => json(JSON.stringify({ ...CONTRACT_REQUEST, ...patch }));
 const get = (path: string): Send => (t) => request(t.app).get(path);
 const rateDown: Send = (t) => {
-  t.rates.answers.USD = providerDown();
+  t.rates.failure = providerDown();
   return request(t.app)
     .post('/simulations')
     .set('Content-Type', JSON_TYPE)
@@ -51,7 +51,7 @@ const CASES: readonly Case[] = [
   ['alta duplicada', create({}), 'CUSTOMER_ALREADY_EXISTS', null],
   ['tipo de cambio no disponible', rateDown, 'EXCHANGE_RATE_UNAVAILABLE', null],
   ['GET /exchange-rates con el proveedor caído', (t) => {
-    t.rates.answers.GBP = providerDown();
+    t.rates.failure = providerDown();
     return request(t.app).get('/exchange-rates');
   }, 'EXCHANGE_RATE_UNAVAILABLE', null],
 ];

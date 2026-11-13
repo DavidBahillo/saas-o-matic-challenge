@@ -148,7 +148,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
 });
 
 describe('CustomerDetailPage: reinicio del simulador (RF38)', () => {
-  it('al cambiar del cliente 7 al 9 el simulador vuelve a 10 usuarios, 0 y 0, y la divisa activa no cambia', async () => {
+  it('al cambiar del cliente 7 al 9 el simulador vuelve a 10 usuarios, 0 y 0, y la divisa activa vuelve a la del país (EUR para PT, RF38 enmendado)', async () => {
     const nine = makeCustomer({ id: 9, companyName: 'Portuguesa SA', country: 'PT', simulationCount: 0 });
     const { user } = renderDetail({
       routes: {
@@ -171,6 +171,6 @@ describe('CustomerDetailPage: reinicio del simulador (RF38)', () => {
     expect(usersField()).toHaveValue('10');
     expect(screen.getByLabelText('Almacenamiento (GB)')).toHaveValue('0');
     expect(screen.getByLabelText('Llamadas a la API (al mes)')).toHaveValue('0');
-    expect(screen.getByRole('combobox', { name: 'Divisa' })).toHaveValue('USD');
+    expect(screen.getByRole('combobox', { name: 'Divisa' })).toHaveValue('EUR');
   });
 });

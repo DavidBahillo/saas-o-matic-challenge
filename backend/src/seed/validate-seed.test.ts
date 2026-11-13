@@ -61,8 +61,8 @@ describe('datos semilla', () => {
     expect(validateSeedData(withCustomer({ country: 'UK' })).map((i) => i.field)).toContain('country');
   });
 
-  it('divisa CHF → incidencia en currency', () => {
-    const issues = validateSeedData(withSimulation({ currency: 'CHF' as never }));
+  it('divisa fuera del seed (CHF, sin tipo fijo) → incidencia en currency', () => {
+    const issues = validateSeedData(withSimulation({ currency: 'CHF' }));
     expect(issues[0]).toMatchObject({ subject: 'simulación #1', field: 'currency' });
   });
 

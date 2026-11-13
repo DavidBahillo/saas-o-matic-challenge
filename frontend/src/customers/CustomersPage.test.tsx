@@ -42,13 +42,14 @@ describe('CustomersPage: estados (CA5)', () => {
 });
 
 describe('CustomersPage: tarjetas (RF4, RF9)', () => {
-  it('cada tarjeta muestra empresa, NIF con badge de país, email, plan y simulaciones', async () => {
+  it('cada tarjeta muestra empresa, NIF con bandera y código de país, email, plan y simulaciones', async () => {
     renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
     const card = await screen.findByRole('link', { name: /Acme Ibérica SL/ });
     const scope = within(card);
     expect(scope.getByText('Acme Ibérica SL')).toBeVisible();
     expect(scope.getByText('B12345674')).toBeVisible();
-    expect(scope.getByText('ES')).toHaveClass('badge');
+    expect(scope.getByText('ES')).toBeVisible();
+    expect(scope.getByRole('img', { name: 'España' })).toBeVisible();
     expect(scope.getByText('compras@acme.es')).toBeVisible();
     expect(scope.getByText('growth')).toBeVisible();
     expect(scope.getByText('2 simulaciones')).toBeVisible();

@@ -2,14 +2,16 @@
 // textos fijos, falla o tarda. Ningún test llama a una API real.
 import type { ForeignCurrency } from '@saas-o-matic/shared';
 import { RateProviderError } from '../../src/rates/rate-provider';
-import type { RateProvider } from '../../src/rates/rate-provider';
+import type { RateProvider, RawRates } from '../../src/rates/rate-provider';
 
 export interface FakeRates {
   provider: RateProvider;
-  /** Divisas pedidas al proveedor, en orden. */
-  calls: ForeignCurrency[];
-  /** Texto que devuelve cada divisa, o un Error para simular un fallo. */
-  answers: Record<ForeignCurrency, string | Error>;
+  /** Una entrada por llamada al proveedor (el proveedor da todos los tipos en una sola petición). */
+  calls: string[];
+  /** Texto crudo de cada divisa en la respuesta; quitar una clave la deja ausente. */
+  answers: Partial<Record<ForeignCurrency, string>>;
+  /** Si está definido, el proveedor falla con este error (la respuesta entera). */
+  failure: Error | undefined;
   /** Espera previa a responder (para simular concurrencia o lentitud). */
   delay: Promise<void> | undefined;
 }
@@ -17,15 +19,15 @@ export interface FakeRates {
 export function createFakeRates(): FakeRates {
   const fake: FakeRates = {
     calls: [],
-    answers: { USD: '1.1', GBP: '0.85' },
+    answers: { USD: '1.1', GBP: '0.85', CHF: '0.95' },
+    failure: undefined,
     delay: undefined,
     provider: {
-      async fetchRate(currency) {
-        fake.calls.push(currency);
+      async fetchRates(): Promise<RawRates> {
+        fake.calls.push('fetch');
         await fake.delay;
-        const answer = fake.answers[currency];
-        if (answer instanceof Error) throw answer;
-        return answer;
+        if (fake.failure !== undefined) throw fake.failure;
+        return { ...fake.answers };
       },
     },
   };

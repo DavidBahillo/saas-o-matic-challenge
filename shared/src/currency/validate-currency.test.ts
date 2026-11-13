@@ -7,6 +7,8 @@ describe('validateCurrency (RF13)', () => {
     ['EUR', 'EUR'],
     ['USD', 'USD'],
     ['GBP', 'GBP'],
+    ['CHF', 'CHF'],
+    ['AED', 'AED'],
   ])('%j es válida y da %s', (raw, value) => {
     expect(validateCurrency(raw)).toEqual({ ok: true, value });
   });
@@ -29,12 +31,12 @@ describe('validateCurrency (RF13)', () => {
     if (!r.ok) expect(r.error.code).toBe('INVALID_TYPE');
   });
 
-  it.each([['JPY'], ['CHF'], ['MXN'], ['XXX']])('%s da CURRENCY_NOT_AVAILABLE con suggestion', (raw) => {
+  it.each([['JPY'], ['KRW'], ['HUF'], ['KWD'], ['BGN'], ['XXX']])('%s da CURRENCY_NOT_AVAILABLE con suggestion', (raw) => {
     const r = validateCurrency(raw);
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.error.code).toBe('CURRENCY_NOT_AVAILABLE');
-      expect(r.error.suggestion).toBe('EUR, USD, GBP');
+      expect(r.error.suggestion).toBe('EUR, USD, GBP, CHF, SEK, NOK, DKK, PLN, CZK, CAD, AUD, NZD, MXN, BRL, RON, HKD, SGD, CNY, ILS, ZAR, TRY, THB, AED');
       expect(r.error.reason).toBeUndefined();
     }
   });

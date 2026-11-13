@@ -11,7 +11,7 @@ export const DEFAULT_DB_PATH = fileURLToPath(new URL('../data/saas-o-matic.db', 
 export interface AppConfig {
   port: number;
   dbPath: string;
-  /** URL base https del proveedor de tipos de cambio (004). */
+  /** URL https del proveedor de tipos de cambio, usada tal cual (004, 007 RF2). */
   exchangeRatesUrl: string;
 }
 

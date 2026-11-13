@@ -21,6 +21,8 @@ export type { Plan } from './customers/plans';
 export { fail, ok, readText } from './customers/field-result';
 export type { FieldErrorExtras, FieldResult, TextFieldMessages } from './customers/field-result';
 export { ISO_3166_ALPHA2, isIsoAlpha2 } from './countries/iso3166-alpha2';
+export { COUNTRY_CURRENCY, COUNTRY_CURRENCY_GROUPS, currencyForCountry } from './countries/country-currency';
+export type { CountryCurrencyResult } from './countries/country-currency';
 export { COUNTRY_MESSAGES, checkCountryCode, validateCountry } from './countries/validate-country';
 export {
   COMPANY_NAME_MAX_LENGTH,

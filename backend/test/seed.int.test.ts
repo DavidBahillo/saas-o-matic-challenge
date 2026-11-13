@@ -17,7 +17,7 @@ beforeEach(async () => {
   app = createApp({
     db,
     rateProvider: {
-      fetchRate: () => {
+      fetchRates: () => {
         throw new Error('sin red');
       },
     },

@@ -1,24 +1,56 @@
-import { screen, waitFor } from '@testing-library/react';
+import { CURRENCIES } from '@saas-o-matic/shared';
+import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { RATES_BODY, RATES_UNAVAILABLE } from '../test/fixtures';
+import { RATES_BODY, RATES_UNAVAILABLE, ratesBody } from '../test/fixtures';
+import { renderDetail } from '../test/detail';
 import { renderApp } from '../test/render';
 
 const select = () => screen.getByRole('combobox', { name: 'Divisa' });
 const option = (name: string): HTMLOptionElement => {
-  const found = Array.from(select().querySelectorAll('option')).find((o) => o.textContent === name);
+  const found = Array.from(select().querySelectorAll('option')).find((o) => o.value === name);
   if (found === undefined) throw new Error(`sin opción ${name}`);
   return found;
 };
 
 describe('CurrencySelect con tipos disponibles (RF28)', () => {
-  it('ofrece solo EUR, USD y GBP, todas habilitadas', async () => {
+  it('lista las 23 divisas de shared con EUR primero y su nombre en español (RF9)', async () => {
     renderApp();
     await screen.findByText(/Tipos actualizados/);
-    const names = Array.from(select().querySelectorAll('option')).map((o) => o.textContent);
-    expect(names).toEqual(['EUR', 'USD', 'GBP']);
+    const options = Array.from(select().querySelectorAll('option'));
+    expect(options.map((o) => o.value)).toEqual([...CURRENCIES]);
+    expect(options[0]?.value).toBe('EUR');
+    expect(options).toHaveLength(23);
+    for (const o of options) expect(o.textContent).toMatch(new RegExp(`^${o.value} · .+`));
     expect(option('USD')).toBeEnabled();
     expect(option('GBP')).toBeEnabled();
     expect(select()).toHaveValue('EUR');
+  });
+
+  it('las divisas sin tipo se deshabilitan solas, sin badge (RF9, RF24)', async () => {
+    renderApp({ routes: { 'GET /api/exchange-rates': { body: ratesBody(['USD', 'CHF']) } } });
+    await screen.findByText(/Tipos actualizados/);
+    expect(option('USD')).toBeEnabled();
+    expect(option('CHF')).toBeEnabled();
+    expect(option('SEK')).toBeDisabled();
+    expect(option('SEK').textContent).toMatch(/sin tipo de cambio/);
+    expect(option('EUR')).toBeEnabled();
+    expect(screen.queryByText('Tipos de cambio no disponibles')).not.toBeInTheDocument();
+  });
+
+  it('el enlace de atribución junto al pie, con rel y href (RF12)', async () => {
+    renderApp();
+    const link = await screen.findByRole('link', { name: 'Tipos de cambio por ExchangeRate-API' });
+    expect(link).toHaveAttribute('href', 'https://www.exchangerate-api.com');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('la atribución también está en modo presentación (RF12)', async () => {
+    const { user } = renderDetail();
+    await screen.findByText(/Tipos actualizados/);
+    await user.click(await screen.findByRole('button', { name: 'Modo presentación' }));
+    const bar = document.querySelector<HTMLElement>('.presentation-bar');
+    expect(bar).not.toBeNull();
+    expect(within(bar as HTMLElement).getByRole('link', { name: 'Tipos de cambio por ExchangeRate-API' })).toBeVisible();
   });
 
   it('el pie muestra la hora local más antigua (V5)', async () => {

@@ -1,4 +1,4 @@
-// GET /exchange-rates (RF18): tabla "GET /exchange-rates". Proveedor y reloj falsos, sin red.
+// GET /exchange-rates (RF18 de la 004, RF5 y RF8 de la 007): tabla "GET /exchange-rates". Proveedor y reloj falsos, sin red.
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { providerDown } from '../test/helpers/fake-rates';
@@ -20,25 +20,37 @@ afterEach(() => {
 const ITEMS = [
   { currency: 'USD', exchangeRate: '1.100000', exchangeRateAt: FIXED_NOW },
   { currency: 'GBP', exchangeRate: '0.850000', exchangeRateAt: FIXED_NOW },
+  { currency: 'CHF', exchangeRate: '0.950000', exchangeRateAt: FIXED_NOW },
 ];
 
 describe('GET /exchange-rates (RF18)', () => {
-  it('con la caché vacía y la API operativa devuelve USD y GBP, en ese orden, con su instante', async () => {
+  it('con la caché vacía y la API operativa devuelve USD, GBP y CHF, en el orden de la lista, con el mismo instante', async () => {
     const res = await request(t.app).get('/exchange-rates');
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ items: ITEMS });
-    expect(t.rates.calls).toEqual(['USD', 'GBP']);
+    expect(t.rates.calls).toEqual(['fetch']);
   });
 
   it('con la caché vigente no llama a la API', async () => {
     await request(t.app).get('/exchange-rates');
     const res = await request(t.app).get('/exchange-rates');
     expect(res.body).toEqual({ items: ITEMS });
-    expect(t.rates.calls).toHaveLength(2);
+    expect(t.rates.calls).toHaveLength(1);
   });
 
-  it('si falla GBP y USD está bien, 500 sin tipos parciales (V2) y sin filtrar datos internos', async () => {
-    t.rates.answers.GBP = providerDown();
+  it('omite la divisa ausente (SEK) o inválida (NOK) y el resto sigue, sin llamar de nuevo', async () => {
+    t.rates.answers.SEK = '1e1';
+    t.rates.answers.NOK = 'abc';
+    const first = await request(t.app).get('/exchange-rates');
+    const second = await request(t.app).get('/exchange-rates');
+    expect(first.status).toBe(200);
+    expect(first.body).toEqual({ items: ITEMS });
+    expect(second.body).toEqual(first.body);
+    expect(t.rates.calls).toHaveLength(1);
+  });
+
+  it('con el proveedor caído da 500 EXCHANGE_RATE_UNAVAILABLE sin filtrar datos internos', async () => {
+    t.rates.failure = providerDown();
     const res = await request(t.app).get('/exchange-rates');
     expect(res.status).toBe(500);
     expect(res.body).toEqual({
@@ -47,7 +59,19 @@ describe('GET /exchange-rates (RF18)', () => {
         message: 'No se pudo obtener el tipo de cambio. Inténtalo de nuevo más tarde.',
       },
     });
-    expect(res.text).not.toMatch(/SECRET|secret\.example|apikey/);
+    expect(res.text).not.toMatch(/SECRET|secret.example|apikey/);
+  });
+
+  it('sin ninguna divisa válida da 500 y a los 30 s no vuelve a llamar al proveedor (enfriamiento)', async () => {
+    t.rates.answers = { USD: '0', GBP: 'x' };
+    expect((await request(t.app).get('/exchange-rates')).status).toBe(500);
+    t.setNow(new Date(new Date(FIXED_NOW).getTime() + 30_000));
+    t.rates.answers = { USD: '1.1' };
+    expect((await request(t.app).get('/exchange-rates')).status).toBe(500);
+    expect(t.rates.calls).toHaveLength(1);
+    t.setNow(new Date(new Date(FIXED_NOW).getTime() + 61_000));
+    expect((await request(t.app).get('/exchange-rates')).status).toBe(200);
+    expect(t.rates.calls).toHaveLength(2);
   });
 
   it('ignora los parámetros de consulta', async () => {

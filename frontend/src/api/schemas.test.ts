@@ -23,8 +23,12 @@ describe('esquemas de respuesta (RF34, RF35)', () => {
     expect(simulationListSchema.safeParse({ items: [{ ...SIMULATION_USD, totalCents: 169.4 }] }).success).toBe(false);
   });
 
-  it('rechazan una divisa fuera de EUR, USD y GBP', () => {
-    const rates = { items: [{ currency: 'CHF', exchangeRate: '0.9', exchangeRateAt: '2026-11-13T09:00:00.000Z' }] };
-    expect(exchangeRateListSchema.safeParse(rates).success).toBe(false);
+  it('aceptan cualquier divisa con formato ^[A-Z]{3}$ y rechazan el resto (RF17, PT6)', () => {
+    const at = '2026-11-13T09:00:00.000Z';
+    const parse = (currency: string) => exchangeRateListSchema.safeParse({ items: [{ currency, exchangeRate: '0.9', exchangeRateAt: at }] }).success;
+    expect(parse('CHF')).toBe(true);
+    expect(parse('JPY')).toBe(true);
+    expect(parse('usd')).toBe(false);
+    expect(parse('EURO')).toBe(false);
   });
 });

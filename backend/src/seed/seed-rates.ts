@@ -8,14 +8,14 @@ import type { ExchangeRatesService, RateItem, RatePair } from '../services/excha
 export const SEED_RATE_AT = '2026-01-01T00:00:00.000Z';
 
 /** 1 EUR = 1,10 USD y 1 EUR = 0,85 GBP. */
-export const SEED_RATE_TEXTS: Readonly<Record<ForeignCurrency, string>> = {
+export const SEED_RATE_TEXTS: Readonly<Record<'USD' | 'GBP', string>> = {
   USD: '1.100000',
   GBP: '0.850000',
 };
 
-const ORDER: readonly ForeignCurrency[] = ['USD', 'GBP'];
+const ORDER: readonly ('USD' | 'GBP')[] = ['USD', 'GBP'];
 
-function pairFor(currency: ForeignCurrency): RatePair {
+function pairFor(currency: 'USD' | 'GBP'): RatePair {
   const parsed = parseRateText(SEED_RATE_TEXTS[currency]);
   if (!parsed.ok) throw new Error(`Tipo semilla de ${currency} no válido.`);
   return { micros: parsed.micros, at: new Date(SEED_RATE_AT) };

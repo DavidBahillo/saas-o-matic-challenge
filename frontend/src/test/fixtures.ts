@@ -66,3 +66,25 @@ export const apiError = (status: number, code: string, message: string, details?
 
 /** Promesa que nunca se resuelve: mantiene una consulta en carga. */
 export const NEVER: Promise<never> = new Promise(() => undefined);
+
+/** Tipos ilustrativos de la spec 007 (USD, GBP, CHF y SEK), todos con la misma hora. */
+const ILLUSTRATIVE: Record<string, string> = { USD: '1.100000', GBP: '0.850000', CHF: '0.950000', SEK: '11.500000' };
+
+export const ratesBody = (codes: readonly string[] = ['USD', 'GBP', 'CHF', 'SEK']) => ({
+  items: codes.map((currency) => ({
+    currency,
+    exchangeRate: ILLUSTRATIVE[currency] ?? '2.000000',
+    exchangeRateAt: '2026-11-13T09:00:00.000Z',
+  })),
+});
+
+export interface Deferred<T> {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+}
+
+export function deferred<T>(): Deferred<T> {
+  let resolve: (value: T) => void = () => undefined;
+  const promise = new Promise<T>((r) => { resolve = r; });
+  return { promise, resolve };
+}

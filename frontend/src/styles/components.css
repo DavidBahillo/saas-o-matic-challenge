@@ -47,7 +47,9 @@
 .badge--info { --badge-accent: var(--info); border-color: var(--info); color: var(--text); }
 .badge--success { --badge-accent: var(--success); border-color: var(--success); color: var(--text); }
 
-.currency { display: flex; flex-direction: column; gap: 4px; }
+.currency { display: flex; flex-direction: column; gap: 4px; min-width: 0; max-width: 100%; }
+.currency .input { width: 100%; max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+.currency__foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
 .currency__warning { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
 .card {
@@ -98,3 +100,7 @@
   font-weight: 500;
   text-transform: capitalize;
 }
+
+.country { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text); }
+.country__flag { flex: none; width: 20px; height: 15px; border: 1px solid var(--border); border-radius: 2px; background: var(--surface-2); }
+.attribution { color: var(--text); font-size: 12px; text-decoration: underline; text-decoration-color: var(--primary); text-underline-offset: 2px; }

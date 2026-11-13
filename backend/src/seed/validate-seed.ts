@@ -1,6 +1,7 @@
 // Validación pura de los datos semilla antes de tocar la base (RF2, D-P3). Reutiliza los validadores de shared/.
 import { normalizeTaxId, validateCustomerInput, validateSimulationInput } from '@saas-o-matic/shared';
 import type { FieldError } from '@saas-o-matic/shared';
+import { SEED_CURRENCIES } from './seed-types';
 import type { SeedData } from './seed-types';
 
 export interface SeedIssue {
@@ -46,6 +47,9 @@ function simulationIssues(data: SeedData): SeedIssue[] {
     const issues: SeedIssue[] = [];
     if (!keys.has(s.customerKey)) {
       issues.push({ subject, field: 'customerKey', message: `El cliente "${s.customerKey}" no existe.` });
+    }
+    if (!SEED_CURRENCIES.includes(s.currency)) {
+      issues.push({ subject, field: 'currency', message: 'El seed solo admite EUR, USD y GBP (tipos fijos).' });
     }
     // El id real aún no existe: 1 es un marcador válido para comprobar el resto de campos.
     const result = validateSimulationInput({

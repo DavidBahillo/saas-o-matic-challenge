@@ -64,16 +64,17 @@ Los colores de oscuro son la versión aclarada (Tailwind 400) de los de InsightD
 
 ## Componentes
 - **Header:** logo, buscador global, selector de divisa e interruptor de tema.
-- **Tarjeta de cliente:** empresa (16/600), NIF con badge de país, email, chip con el plan y el número de simulaciones.
+- **Tarjeta de cliente:** empresa (16/600), NIF con la bandera del país y su código ISO, email, chip con el plan y el número de simulaciones.
+- **Bandera de país:** imagen de `flagcdn.com` (`w20`, y `w40` a 2x) de 20 × 15 px reservados, con `loading="lazy"`, contorno de 1 px en `--border` y `alt` con el nombre del país en español; el código ISO va siempre visible a su lado. Si la imagen falla (evento `error`) queda solo el código, sin icono roto.
 - **Tarjeta de KPI:** etiqueta `--text-muted` 12, valor 32 tabular, delta opcional en `--tertiary`.
 - **Slider de usuarios:** pista `--surface-2`, relleno `--primary` y marcas en 10 y 50 (límites entre tramos). Debe funcionar con teclado.
 - **Desglose por tramos:** barra apilada con los tramos 1, 2 y 3 en `--primary`, `--secondary` y `--tertiary` (máximo 3 colores, más el IVA en `--text-muted`), seguida de una tabla con unidades × precio = subtotal.
-- **Selector de divisa:** select con EUR, USD y GBP, y un pie con "Tipos actualizados: hh:mm".
+- **Selector de divisa:** select con las 23 divisas de `shared/` (EUR primero: EUR, USD, GBP, CHF, SEK, NOK, DKK, PLN, CZK, CAD, AUD, NZD, MXN, BRL, RON, HKD, SGD, CNY, ILS, ZAR, TRY, THB y AED), cada una con código y nombre en español; las que no traen tipo salen deshabilitadas. Pie con "Tipos actualizados: hh:mm" y, junto a él, el enlace "Tipos de cambio por ExchangeRate-API" (atribución exigida, también en modo presentación), subrayado con `--primary`.
 - **Estados:**
   - Carga: skeleton en `--surface-2` con pulso.
   - Error: borde `--error`, mensaje y botón "Reintentar".
   - Vacío: ilustración simple y una llamada a la acción.
-  - Si falla la API de divisas, se vuelve a EUR con un badge `--warning`.
+  - Si fallan todos los tipos, se vuelve a EUR con un badge `--warning`; si falla solo una divisa, solo esa opción se deshabilita.
 - **Modo presentación:** oculta el header y las listas y deja solo el simulador a pantalla completa (tecla `P` o botón).
 
 ## Gráficos

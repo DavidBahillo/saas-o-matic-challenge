@@ -1,10 +1,16 @@
 // Esquemas Zod de las respuestas de éxito (RF34). `satisfies` los ata a los tipos de shared/ (D-P6).
 import { PLANS, TAX_ID_TYPES } from '@saas-o-matic/shared';
-import type { Customer, CustomerList, Simulation } from '@saas-o-matic/shared';
+import type { Currency, Customer, CustomerList, Simulation } from '@saas-o-matic/shared';
 import { z } from 'zod';
 
 const int = z.number().int();
 const cents = z.number().int();
+
+/** Divisa leída: solo el formato, no la lista, para que una divisa ya retirada no rompa la lectura (PT6, RF17). */
+const currencyCode = z
+  .string()
+  .regex(/^[A-Z]{3}$/)
+  .transform((code) => code as Currency);
 
 export const customerSchema = z.object({
   id: int,
@@ -44,7 +50,7 @@ export const simulationSchema = z.object({
   vatRatePercent: z.number(),
   vatCents: cents,
   totalCents: cents,
-  currency: z.enum(['EUR', 'USD', 'GBP']),
+  currency: currencyCode,
   exchangeRate: z.string(),
   exchangeRateAt: z.string(),
   convertedBaseCents: cents,
@@ -57,7 +63,7 @@ export const simulationSchema = z.object({
 export const simulationListSchema = z.object({ items: z.array(simulationSchema) });
 
 export const exchangeRateSchema = z.object({
-  currency: z.enum(['USD', 'GBP']),
+  currency: z.string().regex(/^[A-Z]{3}$/),
   exchangeRate: z.string(),
   exchangeRateAt: z.string(),
 });

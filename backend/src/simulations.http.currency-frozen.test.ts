@@ -42,6 +42,16 @@ describe('congelación (RF19)', () => {
     expect((await get('/simulations/1')).body).toMatchObject({ convertedBaseCents: 99900 });
   });
 
+  it('una simulación en JPY (divisa retirada, insertada directamente) se lee con GET y en el listado, sin error (RF17, CA5)', async () => {
+    await postSimulation(t, { customerId: 7, users: 15, currency: 'USD' });
+    t.db.prepare("UPDATE simulations SET currency = 'JPY' WHERE id = 1").run();
+    const res = await get('/simulations/1');
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ currency: 'JPY', exchangeRate: '1.100000', convertedTotalCents: 18634 });
+    const list = (await get('/customers/7/simulations')).body as { items: { currency: string }[] };
+    expect(list.items.map((i) => i.currency)).toEqual(['JPY']);
+  });
+
   it('GET /simulations/:id?currency=GBP ignora los parámetros', async () => {
     const created = await postSimulation(t, { customerId: 7, users: 3, currency: 'USD' });
     expect((await get('/simulations/1?currency=GBP')).body).toEqual(created.body);

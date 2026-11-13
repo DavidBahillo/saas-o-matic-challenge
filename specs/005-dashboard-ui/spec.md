@@ -1,6 +1,8 @@
 # 005 · Dashboard de clientes y simulador
 Estado: aprobada
 
+> **Enmienda de la 007 (divisas en vivo y banderas):** U2 y RF36 (selector de tres divisas) pasan a la lista de 23; RF4 (badge de país) pasa a bandera con código; RF23 (vista previa para cualquier divisa distinta de EUR); RF24 (deshabilitado por divisa y badge de fallo solo si fallan todos los tipos); RF28 (selector y pie con atribución); RF38 (la divisa activa se reinicia a la del país en cada visita); RF39 (códigos de divisa de la lista); la prueba CA6 ("`DESIGN.md` solo lista EUR, USD y GBP") y la fila "Selector con CHF, JPY u otra divisa" quedan sustituidas.
+
 > **Importes:** la interfaz recibe y muestra céntimos enteros (D2). Esta spec los redacta en la unidad natural (€, USD, GBP), como las anteriores. Las cifras de los casos límite coinciden con las de la 002 y la 004.
 
 ## Contexto y objetivo (por qué)

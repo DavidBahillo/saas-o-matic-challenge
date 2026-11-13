@@ -10,7 +10,7 @@ import { errorHandler } from './http/error-handler';
 import { notFound } from './http/not-found';
 import { rejectOptions } from './http/reject-options';
 import { DEFAULT_EXCHANGE_RATES_URL } from './rates/constants';
-import { createFrankfurterProvider } from './rates/frankfurter.provider';
+import { createOpenErApiProvider } from './rates/open-er-api.provider';
 import type { RateProvider } from './rates/rate-provider';
 import { createCustomersRepository } from './repositories/customers.repository';
 import type { CustomersRepository } from './repositories/customers.repository';
@@ -32,7 +32,7 @@ export interface AppDeps {
   repository?: CustomersRepository;
   /** Sustituye al repositorio real de simulaciones (tests de RF12). */
   simulationsRepository?: SimulationsRepository;
-  /** Proveedor de tipos de cambio; por defecto Frankfurter. Los tests inyectan uno falso (004). */
+  /** Proveedor de tipos de cambio; por defecto open.er-api.com. Los tests inyectan uno falso (004). */
   rateProvider?: RateProvider;
 }
 
@@ -46,7 +46,7 @@ export function createApp(deps: AppDeps): Express {
   const now = deps.now ?? (() => new Date());
   const service = createCustomersService(repository, now);
   const rates = createExchangeRatesService({
-    provider: deps.rateProvider ?? createFrankfurterProvider({ baseUrl: DEFAULT_EXCHANGE_RATES_URL }),
+    provider: deps.rateProvider ?? createOpenErApiProvider({ url: DEFAULT_EXCHANGE_RATES_URL }),
     now,
   });
   const simulations = createSimulationsService({

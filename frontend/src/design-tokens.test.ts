@@ -1,4 +1,4 @@
-// CA6, RF31, RF36: tokens de DESIGN.md, sin colores a mano y sin divisas fuera de EUR, USD y GBP.
+// CA6, RF31, RF36: tokens de DESIGN.md, sin colores a mano y .
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -37,7 +37,10 @@ describe('tokens de diseño', () => {
     expect(normalize(tokens)).toBe(normalize(block ?? ''));
   });
 
-  it('DESIGN.md solo lista EUR, USD y GBP: no contiene CHF ni JPY (RF36)', () => {
-    expect(readFileSync(DESIGN, 'utf8')).not.toMatch(/\b(CHF|JPY)\b/);
+  it('DESIGN.md describe el selector con la lista, la bandera y la atribución (007, RF22)', () => {
+    const design = readFileSync(DESIGN, 'utf8');
+    expect(design).toMatch(/CHF/);
+    expect(design).toMatch(/flagcdn\.com/);
+    expect(design).toMatch(/ExchangeRate-API/);
   });
 });

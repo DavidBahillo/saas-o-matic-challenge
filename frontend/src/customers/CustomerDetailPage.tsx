@@ -1,15 +1,17 @@
 // Detalle del cliente (RF16, RF17, RF30, RF38): datos, simulador y simulaciones guardadas.
 import type { Customer } from '@saas-o-matic/shared';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useCustomer, useCustomerSimulations } from '../api/customers.queries';
 import { ApiError, generalMessage } from '../api/errors';
 import { formatDateTime } from '../lib/format-date';
 import { simulationsLabel } from '../lib/pluralize';
 import { Simulator } from '../simulator/Simulator';
+import { useCurrency } from '../state/currency-context';
 import { usePresentation, usePresentationHotkeys } from '../state/presentation-context';
-import { Badge } from '../ui/Badge';
+import { useCurrencyPreselection } from '../state/use-currency-preselection';
 import { Button } from '../ui/Button';
+import { CountryFlag } from '../ui/CountryFlag';
 import { EmptyState, ErrorState, Skeleton } from '../ui/States';
 import { SimulationList } from './SimulationList';
 
@@ -34,7 +36,7 @@ function CustomerData({ customer }: { customer: Customer }) {
   return (
     <section className="card customer-data" aria-label="Datos del cliente">
       <p>
-        <Badge tone="info">{customer.country}</Badge> <span className="tabular">{customer.taxId}</span>
+        <CountryFlag code={customer.country} /> <span className="tabular">{customer.taxId}</span>
       </p>
       <p className="muted">{customer.email}</p>
       <p>
@@ -59,27 +61,21 @@ function Simulations({ id, onCreateFirst }: { id: string; onCreateFirst: () => v
   return <EmptyState title="Este cliente aún no tiene simulaciones." action={action} />;
 }
 
-export function CustomerDetailPage() {
-  const { id = '' } = useParams();
-  const query = useCustomer(id);
+/** Detalle ya cargado: espera la preselección de divisa antes de pintar el simulador (RF14). */
+function VisitBody({ customer, id }: { customer: Customer; id: string }) {
   const { active, toggle } = usePresentation();
   const simulatorRef = useRef<HTMLDivElement>(null);
-  usePresentationHotkeys();
-
-  if (query.isPending) return <Skeleton lines={3} label="Cargando cliente…" />;
-  if (query.isError) {
-    if (isNotFound(query.error)) return <NotFound />;
-    return <ErrorState message={generalMessage(query.error)} onRetry={() => void query.refetch()} />;
-  }
+  const ready = useCurrencyPreselection(customer.country);
+  if (!ready) return <Skeleton lines={3} label="Cargando tipos de cambio…" />;
   return (
     <div className="page">
       <div className="page__head">
-        <h1>{query.data.companyName}</h1>
+        <h1>{customer.companyName}</h1>
         <Button onClick={toggle}>{active ? 'Salir de la presentación' : 'Modo presentación'}</Button>
       </div>
-      {!active && <CustomerData customer={query.data} />}
+      {!active && <CustomerData customer={customer} />}
       <div ref={simulatorRef}>
-        <Simulator key={query.data.id} customer={query.data} />
+        <Simulator key={customer.id} customer={customer} />
       </div>
       {!active && (
         <section aria-labelledby="saved-title">
@@ -89,4 +85,25 @@ export function CustomerDetailPage() {
       )}
     </div>
   );
+}
+
+/** Una visita por cliente y entrada (RF15): `key={id}` reinicia la preselección. */
+function CustomerVisit({ id }: { id: string }) {
+  const query = useCustomer(id);
+  const { beginVisit } = useCurrency();
+  usePresentationHotkeys();
+  // Antes que cualquier efecto de los hijos: solo borra una marca (ref), no cambia estado.
+  useState(beginVisit);
+
+  if (query.isPending) return <Skeleton lines={3} label="Cargando cliente…" />;
+  if (query.isError) {
+    if (isNotFound(query.error)) return <NotFound />;
+    return <ErrorState message={generalMessage(query.error)} onRetry={() => void query.refetch()} />;
+  }
+  return <VisitBody customer={query.data} id={id} />;
+}
+
+export function CustomerDetailPage() {
+  const { id = '' } = useParams();
+  return <CustomerVisit key={id} id={id} />;
 }

@@ -36,17 +36,17 @@ describe('currency ausente o EUR (RF2)', () => {
   });
 
   it('con la API caída, EUR sigue dando 201 sin llamarla', async () => {
-    t.rates.answers.USD = new Error('caída');
+    t.rates.failure = new Error('caída');
     expect((await postSimulation(t, { customerId: 7, users: 15 })).status).toBe(201);
     expect(t.rates.calls).toEqual([]);
   });
 });
 
 describe('validación de currency (RF13)', () => {
-  it.each([['JPY'], ['CHF'], ['MXN'], ['XXX']])('%s da CURRENCY_NOT_AVAILABLE con suggestion', async (currency) => {
+  it.each([['JPY'], ['KRW'], ['HUF'], ['KWD'], ['BGN'], ['XXX']])('%s da CURRENCY_NOT_AVAILABLE con suggestion', async (currency) => {
     const res = await rejected({ customerId: 7, users: 15, currency }, 400);
     expect(res.body).toMatchObject({
-      error: { details: { fields: [{ field: 'currency', code: 'CURRENCY_NOT_AVAILABLE', suggestion: 'EUR, USD, GBP' }] } },
+      error: { details: { fields: [{ field: 'currency', code: 'CURRENCY_NOT_AVAILABLE', suggestion: 'EUR, USD, GBP, CHF, SEK, NOK, DKK, PLN, CZK, CAD, AUD, NZD, MXN, BRL, RON, HKD, SGD, CNY, ILS, ZAR, TRY, THB, AED' }] } },
     });
     expect(t.rates.calls).toEqual([]);
   });
@@ -125,9 +125,9 @@ describe('tramos e IVA en USD con tipo 1,10 (RF4-RF7)', () => {
     }
   });
 
-  it('GBP con 11 usuarios usa el tipo 0,85 y solo pide GBP', async () => {
+  it('GBP con 11 usuarios usa el tipo 0,85 con una sola llamada', async () => {
     const res = await postSimulation(t, { customerId: 7, users: 11, currency: 'GBP' });
     expect(res.body).toMatchObject({ currency: 'GBP', exchangeRate: '0.850000', convertedBaseCents: 9180 });
-    expect(t.rates.calls).toEqual(['GBP']);
+    expect(t.rates.calls).toEqual(['fetch']);
   });
 });

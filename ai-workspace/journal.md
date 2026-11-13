@@ -203,3 +203,26 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 1866/1866 tests y lint limpio. El seed se ejecutó dos veces sobre una BD temporal (9 + 14, después 0 creados) y el reviewer levantó el backend con esos datos y comprobó `simulationCount` contra cada lista. Un test verifica que cada script, variable, endpoint y enlace del README existe.
 
 **Lección.** Contar los casos de cobertura antes de fijar un número evita contradicciones dentro de la misma spec.
+
+---
+
+## Etapa 9 · Divisas en vivo, moneda por país y banderas (spec 007)
+**2026-11-13**
+
+**Punto de partida.** Al revisar la app en el navegador vi que el selector solo ofrecía EUR, USD y GBP; pedí tipos de una API pública (open.er-api.com), que el simulador partiera de la moneda del país del cliente y banderas en las tarjetas servidas desde un CDN, no desde el repositorio.
+
+**Qué se hizo.** Recorrí `/sdd` completo. El planner redactó la spec con 5 preguntas (proveedor, qué divisas, dónde se elige el país, respaldo, banderas) que respondí una a una. El implementer trabajó en dos bloques: `shared/` + backend (lista fija de 23 divisas, tabla país→divisa, proveedor open.er-api con snapshot único, migración del CHECK de `simulations`) y frontend + documentación (preselección por visita, selector ampliado, atribución, `CountryFlag` de flagcdn.com, DESIGN/README/MEMORY y enmiendas en 004 y 005).
+
+**Decisiones.**
+- open.er-api.com vía backend en lugar de Frankfurter o de que el navegador llame directo: más divisas sin romper el principio de pasar por el backend.
+- Lista fija de 23 divisas de 2 decimales y tolerancia por divisa, frente a una lista dinámica o "todo o nada": testeable y sin que una divisa caída tumbe el selector.
+- Preselección con el país del cliente al abrir su simulador (EUR de respaldo), descartando añadir un selector de país.
+- Bandera + código ISO visible, descartando emoji (Windows no los pinta).
+
+**Corrección de rumbo / control de calidad.** El reviewer de clarificación devolvió CAMBIOS NECESARIOS (lista "cerrada" que dependía de la API, enmiendas no declaradas, preselección con carga asíncrona, números JSON frente a texto decimal); el planner pasó de 14 a 22 RF. Al planificar apareció un CHECK en la BD que impedía guardar en CHF, resuelto con una migración. En validación, lógica aprobó a la primera; UI pidió una vuelta por el desbordamiento del `<select>` a 360 px y la preselección estrictamente única.
+
+**Incidencias.** El bloque de frontend se cortó por el límite de uso y se retomó desde donde quedó. La preview del navegador sobrescribía `PORT`, así que separé backend y frontend en `launch.json`.
+
+**Verificación.** 2026/2026 tests y lint limpio. En el navegador a 360 px: sin scroll horizontal, banderas con `alt` en español y cliente de EE. UU. abierto en USD. Pendiente de CA7: contraste en ambos temas, teclado/lector con lista larga y respaldo sin red.
+
+**Lección.** Las preguntas de la spec deben contrastarse con la forma real de la respuesta del proveedor antes de fijar reglas de parseo.

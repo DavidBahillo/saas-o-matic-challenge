@@ -1,6 +1,8 @@
 # 004 · Divisa de las simulaciones con tipo de cambio congelado
 Estado: aprobada
 
+> **Enmienda de la 007 (divisas en vivo):** U1 (solo EUR, USD y GBP) pasa a la lista fija de 23 divisas de la RF1 de la 007; U2 (proveedor) pasa a open.er-api.com; RF11 (el tipo sale del texto crudo del JSON numérico); RF13 (`suggestion` con la lista ampliada); RF15 (una caché única por snapshot, no por divisa); RF16 (500 solo si no hay snapshot o la divisa pedida no está disponible); RF17 (petición en vuelo compartida); RF18 y V2 (`GET /exchange-rates` omite las divisas no disponibles: ya no rige "sin tipos parciales").
+
 > **Implementación:** todos los importes, en euros y convertidos, se calculan, guardan y devuelven como enteros en céntimos (D2). La spec los redacta en la unidad natural (€, USD, GBP), como la 002 y la 003. El tipo de cambio se maneja como entero en micro-unidades (RF11).
 
 ## Contexto y objetivo (por qué)

@@ -65,8 +65,8 @@ describe('loadConfig · DB_PATH', () => {
 });
 
 describe('loadConfig · EXCHANGE_RATES_URL', () => {
-  it('por defecto es la URL de Frankfurter', () => {
-    expect(loadConfig({}).exchangeRatesUrl).toBe('https://api.frankfurter.dev/v1/latest');
+  it('por defecto es la URL de open.er-api.com con base EUR', () => {
+    expect(loadConfig({}).exchangeRatesUrl).toBe('https://open.er-api.com/v6/latest/EUR');
   });
 
   it('acepta una URL https', () => {

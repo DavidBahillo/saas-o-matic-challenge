@@ -61,10 +61,10 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
   const rates = createExchangeRatesService({
     provider: {
-      fetchRate(currency) {
-        providerCalls.push(currency);
+      fetchRates() {
+        providerCalls.push('fetch');
         fetchedInTransaction = inTransaction;
-        return rateAnswer instanceof Error ? Promise.reject(rateAnswer) : Promise.resolve(rateAnswer);
+        return rateAnswer instanceof Error ? Promise.reject(rateAnswer) : Promise.resolve({ USD: rateAnswer });
       },
     },
     now: () => RATE_AT,
@@ -137,7 +137,7 @@ describe('simulations.service · create en otra divisa (RF1, RF5, RF17)', () => 
       ...convertQuote({ baseCents: 14000, vatCents: 2940 }, 1_100_000),
     });
     expect(sim.convertedTotalCents).toBe(18634);
-    expect(providerCalls).toEqual(['USD']);
+    expect(providerCalls).toEqual(['fetch']);
   });
 
 });

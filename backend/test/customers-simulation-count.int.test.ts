@@ -66,7 +66,7 @@ describe('RF2 · el contador solo sube con un 201', () => {
     const bad = await postSimulation(t, { customerId: 7, users: -1, storage: 0, apiCalls: 0, currency: 'EUR' });
     expect(bad.status).toBe(400);
     expect(await save(999)).toBe(404);
-    t.rates.answers.USD = new Error('caído');
+    t.rates.failure = new Error('caído');
     const down = await postSimulation(t, { customerId: 7, users: 5, storage: 0, apiCalls: 0, currency: 'USD' });
     expect(down.status).toBe(500);
     expect(await countOf(7)).toBe(1);

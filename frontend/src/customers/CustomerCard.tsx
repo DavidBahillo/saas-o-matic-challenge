@@ -2,14 +2,14 @@
 import type { Customer } from '@saas-o-matic/shared';
 import { Link } from 'react-router';
 import { simulationsLabel } from '../lib/pluralize';
-import { Badge } from '../ui/Badge';
+import { CountryFlag } from '../ui/CountryFlag';
 
 export function CustomerCard({ customer }: { customer: Customer }) {
   return (
     <Link to={`/customers/${String(customer.id)}`} className="card customer-card">
       <h2 className="customer-card__name">{customer.companyName}</h2>
       <p className="customer-card__tax">
-        <Badge tone="info">{customer.country}</Badge> <span className="tabular">{customer.taxId}</span>
+        <CountryFlag code={customer.country} /> <span className="tabular">{customer.taxId}</span>
       </p>
       <p className="muted">{customer.email}</p>
       <p className="customer-card__meta">

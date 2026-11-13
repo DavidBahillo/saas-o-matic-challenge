@@ -1,6 +1,10 @@
 // Tipos y constantes de la spec 004 (plan §4): divisa y tipo de cambio en micro-unidades.
 
-export const CURRENCIES = ['EUR', 'USD', 'GBP'] as const;
+/** Lista fija y ordenada de divisas (RF1 de la 007): única fuente de verdad, todas con 2 decimales. */
+export const CURRENCIES = [
+  'EUR', 'USD', 'GBP', 'CHF', 'SEK', 'NOK', 'DKK', 'PLN', 'CZK', 'CAD', 'AUD', 'NZD',
+  'MXN', 'BRL', 'RON', 'HKD', 'SGD', 'CNY', 'ILS', 'ZAR', 'TRY', 'THB', 'AED',
+] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
 /** Divisas con tipo de cambio externo (todas menos EUR). */
