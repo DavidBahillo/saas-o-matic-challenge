@@ -1,0 +1,15 @@
+/* Tokens de DESIGN.md. Único archivo del frontend con colores literales (RF31). */
+:root {
+  --bg:#0B1120; --surface:#111827; --surface-2:#1F2937; --border:#243042;
+  --text:#E5E7EB; --text-muted:#94A3B8;
+  --primary:#14B8A6; --primary-contrast:#042F2E; --secondary:#A855F7; --tertiary:#F472B6;
+  --success:#34D399; --warning:#FBBF24; --error:#F87171; --info:#60A5FA;
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --bg:#F8FAFC; --surface:#FFFFFF; --surface-2:#F1F5F9; --border:#E2E8F0;
+  --text:#0F172A; --text-muted:#475569;
+  --primary:#0D9488; --primary-contrast:#FFFFFF; --secondary:#9333EA; --tertiary:#EC4899;
+  --success:#10B981; --warning:#F59E0B; --error:#EF4444; --info:#3B82F6;
+  color-scheme: light;
+}

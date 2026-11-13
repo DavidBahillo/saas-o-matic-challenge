@@ -6,20 +6,26 @@
   "description": "Simulador y presupuestador interno de suscripciones SaaS multidivisa.",
   "workspaces": [
     "shared",
-    "backend"
+    "backend",
+    "frontend"
   ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "npm run dev -w @saas-o-matic/backend",
+    "dev": "concurrently -k -n backend,frontend \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev -w @saas-o-matic/backend",
+    "dev:frontend": "npm run dev -w @saas-o-matic/frontend",
     "test": "vitest run",
-    "lint": "eslint . && tsc -p shared && tsc -p backend"
+    "test:quiet": "vitest run --reporter=dot --silent",
+    "lint": "eslint . && tsc -p shared && tsc -p backend && tsc -p frontend"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
     "@types/node": "24.19.2",
+    "concurrently": "10.0.7",
     "eslint": "9.39.5",
+    "eslint-plugin-react-hooks": "7.1.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.2",
     "vitest": "4.1.12"

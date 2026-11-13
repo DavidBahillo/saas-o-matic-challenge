@@ -1,7 +1,7 @@
 // Repositorio de clientes (plan §6.1 y §6.3). Solo SQL y traducción de errores, sin reglas de negocio.
 import Database from 'better-sqlite3';
 import type { Customer, NewCustomer } from '@saas-o-matic/shared';
-import { CUSTOMER_COLUMNS, rowToCustomer } from './customer-row';
+import { CUSTOMER_COLUMNS, CUSTOMER_SELECT, rowToCustomer } from './customer-row';
 import type { CustomerRow } from './customer-row';
 
 /** Datos que el service calcula antes de insertar: clave de búsqueda y fecha de alta. */
@@ -42,9 +42,9 @@ VALUES
   (@companyName, @companyNameSearch, @taxId, @taxIdType, @email, @country, @plan, @createdAt)
 RETURNING ${CUSTOMER_COLUMNS}`;
 
-const SELECT_BY_ID_SQL = `SELECT ${CUSTOMER_COLUMNS} FROM customers WHERE id = ?`;
-const SELECT_BY_KEY_SQL = `SELECT ${CUSTOMER_COLUMNS} FROM customers WHERE country = ? AND tax_id = ?`;
-const SELECT_ALL_SQL = `SELECT ${CUSTOMER_COLUMNS} FROM customers`;
+const SELECT_BY_ID_SQL = `SELECT ${CUSTOMER_SELECT} FROM customers WHERE id = ?`;
+const SELECT_BY_KEY_SQL = `SELECT ${CUSTOMER_SELECT} FROM customers WHERE country = ? AND tax_id = ?`;
+const SELECT_ALL_SQL = `SELECT ${CUSTOMER_SELECT} FROM customers`;
 // instr compara literalmente: % y _ no son comodines y no hace falta escaparlos (plan §6.1).
 const SEARCH_SQL = `${SELECT_ALL_SQL}
 WHERE instr(company_name_search, @nameKey) > 0

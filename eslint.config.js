@@ -1,5 +1,6 @@
 // Reglas de calidad exigidas por docs/constitution.md (principio 7) y CLAUDE.md.
 import js from '@eslint/js';
+import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -20,7 +21,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.test.ts'],
+    files: ['**/*.test.ts', '**/*.test.tsx'],
     rules: { 'max-lines-per-function': 'off' },
   },
   {
@@ -39,6 +40,15 @@ export default tseslint.config(
       'no-restricted-imports': ['error', {
         patterns: [{ group: ['node:*'], message: 'La lógica de precios no depende de Node (CA2).' }],
       }],
+    },
+  },
+  {
+    // Reglas de los Hooks para la interfaz (spec 005, T2).
+    files: ['frontend/**/*.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
     },
   },
   {

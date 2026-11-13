@@ -68,7 +68,7 @@ Los colores de oscuro son la versión aclarada (Tailwind 400) de los de InsightD
 - **Tarjeta de KPI:** etiqueta `--text-muted` 12, valor 32 tabular, delta opcional en `--tertiary`.
 - **Slider de usuarios:** pista `--surface-2`, relleno `--primary` y marcas en 10 y 50 (límites entre tramos). Debe funcionar con teclado.
 - **Desglose por tramos:** barra apilada con los tramos 1, 2 y 3 en `--primary`, `--secondary` y `--tertiary` (máximo 3 colores, más el IVA en `--text-muted`), seguida de una tabla con unidades × precio = subtotal.
-- **Selector de divisa:** select con EUR, USD, GBP, CHF y JPY, y un pie con "Tipos actualizados: hh:mm".
+- **Selector de divisa:** select con EUR, USD y GBP, y un pie con "Tipos actualizados: hh:mm".
 - **Estados:**
   - Carga: skeleton en `--surface-2` con pulso.
   - Error: borde `--error`, mensaje y botón "Reintentar".
@@ -85,6 +85,7 @@ Los colores de oscuro son la versión aclarada (Tailwind 400) de los de InsightD
 - Contraste AA en ambos temas, anillo de foco de 2 px en `--primary` con 2 px de offset y áreas táctiles de 44 px como mínimo.
 - El color nunca es el único portador de información: los tramos llevan además una etiqueta de texto.
 - Se respeta `prefers-reduced-motion`.
+- Reglas de uso para el contraste AA en claro: el texto sobre `--primary` y `--tertiary` usa `--text` (en oscuro, `--primary-contrast` y `--bg`); los estados (`--warning`, `--error`, `--info`, `--success`) se usan como borde, punto o franja y nunca como color de texto; los enlaces van en `--text` subrayados con `--primary`.
 
 ## Qué hacer y qué no
 - ✅ Usar solo tokens; ✅ mostrar siempre la divisa activa junto a cada importe; ✅ dar un título que explique cada gráfico.

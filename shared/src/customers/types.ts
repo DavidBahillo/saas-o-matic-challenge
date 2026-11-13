@@ -64,6 +64,8 @@ export interface NewCustomer {
 export interface Customer extends NewCustomer {
   id: number;
   createdAt: string;
+  /** Simulaciones guardadas del cliente, calculado en cada lectura (spec 005, RF1). */
+  simulationCount: number;
 }
 
 export interface CustomerList {

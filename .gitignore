@@ -32,3 +32,6 @@ Thumbs.db
 
 # Base de datos SQLite del backend
 backend/data/
+
+# Frontend
+frontend/dist/

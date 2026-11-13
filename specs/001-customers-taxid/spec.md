@@ -461,3 +461,6 @@ Con la matrícula `1234567` (X parcial = 16, Y parcial = 15), el control es (10 
 
 ## Preguntas abiertas
 Ninguna.
+
+## Enmienda (spec 005)
+El cliente de las respuestas de `POST /customers` (201), `GET /customers` y `GET /customers/:id` incluye `simulationCount` (entero >= 0, solo de salida; en el cuerpo del alta es `UNKNOWN_FIELD`). Ver `specs/005-dashboard-ui/spec.md`, RF1 a RF3.

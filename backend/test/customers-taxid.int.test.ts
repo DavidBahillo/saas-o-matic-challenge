@@ -48,7 +48,7 @@ async function expectApiParity(body: Record<string, unknown>, status: 201 | 400)
   const res = await request(t.app).post('/customers').set('Content-Type', 'application/json').send(JSON.stringify(body));
   expect(res.status).toBe(status);
   if (expected.ok) {
-    expect(res.body).toEqual({ id: 1, ...expected.value, createdAt: FIXED_NOW });
+    expect(res.body).toEqual({ id: 1, ...expected.value, createdAt: FIXED_NOW, simulationCount: 0 });
     expect(t.countCustomers()).toBe(1);
   } else {
     expect(res.body).toEqual({

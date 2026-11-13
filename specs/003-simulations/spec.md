@@ -242,3 +242,6 @@ Al aprobar esta spec, el coordinador debe actualizar `MEMORY.md`: registrar como
 
 ## Preguntas abiertas
 Ninguna.
+
+## Enmienda (spec 005)
+El `Customer` de `shared/` gana `simulationCount` (simulaciones guardadas del cliente, calculado en cada lectura sin columna nueva). Crear una simulación con éxito lo incrementa; una rechazada no. Ver `specs/005-dashboard-ui/spec.md`, RF1 a RF3.

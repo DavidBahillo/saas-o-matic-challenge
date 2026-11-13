@@ -54,7 +54,7 @@ describe('migrate', () => {
 
 describe('insert y find', () => {
   it('insert devuelve el Customer con id y createdAt', () => {
-    expect(repo.insert(toInsert(ACME))).toEqual({ ...ACME, id: 1, createdAt: CREATED_AT });
+    expect(repo.insert(toInsert(ACME))).toEqual({ ...ACME, id: 1, createdAt: CREATED_AT, simulationCount: 0 });
   });
 
   it('findById devuelve el mismo Customer que insert', () => {
@@ -168,6 +168,28 @@ describe('search (RF23, filtro con instr)', () => {
 
   it('devuelve objetos Customer completos', () => {
     const [found] = repo.search({ nameKey: 'acme', taxIdFragment: '' });
-    expect(found).toEqual({ ...ACME, id: 1, createdAt: CREATED_AT });
+    expect(found).toEqual({ ...ACME, id: 1, createdAt: CREATED_AT, simulationCount: 0 });
+  });
+});
+
+describe('simulationCount (spec 005, RF1)', () => {
+  function addSimulations(customerId: number, n: number): void {
+    const stmt = db.prepare(
+      `INSERT INTO simulations (customer_id, users, storage, api_calls, tiers_json, base_cents, country,
+       vat_rate_percent, vat_cents, total_cents, created_at) VALUES (?, 1, 0, 0, '[]', 0, 'ES', 21, 0, 0, ?)`,
+    );
+    for (let i = 0; i < n; i += 1) stmt.run(customerId, CREATED_AT);
+  }
+
+  it('cuenta 0, 1 y 3 simulaciones en findById y search', () => {
+    const a = repo.insert(named('Uno SL', 'B12345674'));
+    const b = repo.insert(named('Dos SL', 'A58818501'));
+    const c = repo.insert(named('Tres SL', 'B00000019'));
+    addSimulations(b.id, 1);
+    addSimulations(c.id, 3);
+    expect(repo.findById(a.id)?.simulationCount).toBe(0);
+    expect(repo.findById(b.id)?.simulationCount).toBe(1);
+    expect(repo.findById(c.id)?.simulationCount).toBe(3);
+    expect(repo.search().map((x) => x.simulationCount)).toEqual([0, 1, 3]);
   });
 });

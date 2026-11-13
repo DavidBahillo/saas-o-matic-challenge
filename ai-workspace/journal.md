@@ -159,3 +159,26 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 1512/1512 tests y lint limpio. Ningún test usa la red: el proveedor y el reloj se inyectan.
 
 **Lección.** Una tabla de casos solo sirve si alguna fila hace fallar la implementación equivocada.
+
+---
+
+## Etapa 7 · Dashboard en React sobre la API existente (spec 005)
+**2026-11-13**
+
+**Punto de partida.** El backend ya calculaba, guardaba y convertía presupuestos, pero el equipo comercial no tenía interfaz: `frontend/` estaba previsto en la 005 desde D11.
+
+**Qué se hizo.** Recorrí las 7 fases de `/sdd`. El planner devolvió 5 preguntas antes de escribir nada; las respondí una a una (alcance completo con simulador, solo EUR/USD/GBP, `simulationCount` en el backend, rutas por URL, tema y modo presentación). El implementer trabajó en tres bloques: `shared/` y backend con el contador y el workspace; base del frontend (cliente API con Zod, tema, header); y pantallas, simulador y modo presentación.
+
+**Decisiones.**
+- Proxy de Vite `/api` en lugar de CORS: el backend no cambia más que en `simulationCount`.
+- `simulationCount` con subconsulta en cada lectura, sin columna ni migración; enmienda explícita de los contratos 001 y 003.
+- Slider de 0 a 100 con campo numérico hasta 100 000, en lugar del slider de 0 a 100 000 que proponía el planner.
+- Descartados Redux, Tailwind, librería de gráficos y msw.
+
+**Corrección de rumbo / control de calidad.** El reviewer de clarificación marcó 6 bloqueantes en la spec (CORS, slider inusable, divisa activa ambigua…); el planner la rehízo con mis decisiones y pasó de 36 a 40 RF. En validación lancé dos reviewers: lógica aprobó a la primera; UI pidió cambios dos veces (contraste AA en tema claro y etiquetas partidas; después desbordamiento a 360 px con 100 000 usuarios). Tras la segunda vuelta, APROBADO.
+
+**Incidencias.** jsdom 31 exige un Node más nuevo y se fijó la 29.1.1; react-router salió en la 8.5.1 en vez de la 7 del plan. El reviewer de UI verificó el navegador con una BD aislada (`DB_PATH` en el scratchpad) para no tocar la de desarrollo.
+
+**Verificación.** 1820/1820 tests y lint limpio. CA7 comprobado en Chrome headless a 360 px y 1280 px, en ambos temas y en modo presentación.
+
+**Lección.** Los tests en jsdom no ven el layout: el móvil solo se valida abriendo un navegador.

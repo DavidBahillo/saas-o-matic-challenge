@@ -53,6 +53,7 @@ describe('RF23 · búsqueda por nombre', () => {
           country: 'ES',
           plan: 'starter',
           createdAt: '2026-11-12T10:00:00.000Z',
+          simulationCount: 0,
         },
       ],
       total: 1,

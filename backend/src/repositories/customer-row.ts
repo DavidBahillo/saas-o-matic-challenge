@@ -12,10 +12,17 @@ export interface CustomerRow {
   country: string;
   plan: string;
   created_at: string;
+  simulation_count: number;
 }
 
-export const CUSTOMER_COLUMNS =
-  'id, company_name, tax_id, tax_id_type, email, country, plan, created_at';
+const BASE_COLUMNS = 'id, company_name, tax_id, tax_id_type, email, country, plan, created_at';
+
+/** Para RETURNING del INSERT: un cliente recién creado tiene 0 simulaciones (RF3). */
+export const CUSTOMER_COLUMNS = `${BASE_COLUMNS}, 0 AS simulation_count`;
+
+/** Para los SELECT: el contador se calcula en cada lectura, sin columna guardada (RF3). */
+export const CUSTOMER_SELECT = `${BASE_COLUMNS},
+  (SELECT COUNT(*) FROM simulations WHERE customer_id = customers.id) AS simulation_count`;
 
 const TAX_ID_TYPE_SET: ReadonlySet<string> = new Set(TAX_ID_TYPES);
 
@@ -38,5 +45,6 @@ export function rowToCustomer(row: CustomerRow): Customer {
     country: row.country,
     plan,
     createdAt: row.created_at,
+    simulationCount: row.simulation_count,
   };
 }

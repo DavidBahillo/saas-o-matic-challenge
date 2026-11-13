@@ -70,6 +70,7 @@ export const CONTRACT_RESPONSE = {
   country: 'ES',
   plan: 'growth',
   createdAt: FIXED_NOW,
+  simulationCount: 0,
 } as const;
 
 export const VALIDATION_MESSAGE = 'La petición contiene campos no válidos.';
