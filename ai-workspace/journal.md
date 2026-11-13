@@ -182,3 +182,24 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 1820/1820 tests y lint limpio. CA7 comprobado en Chrome headless a 360 px y 1280 px, en ambos temas y en modo presentación.
 
 **Lección.** Los tests en jsdom no ven el layout: el móvil solo se valida abriendo un navegador.
+
+---
+
+## Etapa 8 · README y datos semilla para probar la herramienta (spec 006)
+**2026-11-13**
+
+**Punto de partida.** La herramienta estaba completa, pero un recién llegado abría una lista vacía y no tenía instrucciones para arrancarla; la 005 había dejado README y datos de ejemplo fuera de alcance.
+
+**Qué se hizo.** Recorrí `/sdd` completo. El planner redactó la spec con 6 preguntas abiertas (comando, volumen, idempotencia, tipos de cambio, idioma) y las respondí una a una. El implementer trabajó en dos bloques: el seed del backend (datos, tipos fijos, validación previa y transacción) y el README con un test de coherencia.
+
+**Decisiones.**
+- `npm run seed` idempotente, sin `--reset`: descarté borrar y resembrar para no arriesgar datos reales.
+- Tipos fijos 1,10 USD y 0,85 GBP sin red, en lugar de Frankfurter: cifras deterministas (98,18 USD) y seed sin conexión.
+- Las simulaciones semilla solo van a clientes creados en esa ejecución (U7): sin marca de "semilla" en el esquema no hay otra forma fiable de no duplicar.
+- `runInAsyncTransaction` con BEGIN/COMMIT/ROLLBACK en `repositories/`, porque `db.transaction` no admite `await` y así se reutilizan los servicios en vez de insertar filas a mano.
+
+**Corrección de rumbo / control de calidad.** En mi revisión QA detecté la ambigüedad de la idempotencia y la cerré con U7. El planner encontró al planificar que 8 clientes no cubrían los 9 casos de RF3; subí U2 a 9. El reviewer dio APROBADO sin vueltas de corrección y aceptó la excepción de SQL de transacción.
+
+**Verificación.** 1866/1866 tests y lint limpio. El seed se ejecutó dos veces sobre una BD temporal (9 + 14, después 0 creados) y el reviewer levantó el backend con esos datos y comprobó `simulationCount` contra cada lista. Un test verifica que cada script, variable, endpoint y enlace del README existe.
+
+**Lección.** Contar los casos de cobertura antes de fijar un número evita contradicciones dentro de la misma spec.

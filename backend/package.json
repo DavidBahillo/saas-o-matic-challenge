@@ -5,7 +5,8 @@
   "type": "module",
   "description": "API REST de SaaS-O-Matic (Express + SQLite).",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "seed": "tsx src/seed/seed.ts"
   },
   "dependencies": {
     "@saas-o-matic/shared": "0.1.0",

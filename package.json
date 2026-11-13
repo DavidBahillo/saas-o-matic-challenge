@@ -16,6 +16,7 @@
     "dev": "concurrently -k -n backend,frontend \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev -w @saas-o-matic/backend",
     "dev:frontend": "npm run dev -w @saas-o-matic/frontend",
+    "seed": "npm run seed -w @saas-o-matic/backend",
     "test": "vitest run",
     "test:quiet": "vitest run --reporter=dot --silent",
     "lint": "eslint . && tsc -p shared && tsc -p backend && tsc -p frontend"
