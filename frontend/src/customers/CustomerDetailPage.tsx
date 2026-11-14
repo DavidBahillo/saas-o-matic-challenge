@@ -1,18 +1,18 @@
-// Detalle del cliente (RF16, RF17, RF30, RF38): datos, simulador y simulaciones guardadas.
+// Detalle del cliente (RF17, RF21, RF22, RF30): contexto, espacio de trabajo y simulaciones guardadas.
 import type { Customer } from '@saas-o-matic/shared';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useCustomer, useCustomerSimulations } from '../api/customers.queries';
 import { ApiError, generalMessage } from '../api/errors';
-import { formatDateTime } from '../lib/format-date';
-import { simulationsLabel } from '../lib/pluralize';
 import { Simulator } from '../simulator/Simulator';
+import { useDocumentTitle } from '../layout/use-document-title';
+import { simulationsLabel } from '../lib/pluralize';
 import { useCurrency } from '../state/currency-context';
 import { usePresentation, usePresentationHotkeys } from '../state/presentation-context';
 import { useCurrencyPreselection } from '../state/use-currency-preselection';
 import { Button } from '../ui/Button';
-import { CountryFlag } from '../ui/CountryFlag';
 import { EmptyState, ErrorState, Skeleton } from '../ui/States';
+import { CustomerContext } from './CustomerContext';
 import { SimulationList } from './SimulationList';
 
 /** 404 CUSTOMER_NOT_FOUND o 400 INVALID_ID: el cliente no existe (RF17). */
@@ -28,22 +28,6 @@ function NotFound() {
       <Link to="/" className="btn btn--primary">
         Volver a la lista
       </Link>
-    </section>
-  );
-}
-
-function CustomerData({ customer }: { customer: Customer }) {
-  return (
-    <section className="card customer-data" aria-label="Datos del cliente">
-      <p>
-        <CountryFlag code={customer.country} /> <span className="tabular">{customer.taxId}</span>
-      </p>
-      <p className="muted">{customer.email}</p>
-      <p>
-        <span className="chip">{customer.plan}</span>{' '}
-        <span className="muted">{simulationsLabel(customer.simulationCount)}</span>
-      </p>
-      <p className="muted">{`Alta: ${formatDateTime(customer.createdAt)}`}</p>
     </section>
   );
 }
@@ -68,18 +52,15 @@ function VisitBody({ customer, id }: { customer: Customer; id: string }) {
   const ready = useCurrencyPreselection(customer.country);
   if (!ready) return <Skeleton lines={3} label="Cargando tipos de cambio…" />;
   return (
-    <div className="page">
-      <div className="page__head">
-        <h1>{customer.companyName}</h1>
-        <Button onClick={toggle}>{active ? 'Salir de la presentación' : 'Modo presentación'}</Button>
-      </div>
-      {!active && <CustomerData customer={customer} />}
+    <div className="page detail">
+      <CustomerContext customer={customer} presentation={active} onPresent={toggle} />
       <div ref={simulatorRef}>
-        <Simulator key={customer.id} customer={customer} />
+        <Simulator key={customer.id} customer={customer} presentation={active} />
       </div>
       {!active && (
         <section aria-labelledby="saved-title">
           <h2 id="saved-title">Simulaciones guardadas</h2>
+          <p className="muted">{simulationsLabel(customer.simulationCount)}</p>
           <Simulations id={id} onCreateFirst={() => simulatorRef.current?.querySelector('input')?.focus()} />
         </section>
       )}
@@ -91,6 +72,7 @@ function VisitBody({ customer, id }: { customer: Customer; id: string }) {
 function CustomerVisit({ id }: { id: string }) {
   const query = useCustomer(id);
   const { beginVisit } = useCurrency();
+  useDocumentTitle(query.data?.companyName ?? 'Cliente');
   usePresentationHotkeys();
   // Antes que cualquier efecto de los hijos: solo borra una marca (ref), no cambia estado.
   useState(beginVisit);

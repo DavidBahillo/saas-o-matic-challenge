@@ -6,7 +6,6 @@ import { Link } from 'react-router';
 import type { NewCustomerValues } from '../api/customers.mutations';
 import { useSubmitLock } from '../lib/use-submit-lock';
 import { Button } from '../ui/Button';
-import { LiveRegion } from '../ui/LiveRegion';
 import { CustomerFields } from './CustomerFields';
 import { describeSubmitError } from './customer-form-errors';
 import type { SubmitErrorView } from './customer-form-errors';
@@ -28,7 +27,6 @@ function Notice({ view, onRetry }: { view: SubmitErrorView; onRetry: () => void 
       ))}
       {view.existingId !== undefined && <Link to={`/customers/${String(view.existingId)}`}>Ver el cliente existente</Link>}
       {view.retryable && <Button onClick={onRetry}>Reintentar</Button>}
-      <LiveRegion message={view.general.join(' ')} />
     </div>
   );
 }

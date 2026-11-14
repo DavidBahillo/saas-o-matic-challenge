@@ -1,6 +1,7 @@
 // Ayudas para probar el detalle del cliente y su simulador.
 import type { Customer, Simulation } from '@saas-o-matic/shared';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { expect } from 'vitest';
 import { ACME } from './fixtures';
 import type { MockHandler } from './mock-fetch';
 import { renderApp } from './render';
@@ -37,3 +38,10 @@ export function setField(label: string, value: string): void {
 }
 
 export const waitForSimulator = (): Promise<HTMLElement> => screen.findByRole('button', { name: 'Guardar simulación' });
+
+/** Espera a que los tipos de cambio estén cargados (alguna divisa distinta de EUR habilitada). */
+export const ratesReady = (): Promise<void> =>
+  waitFor(() => {
+    const options = Array.from(screen.getByRole('combobox', { name: 'Divisa' }).querySelectorAll('option'));
+    expect(options.some((o) => o.value !== 'EUR' && !o.disabled)).toBe(true);
+  });

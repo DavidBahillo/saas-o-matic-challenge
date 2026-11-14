@@ -1,4 +1,5 @@
-// Almacenamiento y llamadas a la API (RF22): se guardan pero no suman al precio (D4).
+// Almacenamiento y llamadas a la API (RF27): se guardan pero no suman al precio (D4); el <details> se abre con un error.
+import { useState } from 'react';
 import { Field } from '../ui/Field';
 import type { CountField } from './use-count-field';
 
@@ -9,7 +10,7 @@ interface Props {
   apiCallsErrors?: readonly string[];
 }
 
-function Numeric({ label, field, extra = [] }: { label: string; field: CountField; extra?: readonly string[] }) {
+function Numeric({ label, name, field, extra = [] }: { label: string; name: string; field: CountField; extra?: readonly string[] }) {
   const errors = [...(field.error === undefined ? [] : [field.error]), ...extra];
   return (
     <Field label={label} errors={errors}>
@@ -17,6 +18,7 @@ function Numeric({ label, field, extra = [] }: { label: string; field: CountFiel
         <input
           {...control}
           type="text"
+          name={name}
           inputMode="numeric"
           autoComplete="off"
           className="input"
@@ -28,12 +30,20 @@ function Numeric({ label, field, extra = [] }: { label: string; field: CountFiel
   );
 }
 
-export function ResourceFields({ storage, apiCalls, storageErrors, apiCallsErrors }: Props) {
+export function ResourceFields({ storage, apiCalls, storageErrors = [], apiCallsErrors = [] }: Props) {
+  const [open, setOpen] = useState(true);
+  const hasError = [storage.error, apiCalls.error].some((e) => e !== undefined) || storageErrors.length + apiCallsErrors.length > 0;
   return (
-    <div className="resources">
-      <Numeric label="Almacenamiento (GB)" field={storage} extra={storageErrors ?? []} />
-      <Numeric label="Llamadas a la API (al mes)" field={apiCalls} extra={apiCallsErrors ?? []} />
-      <p className="muted resources__note">El almacenamiento y las llamadas a la API no suman al precio.</p>
-    </div>
+    <details
+      className="resources"
+      open={open || hasError}
+      onToggle={(e) => { setOpen(e.currentTarget.open); }}
+    >
+      <summary>Recursos que no suman al precio</summary>
+      <div className="resources__fields">
+        <Numeric label="Almacenamiento (GB)" name="storageGb" field={storage} extra={storageErrors} />
+        <Numeric label="Llamadas a la API (al mes)" name="apiCalls" field={apiCalls} extra={apiCallsErrors} />
+      </div>
+    </details>
   );
 }

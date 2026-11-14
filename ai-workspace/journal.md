@@ -226,3 +226,28 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 2026/2026 tests y lint limpio. En el navegador a 360 px: sin scroll horizontal, banderas con `alt` en español y cliente de EE. UU. abierto en USD. Pendiente de CA7: contraste en ambos temas, teclado/lector con lista larga y respaldo sin red.
 
 **Lección.** Las preguntas de la spec deben contrastarse con la forma real de la respuesta del proveedor antes de fijar reglas de parseo.
+
+---
+
+## Etapa 10 · Rediseño visual y de composición con Verdana (spec 008)
+**2026-11-13 / 2026-11-14**
+
+**Punto de partida.** La UI no me gustaba: paleta turquesa y púrpura, todo en tarjetas iguales y un simulador apilado sin jerarquía. Busqué skills con `find-skills` e instalé `frontend-design` y `web-design-guidelines`; decidí rediseñar primero y auditar después, para no revisar una UI que iba a cambiar.
+
+**Qué se hizo.** Sustituí `DESIGN.md` por el sistema Verdana Health y lancé `/sdd`. El planner redactó la spec; el reviewer la devolvió dos veces con CAMBIOS NECESARIOS (tokens sin fuente única, oscuro aproximado, contraste sin método). La primera versión era solo un cambio de piel: lo rechacé y pedí aplicar de verdad `frontend-design`, que produjo un mockup de composición (detalle en dos columnas, escalera de tramos sobre el slider, hoja de presupuesto, lista densa de clientes) que aprobé. El implementer lo hizo en tres bloques y después en cinco rondas de cambios pedidos tras verlo en el navegador.
+
+**Decisiones.**
+- Oscuro por defecto derivado del mockup Dark de Verdana, claro como alternativa; descarté quedarme solo con el claro.
+- Google Fonts por CDN en vez de autoalojar (sin dependencias; acepto la IP a Google por ser herramienta interna).
+- Retiré la atribución de ExchangeRate-API (deroga parte de la 007).
+- Barra sin importes con nombres o abreviaturas y tooltip; escalera de tres cuadrados iguales; tablas centradas.
+- Atajo de presentación Alt+P en lugar de P, para cumplir WCAG 2.1.4.
+- Editar y borrar clientes y la paginación quedan para una spec futura; los botones existen deshabilitados con "Próximamente".
+
+**Corrección de rumbo / control de calidad.** Dos reviewers en paralelo (lógica y UI) dieron CAMBIOS NECESARIOS; tras una vuelta, APROBADO. Dos auditorías con `web-design-guidelines` (0 críticos) destaparon problemas de foco, `aria-live` y una regresión táctil en móvil que se corrigieron. Edité a mano la hoja de presupuesto a mitad de proceso; se limpió el código comentado y se adaptaron los tests.
+
+**Incidencias.** El servidor de Vite se quedaba con módulos antiguos tras refactors grandes (página en blanco); se resolvió con un servidor de comprobación aparte en el puerto 5174.
+
+**Verificación.** 2348/2348 tests y lint en verde. Revisión en navegador a 1280, 1024, 375 y 360 px, ambos temas y presentación. Sin verificar a mano: forced-colors, lector de pantalla y táctil real.
+
+**Lección.** Un rediseño que conserva la estructura no es un rediseño: la composición hay que pedirla explícitamente.

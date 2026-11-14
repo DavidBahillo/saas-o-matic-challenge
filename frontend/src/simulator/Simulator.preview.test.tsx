@@ -63,7 +63,7 @@ describe('Simulador: total y tramos (RF19, RF21)', () => {
     expect(within(table).getByText('140,00 EUR', { selector: '[data-row="base"] td' })).toBeVisible();
     expect(within(table).getByText('IVA (0 %)')).toBeVisible();
     expect(within(table).getByText('0,00 EUR', { selector: '[data-row="vat"] td' })).toBeVisible();
-    expect(rows.find((r) => r.startsWith('Tramo 3'))).toContain(money('0,00 EUR'));
+    expect(rows.find((r) => r.startsWith(`Tramo${String.fromCharCode(0xa0)}3`))).toContain(money('0,00 EUR'));
   });
 
   it('con 0 usuarios la tabla sigue mostrando los tres tramos', async () => {
@@ -74,24 +74,26 @@ describe('Simulador: total y tramos (RF19, RF21)', () => {
 });
 
 describe('Simulador: gráfico (RF21, RF40)', () => {
-  it('15 usuarios: título, subtítulo y una etiqueta de texto en cada segmento', async () => {
+  it('15 usuarios: título y el nombre de cada tramo dentro del segmento, sin subtítulo', async () => {
     await openFor('US', '15');
     expect(screen.getByRole('heading', { name: 'Desglose del coste mensual' })).toBeVisible();
-    expect(screen.getByText('Coste mensual: 140,00 EUR · el 71 % sale del tramo 1')).toBeVisible();
+    expect(screen.queryByText(/sale del tramo/)).toBeNull();
     const bar = screen.getByTestId('stack-bar');
-    expect(within(bar).getByText('Tramo 1 · 100,00 EUR')).toBeVisible();
+    expect(within(bar).getByText('Tramo 1')).toBeVisible();
+    expect(within(bar).getByText('Tramo 2')).toBeVisible();
   });
 
-  it('11 usuarios: la etiqueta del tramo 2 va fuera del segmento', async () => {
+  it('11 usuarios: el tramo 2 es estrecho, sin texto visible, enfocable y sin leyenda bajo la barra', async () => {
     await openFor('ES', '11');
     const bar = screen.getByTestId('stack-bar');
-    expect(within(bar).queryByText(/Tramo 2/)).toBeNull();
-    expect(within(screen.getByTestId('stack-outside')).getByText('Tramo 2 · 8,00 EUR')).toBeVisible();
+    const segment = within(bar).getByRole('button', { name: /Tramo.2/ });
+    expect(segment.querySelector('[aria-hidden="true"]')).toBeNull();
+    expect(screen.queryByTestId('stack-outside')).toBeNull();
   });
 
   it('0 usuarios: sin segmentos y sin porcentaje', async () => {
     await openFor('ES', '0');
-    expect(screen.getByText('Sin usuarios: no hay coste que desglosar')).toBeVisible();
+    expect(screen.queryByText(/sale del tramo/)).toBeNull();
     expect(screen.getByTestId('stack-bar').children).toHaveLength(0);
   });
 });
@@ -141,7 +143,7 @@ describe('Simulador: control de usuarios (RF20, RF22)', () => {
       expect(usersField()).toHaveAccessibleDescription(/.+/);
       expect(total().textContent).toBe(money('514,25 EUR'));
       expect(slider()).toHaveValue('51');
-      expect(saveButton()).toBeDisabled();
+      expect(saveButton()).toHaveAttribute('aria-disabled', 'true');
     },
   );
 
@@ -158,15 +160,15 @@ describe('Simulador: control de usuarios (RF20, RF22)', () => {
     await openFor('ES');
     setField('Almacenamiento (GB)', text);
     expect(screen.getByLabelText('Almacenamiento (GB)')).toHaveAttribute('aria-invalid', 'true');
-    expect(saveButton()).toBeDisabled();
+    expect(saveButton()).toHaveAttribute('aria-disabled', 'true');
     setField('Almacenamiento (GB)', '0');
     setField('Llamadas a la API (al mes)', text);
     expect(screen.getByLabelText('Llamadas a la API (al mes)')).toHaveAttribute('aria-invalid', 'true');
-    expect(saveButton()).toBeDisabled();
+    expect(saveButton()).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('avisa de que storage y apiCalls no suman al precio (D4)', async () => {
     await openFor('ES');
-    expect(screen.getByText(/no suman al precio/i)).toBeVisible();
+    expect(screen.getByText('Recursos que no suman al precio')).toBeVisible();
   });
 });

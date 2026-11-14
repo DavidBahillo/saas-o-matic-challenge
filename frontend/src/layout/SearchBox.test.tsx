@@ -1,10 +1,26 @@
-import { act, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SearchBox } from './SearchBox';
 import { useFakeClock, useRealClock } from '../test/fake-timers';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, useLocation } from 'react-router';
 import { renderApp } from '../test/render';
 
 beforeEach(useFakeClock);
 afterEach(useRealClock);
+
+// El buscador ya solo vive en la lista (RF19): se monta suelto para probar su comportamiento fuera de /.
+function renderSearchAt(route: string) {
+  const user = userEvent.setup({ delay: null });
+  const Probe = () => <output data-testid="location">{useLocation().pathname + useLocation().search}</output>;
+  render(
+    <MemoryRouter initialEntries={[route]}>
+      <SearchBox />
+      <Probe />
+    </MemoryRouter>,
+  );
+  return { user };
+}
 
 const search = () => screen.getByRole('searchbox', { name: 'Buscar clientes' });
 const location = () => screen.getByTestId('location').textContent;
@@ -51,14 +67,14 @@ describe('SearchBox (RF6, RF7, V2)', () => {
   });
 
   it('desde otra pantalla navega a /?q= (RF7)', async () => {
-    const { user } = renderApp({ route: '/customers/7', fakeTimers: true });
+    const { user } = renderSearchAt('/customers/7');
     await user.type(search(), 'acme');
     advance(300);
     expect(location()).toBe('/?q=acme');
   });
 
   it('desde otra pantalla un texto vacío no navega', async () => {
-    const { user } = renderApp({ route: '/customers/7', fakeTimers: true });
+    const { user } = renderSearchAt('/customers/7');
     await user.type(search(), ' ');
     advance(300);
     expect(location()).toBe('/customers/7');

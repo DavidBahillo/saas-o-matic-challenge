@@ -1,6 +1,7 @@
-// Estados reutilizables de carga, error y vacío (RF5, RF17, principio 8). Cada uno se anuncia en aria-live.
+// Estados reutilizables de carga, error y vacío (RF-estados, principio 8). Cada uno se anuncia en aria-live.
 import type { ReactNode } from 'react';
 import { Button } from './Button';
+import { AlertIcon } from './icons';
 import { LiveRegion } from './LiveRegion';
 
 export function Skeleton({ lines = 3, label = 'Cargando…' }: { lines?: number; label?: string }) {
@@ -17,7 +18,10 @@ export function Skeleton({ lines = 3, label = 'Cargando…' }: { lines?: number;
 export function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div className="state state--error">
-      <p>{message}</p>
+      <div className="state__row">
+        <AlertIcon />
+        <p>{message}</p>
+      </div>
       <Button onClick={onRetry}>Reintentar</Button>
       <LiveRegion message={message} />
     </div>

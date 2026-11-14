@@ -4,31 +4,57 @@ import { renderApp } from '../test/render';
 
 afterEach(() => { document.documentElement.removeAttribute('data-theme'); });
 
-describe('ThemeToggle (RF29)', () => {
-  it('sin preferencia guardada ofrece pasar de oscuro a claro', () => {
+const light = () => screen.getByRole('button', { name: 'Tema claro' });
+const dark = () => screen.getByRole('button', { name: 'Tema oscuro' });
+
+describe('ThemeToggle (RF-tema3, RF-tema4)', () => {
+  it('muestra siempre dos botones con icono y sin texto visible, dentro de un grupo "Tema"', () => {
     renderApp();
-    expect(screen.getByRole('button', { name: 'Cambiar a tema claro' })).toBeVisible();
+    const group = screen.getByRole('group', { name: 'Tema' });
+    expect(group).toContainElement(light());
+    expect(group).toContainElement(dark());
+    for (const button of [light(), dark()]) {
+      expect(button.textContent).toBe('');
+      expect(button.querySelector('svg')).not.toBeNull();
+    }
   });
 
-  it('al pulsar guarda som-theme y cambia data-theme', async () => {
+  it('sin preferencia guardada el oscuro está pulsado y es el activo', () => {
+    renderApp();
+    expect(dark()).toHaveAttribute('aria-pressed', 'true');
+    expect(light()).toHaveAttribute('aria-pressed', 'false');
+    expect(dark()).toHaveClass('theme-toggle__btn--active');
+    expect(light()).not.toHaveClass('theme-toggle__btn--active');
+  });
+
+  it('al pulsar el claro guarda som-theme, cambia data-theme y mueve aria-pressed', async () => {
     const { user } = renderApp();
-    await user.click(screen.getByRole('button', { name: 'Cambiar a tema claro' }));
+    await user.click(light());
     expect(window.localStorage.getItem('som-theme')).toBe('light');
     expect(document.documentElement).toHaveAttribute('data-theme', 'light');
-    await user.click(screen.getByRole('button', { name: 'Cambiar a tema oscuro' }));
+    expect(light()).toHaveAttribute('aria-pressed', 'true');
+    expect(dark()).toHaveAttribute('aria-pressed', 'false');
+    await user.click(dark());
     expect(window.localStorage.getItem('som-theme')).toBe('dark');
     expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
   });
 
-  it('con "light" guardado el botón ofrece volver al oscuro', () => {
+  it('pulsar el botón ya activo no cambia nada', async () => {
+    const { user } = renderApp();
+    await user.click(dark());
+    expect(dark()).toHaveAttribute('aria-pressed', 'true');
+    expect(window.localStorage.getItem('som-theme')).toBeNull();
+  });
+
+  it('con "light" guardado el claro es el pulsado', () => {
     window.localStorage.setItem('som-theme', 'light');
     renderApp();
-    expect(screen.getByRole('button', { name: 'Cambiar a tema oscuro' })).toBeVisible();
+    expect(light()).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('un valor guardado desconocido cuenta como oscuro', () => {
     window.localStorage.setItem('som-theme', 'foo');
     renderApp();
-    expect(screen.getByRole('button', { name: 'Cambiar a tema claro' })).toBeVisible();
+    expect(dark()).toHaveAttribute('aria-pressed', 'true');
   });
 });

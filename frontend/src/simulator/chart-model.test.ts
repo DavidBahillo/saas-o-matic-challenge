@@ -2,92 +2,104 @@
 import { calculateQuote } from '@saas-o-matic/shared';
 import type { Quote } from '@saas-o-matic/shared';
 import { describe, expect, it } from 'vitest';
-import { buildChartModel, halfUpPercent } from './chart-model';
+import { buildChartModel, labelFits } from './chart-model';
 
 function quoteFor(users: number, country = 'ES'): Quote {
   const result = calculateQuote({ users, country });
   if (!result.ok) throw new Error('cálculo no válido');
   return result.value;
 }
-const NBSP = String.fromCharCode(0xa0);
 
-describe('halfUpPercent', () => {
-  it.each([
-    [100, 140, 71],
-    [0, 100, 0],
-    [1, 2, 50],
-    [1, 8, 13],
-    [1, 200, 1],
-    [1, 201, 0],
-    [5, 0, 0],
-  ])('%i de %i → %i %%', (part, whole, expected) => {
-    expect(halfUpPercent(part, whole)).toBe(expected);
-  });
-});
+const NB = String.fromCharCode(0xa0);
+const nb = (text: string): string => text.replaceAll(' ', NB);
 
 describe('buildChartModel: segmentos', () => {
   it('0 usuarios: sin segmentos y sin porcentaje', () => {
-    const model = buildChartModel(quoteFor(0), 'EUR');
+    const model = buildChartModel(quoteFor(0));
     expect(model.segments).toEqual([]);
     expect(model.title).toBe('Desglose del coste mensual');
-    expect(model.subtitle).toBe('Sin usuarios: no hay coste que desglosar');
   });
 
   it('1 usuario: tramo 1 e IVA', () => {
-    const model = buildChartModel(quoteFor(1), 'EUR');
+    const model = buildChartModel(quoteFor(1));
     expect(model.segments.map((s) => [s.key, s.cents])).toEqual([
       ['tier1', 1000],
       ['vat', 210],
     ]);
   });
 
-  it('11 usuarios: el segmento del tramo 2 es estrecho y su etiqueta va fuera', () => {
-    const model = buildChartModel(quoteFor(11), 'EUR');
-    expect(model.segments.map((s) => [s.key, s.cents, s.labelOutside])).toEqual([
-      ['tier1', 10000, false],
-      ['tier2', 800, true],
-      ['vat', 2268, false],
+  it('11 usuarios: claves y céntimos de los segmentos', () => {
+    const model = buildChartModel(quoteFor(11));
+    expect(model.segments.map((s) => [s.key, s.cents])).toEqual([
+      ['tier1', 10000],
+      ['tier2', 800],
+      ['vat', 2268],
     ]);
-    expect(model.segments[1]?.label).toBe(`Tramo 2 · 8,00${NBSP}EUR`);
   });
 
   it('51 usuarios: entra el tramo 3 con 5,00 EUR', () => {
-    const keys = buildChartModel(quoteFor(51), 'EUR').segments.map((s) => s.key);
+    const keys = buildChartModel(quoteFor(51)).segments.map((s) => s.key);
     expect(keys).toEqual(['tier1', 'tier2', 'tier3', 'vat']);
   });
 
   it('IVA 0 %: el segmento del IVA no se dibuja', () => {
-    const keys = buildChartModel(quoteFor(15, 'US'), 'EUR').segments.map((s) => s.key);
+    const keys = buildChartModel(quoteFor(15, 'US')).segments.map((s) => s.key);
     expect(keys).toEqual(['tier1', 'tier2']);
   });
+  it('1 y 10 usuarios a 480 px: "Tramo 1" e "IVA 21 %" completos; a 300 px, el IVA abreviado', () => {
+    for (const users of [1, 10]) {
+      const wide = buildChartModel(quoteFor(users), 480).segments;
+      expect(wide.map((s) => [s.fullText, s.display])).toEqual([[nb('Tramo 1'), 'full'], [nb('IVA 21 %'), 'full']]);
+      const narrow = buildChartModel(quoteFor(users), 300).segments;
+      expect(narrow.map((s) => [s.key, s.display])).toEqual([['tier1', 'full'], ['vat', 'short']]);
+      expect(narrow[1]?.shortText).toBe(nb('21 %'));
+      expect(narrow[1]?.name).toBe(nb('IVA 21 %'));
+    }
+  });
 
-  it('el límite del 12 % es exacto: 12 de 100 va dentro y 11 de 100 fuera', () => {
-    const base = { tiers: [], baseCents: 0, vatCents: 0, totalCents: 0 };
-    const tier = (subtotalCents: number) => ({ tier: 1 as const, from: 1, to: 10, unitPriceCents: 0, billedUsers: 1, subtotalCents });
-    const inside = buildChartModel({ ...base, tiers: [tier(12)], baseCents: 12, vatCents: 88, totalCents: 100 }, 'EUR');
-    const outside = buildChartModel({ ...base, tiers: [tier(11)], baseCents: 11, vatCents: 89, totalCents: 100 }, 'EUR');
-    expect(inside.segments[0]?.labelOutside).toBe(false);
-    expect(outside.segments[0]?.labelOutside).toBe(true);
+  it('11 usuarios: el tramo 2 (6 %) queda sin texto a 480 y a 300 px', () => {
+    for (const width of [480, 300]) {
+      const t2 = buildChartModel(quoteFor(11), width).segments.find((s) => s.key === 'tier2');
+      expect(t2?.display).toBe('none');
+      expect(t2?.name).toBe(nb('Tramo 2'));
+      expect(t2?.shortText).toBe('T2');
+    }
+  });
+
+  it('51 usuarios: el tramo 3 (1 %) no tiene texto visible y conserva su nombre', () => {
+    for (const width of [480, 300]) {
+      const t3 = buildChartModel(quoteFor(51), width).segments.find((s) => s.key === 'tier3');
+      expect(t3?.display).toBe('none');
+      expect(t3?.name).toBe(nb('Tramo 3'));
+    }
+  });
+
+  it('el nivel de texto sigue labelFits en el orden nombre, abreviatura, nada (1, 10, 11, 50 y 51 usuarios)', () => {
+    for (const users of [1, 10, 11, 50, 51]) {
+      for (const width of [300, 480]) {
+        const quote = quoteFor(users);
+        const total = quote.baseCents + quote.vatCents;
+        for (const s of buildChartModel(quote, width).segments) {
+          const expected = labelFits(s.fullText, s.cents, total, width) ? 'full' : labelFits(s.shortText, s.cents, total, width) ? 'short' : 'none';
+          expect(s.display).toBe(expected);
+        }
+      }
+    }
+  });
+
+  it('ningún texto lleva importes y el tipo de IVA sale del cliente', () => {
+    for (const s of buildChartModel(quoteFor(51)).segments) {
+      expect(s.fullText + s.shortText).not.toMatch(/EUR|,\d\d/);
+    }
+    const pt = buildChartModel(quoteFor(10, 'PT')).segments.find((s) => s.key === 'vat');
+    expect(pt?.name).toBe(nb(`IVA ${String(quoteFor(10, 'PT').vatRatePercent)} %`));
   });
 });
 
-describe('buildChartModel: subtítulo (RF40)', () => {
-  it('15 usuarios: "el 71 % sale del tramo 1" con el coste base', () => {
-    const model = buildChartModel(quoteFor(15, 'US'), 'EUR');
-    expect(model.subtitle).toBe(`Coste mensual: 140,00${NBSP}EUR · el 71 % sale del tramo 1`);
-  });
-
-  it('con 100 000 usuarios el tramo con más peso es el 3', () => {
-    const model = buildChartModel(quoteFor(100_000), 'EUR');
-    expect(model.subtitle).toContain('del tramo 3');
-  });
-
-  it('en un empate gana el tramo de número menor', () => {
-    const tiers = [
-      { tier: 1 as const, from: 1, to: 10, unitPriceCents: 100, billedUsers: 1, subtotalCents: 100 },
-      { tier: 2 as const, from: 11, to: 50, unitPriceCents: 100, billedUsers: 1, subtotalCents: 100 },
-    ];
-    const model = buildChartModel({ tiers, baseCents: 200, vatCents: 0, totalCents: 200 }, 'EUR');
-    expect(model.subtitle).toBe(`Coste mensual: 2,00${NBSP}EUR · el 50 % sale del tramo 1`);
+describe('labelFits', () => {
+  it('es exacta en el límite: 20 caracteres necesitan 160 px', () => {
+    const label = 'x'.repeat(20);
+    expect(labelFits(label, 160, 1000, 1000)).toBe(true);
+    expect(labelFits(label, 159, 1000, 1000)).toBe(false);
   });
 });

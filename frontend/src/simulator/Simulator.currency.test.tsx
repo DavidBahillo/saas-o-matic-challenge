@@ -1,7 +1,7 @@
 // Divisa activa y vista previa convertida (RF23): tabla "Divisa activa y vista previa convertida" de la spec.
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { renderDetail, setField, total, waitForSimulator } from '../test/detail';
+import { renderDetail, setField, total, ratesReady, waitForSimulator } from '../test/detail';
 import { ACME } from '../test/fixtures';
 
 const NBSP = String.fromCharCode(0xa0);
@@ -11,7 +11,7 @@ describe('Simulador: divisa y vista previa convertida (RF23)', () => {
   async function withCurrency(currency: 'USD' | 'GBP', users: string) {
     const view = renderDetail({ customer: ACME });
     await waitForSimulator();
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     setField('Usuarios', users);
     await view.user.selectOptions(screen.getByRole('combobox', { name: 'Divisa' }), currency);
     return view;

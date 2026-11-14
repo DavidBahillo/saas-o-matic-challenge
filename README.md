@@ -71,7 +71,7 @@ curl -X POST http://localhost:3000/simulations -H "Content-Type: application/jso
 - El precio se calcula siempre en euros. Divisas disponibles (lista fija de `shared/`): EUR, USD, GBP, CHF, SEK, NOK, DKK, PLN, CZK, CAD, AUD, NZD, MXN, BRL, RON, HKD, SGD, CNY, ILS, ZAR, TRY, THB y AED. Al abrir un cliente, el simulador arranca con la divisa de su país (EUR si no tiene una en la lista o sus tipos no están disponibles). La conversión se hace una sola vez al crear la simulación, y se congelan la divisa, el tipo de cambio y su fecha: las lecturas posteriores no recalculan.
 
 ## Tipos de cambio y banderas (servicios externos)
-- Los tipos vienen de open.er-api.com a través del backend: una sola petición por snapshot, guardado en memoria 24 h, petición compartida entre llamadas simultáneas y 60 s de enfriamiento tras un fallo. El proveedor limita las peticiones (una actualización diaria; bloqueo temporal si se abusa) y exige atribución: la interfaz muestra el enlace "Tipos de cambio por ExchangeRate-API".
+- Los tipos vienen de open.er-api.com a través del backend: una sola petición por snapshot, guardado en memoria 24 h, petición compartida entre llamadas simultáneas y 60 s de enfriamiento tras un fallo. El proveedor limita las peticiones (una actualización diaria; bloqueo temporal si se abusa).
 - Las banderas se cargan desde el CDN `flagcdn.com` (no se guardan en el repositorio). Sin red o con el CDN caído la aplicación funciona y muestra solo el código del país. El CDN ve la IP del navegador.
 
 ## Flujo de trabajo (SDD)

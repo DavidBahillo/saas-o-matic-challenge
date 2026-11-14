@@ -2,7 +2,7 @@
 import type { Simulation } from '@saas-o-matic/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { renderDetail, setField, slider, usersField, waitForSimulator } from '../test/detail';
+import { renderDetail, setField, slider, usersField, ratesReady, waitForSimulator } from '../test/detail';
 import { ACME, NEVER, SIMULATION_USD, apiError, customerList, makeCustomer } from '../test/fixtures';
 import { renderApp } from '../test/render';
 
@@ -80,7 +80,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
     ];
     renderDetail({ simulations: sims });
     const list = await screen.findByTestId('simulation-list');
-    const items = within(list).getAllByRole('listitem').map((li) => li.textContent);
+    const items = within(list).getAllByRole('row').slice(1).map((r) => r.textContent);
     expect(items[0]).toContain('30 usuarios');
     expect(items[1]).toContain('15 usuarios');
     expect(items[2]).toContain('5 usuarios');
@@ -90,7 +90,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
 
   it('cada fila muestra usuarios, divisa, total convertido y fecha local', async () => {
     renderDetail({ simulations: [SIMULATION_USD] });
-    const item = within(await screen.findByTestId('simulation-list')).getByRole('listitem');
+    const item = within(await screen.findByTestId('simulation-list')).getAllByRole('row')[1] as HTMLElement;
     expect(item).toHaveTextContent(`15 usuarios`);
     expect(item).toHaveTextContent(`186,34 USD`);
     expect(item).toHaveTextContent('13 nov 2026, 09:30');
@@ -100,7 +100,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
     const sims = [1, 2, 3].map((id) => sim({ id }));
     renderDetail({ customer: makeCustomer({ simulationCount: 3 }), simulations: sims });
     expect(await screen.findByText('3 simulaciones')).toBeVisible();
-    expect(within(await screen.findByTestId('simulation-list')).getAllByRole('listitem')).toHaveLength(3);
+    expect(within(await screen.findByTestId('simulation-list')).getAllByRole('row')).toHaveLength(4);
   });
 
   it('una simulación en USD con tipo 1,10 se muestra con 1,10 y sus importes guardados aunque el actual sea 1,20', async () => {
@@ -112,7 +112,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
         },
       },
     });
-    await user.click(await screen.findByText(/15 usuarios/));
+    await user.click(await screen.findByRole('button', { name: /Desglose de la simulación/ }));
     const quote = screen.getByTestId('simulation-quote');
     expect(within(quote).getByText('1,100000')).toBeVisible();
     expect(within(quote).getByText(`154,00 USD`)).toBeVisible();
@@ -130,7 +130,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
       convertedTotalCents: 16940,
     });
     const { user } = renderDetail({ simulations: [migrated] });
-    await user.click(await screen.findByText(/15 usuarios/));
+    await user.click(await screen.findByRole('button', { name: /Desglose de la simulación/ }));
     const quote = screen.getByTestId('simulation-quote');
     expect(within(quote).getByText('1,000000')).toBeVisible();
     expect(within(quote).getByText('EUR', { selector: 'dd' })).toBeVisible();
@@ -139,9 +139,9 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
   it('un presupuesto guardado no se ve afectado por la divisa activa', async () => {
     const { user } = renderDetail({ simulations: [SIMULATION_USD] });
     await waitForSimulator();
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Divisa' }), 'GBP');
-    const item = within(await screen.findByTestId('simulation-list')).getByRole('listitem');
+    const item = within(await screen.findByTestId('simulation-list')).getAllByRole('row')[1] as HTMLElement;
     expect(item).toHaveTextContent('186,34 USD');
     expect(item).not.toHaveTextContent('GBP');
   });
@@ -158,12 +158,13 @@ describe('CustomerDetailPage: reinicio del simulador (RF38)', () => {
       },
     });
     await waitForSimulator();
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Divisa' }), 'USD');
     fireEvent.change(slider(), { target: { value: '30' } });
     setField('Almacenamiento (GB)', '5');
     setField('Llamadas a la API (al mes)', '7');
-    await user.type(screen.getByRole('searchbox', { name: 'Buscar clientes' }), 'port');
+    await user.click(screen.getByRole('link', { name: 'Clientes' }));
+    await user.type(await screen.findByRole('searchbox', { name: 'Buscar clientes' }), 'port');
     await user.click(await screen.findByRole('link', { name: /Portuguesa SA/ }));
     await waitFor(() => { expect(location()).toBe('/customers/9'); });
     await screen.findByRole('heading', { level: 1, name: 'Portuguesa SA' });

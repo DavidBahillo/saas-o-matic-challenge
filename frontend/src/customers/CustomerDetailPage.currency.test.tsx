@@ -1,7 +1,7 @@
 // RF14 a RF17: divisa del país por visita (tabla "Divisa por país y preselección" de la spec 007).
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { renderDetail, saveButton, setField, waitForSimulator } from '../test/detail';
+import { renderDetail, saveButton, setField, ratesReady, waitForSimulator } from '../test/detail';
 import { ACME, RATES_UNAVAILABLE, SIMULATION_USD, customerList, deferred, makeCustomer, ratesBody } from '../test/fixtures';
 import type { MockOutcome } from '../test/mock-fetch';
 import { renderApp } from '../test/render';
@@ -37,7 +37,7 @@ describe('Preselección de la divisa del país (RF14)', () => {
   it('tipos cargados antes que el cliente: aplica al cargar el cliente', async () => {
     const customer = deferred<MockOutcome>();
     renderDetail({ customer: US, routes: { 'GET /api/customers/8': () => customer.promise } });
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     expect(select()).toHaveValue('EUR');
     customer.resolve({ body: US });
     await waitForSimulator();
@@ -46,7 +46,7 @@ describe('Preselección de la divisa del país (RF14)', () => {
 
   it('país XX: EUR', async () => {
     renderDetail({ customer: makeCustomer({ id: 9, country: 'XX' }) });
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     await waitFor(() => { expect(select()).toHaveValue('EUR'); });
   });
 
@@ -85,7 +85,7 @@ describe('Tipos que fallan y "Reintentar" (RF15)', () => {
     await waitForSimulator();
     await pick(user, 'EUR');
     await user.click(screen.getByRole('button', { name: 'Reintentar' }));
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     expect(select()).toHaveValue('EUR');
   });
 });
@@ -142,7 +142,7 @@ describe('Visitas (RF15)', () => {
       },
     });
     await screen.findByText(/Acme Ibérica/);
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     await pick(user, 'USD');
     await user.click(screen.getByRole('link', { name: /Acme Ibérica/ }));
     await screen.findByRole('heading', { name: 'Cliente no encontrado' });
@@ -155,7 +155,7 @@ describe('Guardar y mostrar (RF16, RF17)', () => {
     const post = deferred<MockOutcome>();
     const { user, fetchMock } = renderDetail({ routes: { 'POST /api/simulations': () => post.promise } });
     await waitForSimulator();
-    await screen.findByText(/Tipos actualizados/);
+    await ratesReady();
     setField('Usuarios', '15');
     await pick(user, 'USD');
     await user.click(saveButton());

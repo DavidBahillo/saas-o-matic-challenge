@@ -9,10 +9,10 @@ export function SavedQuote({ simulation, testId }: { simulation: Simulation; tes
   const { currency } = simulation;
   return (
     <div className="saved-quote" data-testid={testId}>
-      <QuoteTable quote={simulation} />
+      <QuoteTable quote={simulation} label={`Desglose de la simulación del ${formatDateTime(simulation.createdAt)}`} />
       <dl className="saved-quote__details">
         <dt>Divisa</dt>
-        <dd>{currency}</dd>
+        <dd translate="no">{currency}</dd>
         <dt>Tipo</dt>
         <dd className="money">{formatRateFull(simulation.exchangeRate)}</dd>
         <dt>Fecha del tipo</dt>

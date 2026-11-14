@@ -2,6 +2,13 @@ import type { ReactNode } from 'react';
 
 export type BadgeTone = 'neutral' | 'warning' | 'error' | 'info' | 'success';
 
-export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {
-  return <span className={`badge badge--${tone}`}>{children}</span>;
+interface BadgeProps {
+  tone?: BadgeTone;
+  /** "no" para códigos y valores que no se traducen (plan, divisa). */
+  translate?: 'yes' | 'no';
+  children: ReactNode;
+}
+
+export function Badge({ tone = 'neutral', translate, children }: BadgeProps) {
+  return <span className={`badge badge--${tone}`} translate={translate}>{children}</span>;
 }

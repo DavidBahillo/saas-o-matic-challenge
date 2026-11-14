@@ -1,21 +1,46 @@
-/* Reset, tipografía, tabular-nums, foco y reduced-motion (RF31). */
+/* Reset, tipografía, enlaces, selección, foco, forced-colors y movimiento reducido (RF5, RF16, RF32 a RF34). */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: var(--color-active); }
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 400 14px/1.5 Inter, system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
 }
-h1, h2, h3, p { margin: 0; }
-h1 { font-size: 24px; font-weight: 600; }
-h2 { font-size: 20px; font-weight: 600; }
-a { color: var(--text); text-decoration: underline; text-decoration-color: var(--primary); text-decoration-thickness: 2px; text-underline-offset: 3px; }
-small { font-size: 12px; }
-.muted { color: var(--text-muted); }
-.money, .tabular { font-variant-numeric: tabular-nums; }
+/* Solo el texto libre (títulos, nombres, correos) parte palabras; botones, chips y cabeceras de tabla no (RF59). */
+h1, h2, h3, h4, .customer-row__company, .customer-context__meta, .state, .field__error, .notice { overflow-wrap: anywhere; }
+th, .btn { overflow-wrap: normal; }
+@media (pointer: fine) {
+  html { overscroll-behavior: none; }
+}
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3, h4 { font-family: var(--font-head); }
+h1, h2, h3 { text-wrap: balance; }
+a, button, summary, [role="button"], input, select, label { touch-action: manipulation; }
+h1 { font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 600; }
+h2, h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 600; }
+h4 { font-size: var(--fs-h4); line-height: var(--lh-h4); font-weight: 500; }
+@media (min-width: 640px) {
+  h1 { font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 700; }
+}
+strong, b { font-weight: 500; }
+small { font-size: var(--fs-caption); line-height: var(--lh-caption); }
+.muted { color: var(--color-text-muted); }
+.money, .tabular { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
-:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+a:not([class]) {
+  color: var(--color-sage-text);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+a:not([class]):hover { color: var(--color-sage-text-hover); text-decoration-thickness: 3px; }
+
+::selection { background: var(--color-selection); }
+
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
 .sr-only {
   position: absolute;
@@ -31,4 +56,12 @@ small { font-size: 12px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+@media (forced-colors: active) {
+  :focus-visible { outline-color: Highlight; }
+  .btn, .input, .card, .state, .badge, .skeleton, .check__box, .tooltip__bubble { border: 1px solid CanvasText; }
+  .stack, .stack .stack__seg, .ladder__step, .country__flag { border: 1px solid CanvasText; forced-color-adjust: none; }
+  .ladder__step.ladder__step--dim { border: 2px dashed CanvasText; }
+  .slider input[type="range"] { forced-color-adjust: auto; }
 }

@@ -2,7 +2,7 @@
 import type { Simulation } from '@saas-o-matic/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { renderDetail, saveButton, setField, total, waitForSimulator } from '../test/detail';
+import { renderDetail, saveButton, setField, total, ratesReady, waitForSimulator } from '../test/detail';
 import { ACME, NEVER, SIMULATION_USD, apiError } from '../test/fixtures';
 import type { MockReply } from '../test/mock-fetch';
 
@@ -23,7 +23,7 @@ const selectCurrency = (user: ReturnType<typeof renderDetail>['user'], currency:
 async function ready(options: Parameters<typeof renderDetail>[0] = {}) {
   const view = renderDetail(options);
   await waitForSimulator();
-  await screen.findByText(/Tipos actualizados/);
+  await ratesReady();
   setField('Usuarios', '15');
   return view;
 }

@@ -9,6 +9,9 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/layout.css';
 import './styles/components.css';
+import './styles/controls.css';
+import './styles/lists.css';
+import './styles/workspace.css';
 import './styles/simulator.css';
 
 applyTheme(document.documentElement, readTheme(browserStorage()));

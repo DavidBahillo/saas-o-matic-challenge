@@ -41,18 +41,48 @@ describe('CustomersPage: estados (CA5)', () => {
   });
 });
 
-describe('CustomersPage: tarjetas (RF4, RF9)', () => {
-  it('cada tarjeta muestra empresa, NIF con bandera y código de país, email, plan y simulaciones', async () => {
+describe('CustomersPage: cabecera y lista (RF19, RF20, RF-bandera)', () => {
+  it('la cabecera de la lista tiene H1, contador, buscador y "Nuevo cliente"; la global no tiene buscador', async () => {
     renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
-    const card = await screen.findByRole('link', { name: /Acme Ibérica SL/ });
-    const scope = within(card);
-    expect(scope.getByText('Acme Ibérica SL')).toBeVisible();
+    await screen.findByText('Acme Ibérica SL');
+    const head = screen.getByRole('heading', { level: 1, name: 'Clientes' }).closest('.list-head');
+    expect(head).not.toBeNull();
+    const scope = within(head as HTMLElement);
+    expect(scope.getByText('1 cliente')).toBeVisible();
+    expect(scope.getByRole('searchbox', { name: 'Buscar clientes' })).toBeVisible();
+    expect(scope.getByRole('link', { name: 'Nuevo cliente' })).toHaveAttribute('href', '/customers/new');
+    expect(within(screen.getByRole('banner')).queryByRole('searchbox')).toBeNull();
+  });
+
+  it('el contador usa 0, 1 y N clientes', async () => {
+    renderApp({ routes: { 'GET /api/customers': customerList([ZERO, ONE, ACME]) } });
+    expect(await screen.findByText('3 clientes')).toBeVisible();
+  });
+
+  it('tiene cabecera de columnas: empresa, país y NIF, plan, simulaciones, alta y acciones', async () => {
+    renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
+    await screen.findByText('Acme Ibérica SL');
+    const names = screen.getAllByRole('columnheader').map((h) => h.textContent);
+    expect(names).toEqual(['Empresa', 'País y NIF', 'Plan', 'Simulaciones', 'Alta', 'Acciones']);
+    expect(screen.getByRole('table', { name: 'Clientes' })).toHaveClass('customer-list');
+  });
+
+  it('cada fila muestra empresa con correo, bandera con ISO y NIF, plan, simulaciones y alta solo con fecha', async () => {
+    renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
+    const link = await screen.findByRole('link', { name: 'Acme Ibérica SL' });
+    const row = link.closest('tr') as HTMLElement;
+    expect(row).toHaveClass('customer-row');
+    const scope = within(row);
+    expect(scope.getByText('compras@acme.es')).toBeVisible();
     expect(scope.getByText('B12345674')).toBeVisible();
     expect(scope.getByText('ES')).toBeVisible();
     expect(scope.getByRole('img', { name: 'España' })).toBeVisible();
-    expect(scope.getByText('compras@acme.es')).toBeVisible();
     expect(scope.getByText('growth')).toBeVisible();
     expect(scope.getByText('2 simulaciones')).toBeVisible();
+    expect(scope.getByText('12 nov 2026')).toBeVisible();
+    expect(scope.getAllByRole('link')).toHaveLength(1);
+    expect(scope.getByRole('button', { name: 'Editar Acme Ibérica SL' })).toHaveAttribute('aria-disabled', 'true');
+    expect(scope.getByRole('button', { name: 'Borrar Acme Ibérica SL' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('clientes con 0, 1 y 2 simulaciones usan el texto correcto y conservan el orden recibido', async () => {
@@ -61,20 +91,20 @@ describe('CustomersPage: tarjetas (RF4, RF9)', () => {
     expect(screen.getByText('0 simulaciones')).toBeVisible();
     expect(screen.getByText('1 simulación')).toBeVisible();
     expect(screen.getByText('2 simulaciones')).toBeVisible();
-    const names = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    const names = screen.getAllByRole('link', { name: /SA$|SL$/ }).map((l) => l.textContent);
     expect(names).toEqual(['Cero SA', 'Uno SL', 'Acme Ibérica SL']);
   });
 
-  it('activar una tarjeta con el ratón va a /customers/:id', async () => {
+  it('activar una fila con el ratón va a /customers/:id', async () => {
     const { user } = renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
-    await user.click(await screen.findByRole('link', { name: /Acme Ibérica SL/ }));
+    await user.click(await screen.findByRole('link', { name: 'Acme Ibérica SL' }));
     expect(location()).toBe('/customers/7');
   });
 
-  it('activar una tarjeta con el teclado va a /customers/:id', async () => {
+  it('activar una fila con el teclado va a /customers/:id', async () => {
     const { user } = renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
-    const card = await screen.findByRole('link', { name: /Acme Ibérica SL/ });
-    card.focus();
+    const link = await screen.findByRole('link', { name: 'Acme Ibérica SL' });
+    link.focus();
     await user.keyboard('{Enter}');
     expect(location()).toBe('/customers/7');
   });
@@ -85,7 +115,7 @@ describe('CustomersPage: tarjetas (RF4, RF9)', () => {
     );
     renderApp({ routes: { 'GET /api/customers': customerList(items, 73) } });
     expect(await screen.findByText('Mostrando 50 de 73')).toBeVisible();
-    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(50);
+    expect(screen.getAllByRole('row')).toHaveLength(51);
   });
 
   it('sin exceso no muestra "Mostrando"', async () => {

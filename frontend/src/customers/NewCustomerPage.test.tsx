@@ -17,6 +17,18 @@ describe('NewCustomerPage: formulario (RF10, RF11)', () => {
     expect(control('Email')).toBeVisible();
   });
 
+  it('agrupa los controles en "Empresa" y "Contacto y plan" con un ancho máximo', () => {
+    renderForm();
+    const company = screen.getByRole('group', { name: 'Empresa' });
+    const contact = screen.getByRole('group', { name: 'Contacto y plan' });
+    expect(within(company).getByLabelText('Empresa')).toBe(control('Empresa'));
+    expect(within(company).getByLabelText('País')).toBe(control('País'));
+    expect(within(company).getByLabelText('Identificador fiscal')).toBe(control('Identificador fiscal'));
+    expect(within(contact).getByLabelText('Email')).toBe(control('Email'));
+    expect(within(contact).getByLabelText('Plan')).toBe(control('Plan'));
+    expect(screen.getByRole('heading', { level: 1, name: 'Nuevo cliente' }).closest('.page')).toHaveClass('page--narrow');
+  });
+
   it('envía los valores tal cual, sin normalizar', async () => {
     const { user, fetchMock } = renderForm({ 'POST /api/customers': { status: 201, body: ACME } });
     await fillValid(user);

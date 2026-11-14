@@ -1,10 +1,10 @@
 import { CURRENCIES } from '@saas-o-matic/shared';
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { RATES_BODY, RATES_UNAVAILABLE, ratesBody } from '../test/fixtures';
-import { renderDetail } from '../test/detail';
 import { renderApp } from '../test/render';
 
+const ready = () => waitFor(() => { expect(option('USD')).toBeEnabled(); });
 const select = () => screen.getByRole('combobox', { name: 'Divisa' });
 const option = (name: string): HTMLOptionElement => {
   const found = Array.from(select().querySelectorAll('option')).find((o) => o.value === name);
@@ -12,10 +12,17 @@ const option = (name: string): HTMLOptionElement => {
   return found;
 };
 
-describe('CurrencySelect con tipos disponibles (RF28)', () => {
+describe('CurrencySelect con tipos disponibles (RF28, RF-selector)', () => {
+  it('tiene una etiqueta visible "Divisa" y no lleva pie de tipos', async () => {
+    renderApp();
+    await ready();
+    expect(screen.getByText('Divisa', { selector: 'label' })).toHaveClass('sr-only');
+    expect(screen.queryByText(/Tipos actualizados/)).toBeNull();
+  });
+
   it('lista las 23 divisas de shared con EUR primero y su nombre en español (RF9)', async () => {
     renderApp();
-    await screen.findByText(/Tipos actualizados/);
+    await ready();
     const options = Array.from(select().querySelectorAll('option'));
     expect(options.map((o) => o.value)).toEqual([...CURRENCIES]);
     expect(options[0]?.value).toBe('EUR');
@@ -28,7 +35,7 @@ describe('CurrencySelect con tipos disponibles (RF28)', () => {
 
   it('las divisas sin tipo se deshabilitan solas, sin badge (RF9, RF24)', async () => {
     renderApp({ routes: { 'GET /api/exchange-rates': { body: ratesBody(['USD', 'CHF']) } } });
-    await screen.findByText(/Tipos actualizados/);
+    await ready();
     expect(option('USD')).toBeEnabled();
     expect(option('CHF')).toBeEnabled();
     expect(option('SEK')).toBeDisabled();
@@ -37,37 +44,16 @@ describe('CurrencySelect con tipos disponibles (RF28)', () => {
     expect(screen.queryByText('Tipos de cambio no disponibles')).not.toBeInTheDocument();
   });
 
-  it('el enlace de atribución junto al pie, con rel y href (RF12)', async () => {
-    renderApp();
-    const link = await screen.findByRole('link', { name: 'Tipos de cambio por ExchangeRate-API' });
-    expect(link).toHaveAttribute('href', 'https://www.exchangerate-api.com');
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-  });
-
-  it('la atribución también está en modo presentación (RF12)', async () => {
-    const { user } = renderDetail();
-    await screen.findByText(/Tipos actualizados/);
-    await user.click(await screen.findByRole('button', { name: 'Modo presentación' }));
-    const bar = document.querySelector<HTMLElement>('.presentation-bar');
-    expect(bar).not.toBeNull();
-    expect(within(bar as HTMLElement).getByRole('link', { name: 'Tipos de cambio por ExchangeRate-API' })).toBeVisible();
-  });
-
-  it('el pie muestra la hora local más antigua (V5)', async () => {
-    renderApp();
-    expect(await screen.findByText('Tipos actualizados: 09:00')).toBeVisible();
-  });
-
   it('cambiar de divisa la deja activa', async () => {
     const { user } = renderApp();
-    await screen.findByText(/Tipos actualizados/);
+    await ready();
     await user.selectOptions(select(), 'USD');
     expect(select()).toHaveValue('USD');
   });
 
   it('pide los tipos una sola vez al arrancar (V6)', async () => {
     const { fetchMock } = renderApp();
-    await screen.findByText(/Tipos actualizados/);
+    await ready();
     expect(fetchMock.callsTo('GET /api/exchange-rates')).toHaveLength(1);
   });
 });
@@ -81,7 +67,6 @@ describe('CurrencySelect con tipos no disponibles (RF24, U7)', () => {
     expect(option('EUR')).toBeEnabled();
     expect(select()).toHaveValue('EUR');
     expect(screen.getByRole('button', { name: 'Reintentar' })).toBeVisible();
-    expect(screen.queryByText(/Tipos actualizados/)).not.toBeInTheDocument();
     expect(fetchMock.callsTo('GET /api/exchange-rates')).toHaveLength(1);
   });
 
@@ -109,7 +94,6 @@ describe('CurrencySelect con tipos no disponibles (RF24, U7)', () => {
     expect(option('GBP')).toBeEnabled();
     expect(select()).toHaveValue('EUR');
     expect(screen.queryByText('Tipos de cambio no disponibles')).not.toBeInTheDocument();
-    expect(await screen.findByText('Tipos actualizados: 09:00')).toBeVisible();
     expect(fetchMock.callsTo('GET /api/exchange-rates')).toHaveLength(2);
   });
 

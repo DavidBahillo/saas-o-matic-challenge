@@ -1,9 +1,9 @@
 // Avisos del guardado (RF26, RF27): errores generales, cliente no encontrado y tipo distinto del de la vista previa.
+// Los errores se anuncian solo con role="alert" (sin LiveRegion duplicada); RateDifference va en la región live de SaveFeedback.
 import { parseRateText } from '@saas-o-matic/shared';
 import { Link } from 'react-router';
 import { formatRateShort } from '../lib/format-rate-text';
 import { Button } from '../ui/Button';
-import { LiveRegion } from '../ui/LiveRegion';
 import type { SimulationErrorView } from './simulator-errors';
 
 export interface SaveNoticesProps {
@@ -32,7 +32,6 @@ export function SaveNotices({ view, onRetry, onSaveInEur }: SaveNoticesProps) {
         {retryable && <Button onClick={onRetry}>Reintentar</Button>}
         {view.kind === 'rate-unavailable' && <Button onClick={onSaveInEur}>Guardar en EUR</Button>}
       </div>
-      <LiveRegion message={view.general.join(' ')} />
     </div>
   );
 }

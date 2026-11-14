@@ -1,16 +1,18 @@
-// Atajo de teclado del modo presentación (RF30): P sola y fuera de un campo de escritura.
+// Atajo de teclado del modo presentación (RF48): Alt+P por `code` (en Mac, Option+P produce otro carácter) y fuera de un campo de texto (en el slider o un select no se escribe nada, así que ahí sí actúa).
 
-/** input (incluido el slider), select, textarea o elemento editable. */
-export function isTypingTarget(target: EventTarget | null): boolean {
+const NON_TEXT_INPUTS = ['range', 'checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'color', 'image'];
+
+/** Campo donde se escribe texto: textarea, elemento editable o input de texto (no el slider, casillas ni select). */
+export function isTextEntryTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return true;
+  if (target.tagName === 'TEXTAREA') return true;
+  if (target.tagName === 'INPUT') return !NON_TEXT_INPUTS.includes((target as HTMLInputElement).type);
   return target.isContentEditable || ['', 'true', 'plaintext-only'].includes(target.getAttribute('contenteditable') ?? 'no');
 }
 
 export function isPresentationHotkey(
-  e: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey' | 'target'>,
+  e: Pick<KeyboardEvent, 'code' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey' | 'target'>,
 ): boolean {
-  if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return false;
-  return e.key.toLowerCase() === 'p' && !isTypingTarget(e.target);
+  if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return false;
+  return e.code === 'KeyP' && !isTextEntryTarget(e.target);
 }

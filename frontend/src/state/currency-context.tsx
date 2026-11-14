@@ -4,7 +4,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { ReactNode } from 'react';
 import { useExchangeRates } from '../api/rates.queries';
 import type { ExchangeRate } from '../api/schemas';
-import { oldestRateAt } from '../lib/format-date';
 
 export type RatesStatus = 'loading' | 'ready' | 'unavailable';
 
@@ -23,8 +22,6 @@ export interface CurrencyState {
   isAvailable: (currency: Currency) => boolean;
   retry: () => void;
   retrying: boolean;
-  /** Hora más antigua de los tipos recibidos (V5). */
-  oldestAt: string | undefined;
 }
 
 const CurrencyContext = createContext<CurrencyState | undefined>(undefined);
@@ -69,7 +66,6 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       isAvailable,
       retry: () => void refetch(),
       retrying: query.isFetching && status === 'unavailable',
-      oldestAt: oldestRateAt(rates),
     }),
     [currency, setCurrency, applyCountryCurrency, beginVisit, hasManualChoice, rates, status, isAvailable, refetch, query.isFetching],
   );

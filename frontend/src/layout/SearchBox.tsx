@@ -6,6 +6,17 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router';
 export const SEARCH_DELAY_MS = 300;
 export const SEARCH_MAX_LENGTH = 100;
 
+const INPUT_PROPS = {
+  type: 'search',
+  className: 'input search',
+  name: 'q',
+  autoComplete: 'off',
+  spellCheck: false,
+  'aria-label': 'Buscar clientes',
+  placeholder: 'Empresa, NIF o email…',
+  maxLength: SEARCH_MAX_LENGTH,
+} as const;
+
 export function SearchBox() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -41,14 +52,6 @@ export function SearchBox() {
   }
 
   return (
-    <input
-      type="search"
-      className="input search"
-      aria-label="Buscar clientes"
-      placeholder="Buscar clientes"
-      maxLength={SEARCH_MAX_LENGTH}
-      value={text}
-      onChange={handleChange}
-    />
+    <input {...INPUT_PROPS} value={text} onChange={handleChange} />
   );
 }

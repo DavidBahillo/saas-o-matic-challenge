@@ -13,6 +13,9 @@ Inventario de lo que se ha configurado para dirigir a la IA y de para qué se ha
 | Skill | `git-commit` | [SKILL.md](../.claude/skills/git-commit/SKILL.md) | Conventional Commits con aprobación antes de commit y push | creada el 2026-11-12; el commit inicial se hizo antes de que estuviera cargada |
 | Hook | `UserPromptSubmit` | [log-prompt.mjs](../.claude/hooks/log-prompt.mjs) | Buffer local de prompts (filtra lo trivial y resume lo pegado) | 2026-11-12 |
 | Hook | `PostToolUse` | [log-activity.mjs](../.claude/hooks/log-activity.mjs) | Buffer local del uso de skills y subagentes | 2026-11-12 |
+| Skill (global) | `find-skills` | `~/.claude/skills/find-skills` | Buscar skills en skills.sh para revisar y mejorar la UI | 2026-11-13 (spec 008) |
+| Skill (global, skills.sh) | `frontend-design` | `~/.claude/skills/frontend-design` (anthropics/skills) | Dirección de composición y jerarquía del rediseño y mockup aprobado | 2026-11-13 (spec 008) |
+| Skill (global, skills.sh) | `web-design-guidelines` | `~/.claude/skills/web-design-guidelines` (vercel-labs/agent-skills) | Auditorías de la UI con las Web Interface Guidelines de Vercel | 2026-11-14 (spec 008) |
 | Herramienta externa | GitHub CLI | — | Crear el repositorio remoto | 2026-11-12 |
 
 **Configuración usada al planificar:** Claude Code en modo plan para el análisis del enunciado, con Opus como modelo principal.

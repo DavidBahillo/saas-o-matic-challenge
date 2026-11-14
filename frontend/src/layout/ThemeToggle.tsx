@@ -1,22 +1,39 @@
-// Interruptor de tema (RF29): guarda som-theme y cambia data-theme de <html>.
+// Selector de tema (RF-tema3, RF-tema4): dos botones con sol y luna, siempre visibles. Guarda som-theme y cambia data-theme.
 import { useState } from 'react';
 import { applyTheme, browserStorage, readTheme, writeTheme } from '../lib/theme';
 import type { Theme } from '../lib/theme';
-import { Button } from '../ui/Button';
+import { MoonIcon, SunIcon } from '../ui/icons';
+
+function ThemeButton({ target, current, onPick }: { target: Theme; current: Theme; onPick: (theme: Theme) => void }) {
+  const pressed = target === current;
+  const classes = pressed ? 'theme-toggle__btn theme-toggle__btn--active' : 'theme-toggle__btn';
+  return (
+    <button
+      type="button"
+      className={classes}
+      aria-pressed={pressed}
+      aria-label={target === 'light' ? 'Tema claro' : 'Tema oscuro'}
+      onClick={() => { onPick(target); }}
+    >
+      {target === 'light' ? <SunIcon /> : <MoonIcon />}
+    </button>
+  );
+}
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(() => readTheme(browserStorage()));
 
-  function toggle() {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+  function pick(next: Theme) {
+    if (next === theme) return;
     writeTheme(browserStorage(), next);
     applyTheme(document.documentElement, next);
     setTheme(next);
   }
 
   return (
-    <Button onClick={toggle} aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}>
-      {theme === 'dark' ? 'Claro' : 'Oscuro'}
-    </Button>
+    <div role="group" aria-label="Tema" className="theme-toggle">
+      <ThemeButton target="light" current={theme} onPick={pick} />
+      <ThemeButton target="dark" current={theme} onPick={pick} />
+    </div>
   );
 }
