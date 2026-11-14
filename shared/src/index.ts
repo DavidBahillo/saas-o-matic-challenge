@@ -7,6 +7,7 @@ export type {
   ApiErrorCode,
   Customer,
   CustomerList,
+  DeleteCustomerResult,
   FieldError,
   FieldErrorCode,
   FieldErrorReason,
@@ -116,3 +117,6 @@ export { RESOURCE_MESSAGES, validateResource } from './simulations/validate-reso
 export { CUSTOMER_REF_MESSAGES, validateCustomerRef } from './simulations/validate-customer-ref';
 export { validateSimulationInput } from './simulations/validate-simulation-input';
 export type { SimulationInputResult } from './simulations/validate-simulation-input';
+
+export { PAGE_SIZE, lastPage, pageRange, pageWindow, paginate, parsePageParam } from './pagination/pagination';
+export type { PageItem, PageSlice } from './pagination/pagination';

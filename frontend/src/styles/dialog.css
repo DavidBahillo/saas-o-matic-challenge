@@ -1,0 +1,15 @@
+/* Diálogo de borrado (spec 009, RF19 a RF22, RF30). Solo tokens; ancho limitado al viewport, utilizable a 360 px. */
+.dialog { width: min(480px, calc(100% - var(--space-xl))); max-height: calc(100% - var(--space-xl)); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--color-border-control); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-lg); }
+.dialog::backdrop { background: var(--color-bg); opacity: 0.8; }
+.dialog__body { display: flex; flex-direction: column; gap: var(--space-md); padding: var(--space-lg); overflow-wrap: anywhere; }
+.dialog__body p { margin: 0; }
+.dialog__title { margin: 0; font-family: var(--font-head); font-size: var(--fs-h3); line-height: var(--lh-h3); }
+.dialog__error { color: var(--color-error-text); }
+.dialog__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-sm); }
+@media (max-width: 479px) {
+  .dialog__actions { flex-direction: column-reverse; }
+  .dialog__actions .btn { width: 100%; }
+}
+@media (forced-colors: active) {
+  .dialog { border: 1px solid CanvasText; }
+}

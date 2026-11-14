@@ -57,6 +57,8 @@ describe('RF23 · búsqueda por nombre', () => {
         },
       ],
       total: 1,
+      page: 1,
+      pageSize: 20,
     });
   });
 
@@ -112,12 +114,12 @@ describe('RF24/RF25 · sin q, q vacío y sin resultados', () => {
   );
 
   it('sin coincidencias → 200 con items vacío y total 0, nunca 404', async () => {
-    expect(await search('/customers?q=zzzz')).toEqual({ items: [], total: 0 });
+    expect(await search('/customers?q=zzzz')).toEqual({ items: [], total: 0, page: 1, pageSize: 20 });
   });
 
   it('sin clientes guardados → 200 con items vacío y total 0', async () => {
     t.db.prepare('DELETE FROM customers').run();
-    expect(await search('/customers')).toEqual({ items: [], total: 0 });
+    expect(await search('/customers')).toEqual({ items: [], total: 0, page: 1, pageSize: 20 });
   });
 
   it.each(['/customers?foo=1', '/customers?q=acme&_=123', '/customers?q=acme&q2[]=x&foo[a]=b'])(

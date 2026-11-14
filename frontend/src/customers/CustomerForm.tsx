@@ -1,7 +1,8 @@
-// Formulario de alta (RF10 a RF14): valores tal cual, un solo envío a la vez y errores junto a su control.
+// Formulario de cliente, el mismo para alta y edición (RF10 a RF14, RF7): valores tal cual, un solo envío a la vez y errores
+// junto a su control. Sin `initialValues` es el alta ("Crear cliente"); con ellos, la edición ya rellena.
 import { PLANS } from '@saas-o-matic/shared';
 import { useEffect, useRef, useState } from 'react';
-import type { SyntheticEvent } from 'react';
+import type { RefObject, SyntheticEvent } from 'react';
 import { Link } from 'react-router';
 import type { NewCustomerValues } from '../api/customers.mutations';
 import { useSubmitLock } from '../lib/use-submit-lock';
@@ -16,6 +17,12 @@ export interface CustomerFormProps {
   pending: boolean;
   error: unknown;
   onSubmit: (values: NewCustomerValues) => void;
+  /** Valores con los que arranca el formulario (edición); sin ellos, los del alta. */
+  initialValues?: NewCustomerValues;
+  submitLabel?: string;
+  pendingLabel?: string;
+  /** Si se indica, se muestra un enlace "Cancelar" a esa ruta. */
+  cancelTo?: string;
 }
 
 function Notice({ view, onRetry }: { view: SubmitErrorView; onRetry: () => void }) {
@@ -31,18 +38,39 @@ function Notice({ view, onRetry }: { view: SubmitErrorView; onRetry: () => void 
   );
 }
 
-export function CustomerForm({ pending, error, onSubmit }: CustomerFormProps) {
-  const [values, setValues] = useState<NewCustomerValues>(INITIAL);
-  const formRef = useRef<HTMLFormElement>(null);
-  const guard = useSubmitLock(pending, undefined, error);
-  const view = error === null || error === undefined ? undefined : describeSubmitError(error);
-
-  // Con errores de campo, el foco va al primer control marcado (RF12).
+/** Con errores de campo, el foco va al primer control marcado (RF12). */
+function useFocusFirstInvalid(formRef: RefObject<HTMLFormElement | null>, error: unknown): void {
   useEffect(() => {
     if (error !== null && error !== undefined) {
       formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
     }
-  }, [error]);
+  }, [formRef, error]);
+}
+
+function CancelLink({ to }: { to: string | undefined }) {
+  if (to === undefined) return null;
+  return (
+    <Link to={to} className="btn btn--secondary btn--md">
+      Cancelar
+    </Link>
+  );
+}
+
+export function CustomerForm({
+  pending,
+  error,
+  onSubmit,
+  initialValues = INITIAL,
+  submitLabel = 'Crear cliente',
+  pendingLabel = 'Creando…',
+  cancelTo,
+}: CustomerFormProps) {
+  const [values, setValues] = useState<NewCustomerValues>(initialValues);
+  const formRef = useRef<HTMLFormElement>(null);
+  const guard = useSubmitLock(pending, undefined, error);
+  const view = error === null || error === undefined ? undefined : describeSubmitError(error);
+
+  useFocusFirstInvalid(formRef, error);
 
   const submit = () => { guard(() => { onSubmit(values); }); };
   const handleSubmit = (event: SyntheticEvent) => {
@@ -58,9 +86,12 @@ export function CustomerForm({ pending, error, onSubmit }: CustomerFormProps) {
         errors={view?.byControl ?? {}}
         onChange={(key, value) => { setValues((current) => ({ ...current, [key]: value })); }}
       />
-      <Button type="submit" variant="primary" disabled={pending}>
-        {pending ? 'Creando…' : 'Crear cliente'}
-      </Button>
+      <div className="form__actions">
+        <Button type="submit" variant="primary" disabled={pending}>
+          {pending ? pendingLabel : submitLabel}
+        </Button>
+        <CancelLink to={cancelTo} />
+      </div>
     </form>
   );
 }

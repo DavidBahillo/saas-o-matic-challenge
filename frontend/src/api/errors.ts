@@ -44,6 +44,12 @@ export function toApiError(status: number, body: unknown): ApiError {
   });
 }
 
+/** 404 CUSTOMER_NOT_FOUND o 400 INVALID_ID: el cliente no existe (RF17, RF9). */
+export function isNotFoundError(error: unknown): boolean {
+  if (!(error instanceof ApiError) || error.kind !== 'api') return false;
+  return error.status === 404 || (error.status === 400 && error.fields.some((f) => f.code === 'INVALID_ID'));
+}
+
 /** El message del backend o el texto general en español. */
 export function generalMessage(error: unknown): string {
   return error instanceof ApiError && error.kind === 'api' ? error.message : GENERAL_ERROR_MESSAGE;

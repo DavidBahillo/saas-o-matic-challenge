@@ -1,33 +1,38 @@
-// RF64 a RF66: botones "Editar" y "Borrar" de la lista de clientes, deshabilitados con aria-disabled y con tooltip "Próximamente".
-import { act, fireEvent, render, screen } from '@testing-library/react';
+// RF19, RF30: "Editar" es un enlace activo a /customers/:id/edit y "Borrar" abre el diálogo; ya no hay "Próximamente".
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useFakeClock, useRealClock } from '../test/fake-timers';
+import { describe, expect, it, vi } from 'vitest';
+import { makeCustomer } from '../test/fixtures';
 import { RowActions } from './RowActions';
 
-function setup() {
+const CUSTOMER = makeCustomer({ id: 12, companyName: 'Panadería Los Álamos' });
+
+function setup(onDelete = vi.fn(), entry = '/?q=pan&page=2') {
   render(
-    <MemoryRouter>
-      <RowActions company="Panadería Los Álamos" />
+    <MemoryRouter initialEntries={[entry]}>
+      <RowActions customer={CUSTOMER} onDelete={onDelete} />
     </MemoryRouter>,
   );
   return {
-    edit: screen.getByRole('button', { name: 'Editar Panadería Los Álamos' }),
+    edit: screen.getByRole('link', { name: 'Editar Panadería Los Álamos' }),
     remove: screen.getByRole('button', { name: 'Borrar Panadería Los Álamos' }),
+    onDelete,
   };
 }
 
 describe('RowActions', () => {
-  beforeEach(useFakeClock);
-  afterEach(useRealClock);
+  it('"Editar" es un enlace a /customers/:id/edit con el nombre accesible de la empresa', () => {
+    const { edit } = setup();
+    expect(edit).toHaveAttribute('href', '/customers/12/edit');
+    expect(edit).not.toHaveAttribute('aria-disabled');
+  });
 
-  it('dos botones con la empresa en el nombre, aria-disabled y sin disabled', () => {
-    const { edit, remove } = setup();
-    for (const button of [edit, remove]) {
-      expect(button).toHaveAttribute('aria-disabled', 'true');
-      expect(button).not.toBeDisabled();
-      expect(button).toHaveAttribute('type', 'button');
-    }
+  it('"Borrar" es un botón activo que llama a onDelete con el cliente', () => {
+    const { remove, onDelete } = setup();
+    expect(remove).not.toHaveAttribute('aria-disabled');
+    expect(remove).toHaveAttribute('type', 'button');
+    fireEvent.click(remove);
+    expect(onDelete).toHaveBeenCalledExactlyOnceWith(CUSTOMER);
   });
 
   it('los iconos van ocultos a lectores y el de borrar lleva la clase destructiva suave', () => {
@@ -35,35 +40,12 @@ describe('RowActions', () => {
     expect(edit.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     expect(remove.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     expect(remove).toHaveClass('row-action--danger');
-    expect(edit).not.toHaveClass('row-action--danger');
     expect(edit).toHaveClass('btn--icon');
   });
 
-  it('reciben foco con Tab y el aviso "Próximamente" aparece a los 150 ms, enlazado con aria-describedby', () => {
-    const { edit } = setup();
-    act(() => { edit.focus(); });
-    expect(edit).toHaveFocus();
-    act(() => void vi.advanceTimersByTime(150));
-    const tip = screen.getByRole('tooltip');
-    expect(tip).toHaveTextContent('Próximamente');
-    expect(edit).toHaveAttribute('aria-describedby', tip.id);
-  });
-
-  it('el aviso también sale con el ratón y al tocar', () => {
-    const { remove } = setup();
-    fireEvent.mouseEnter(remove.parentElement as HTMLElement);
-    act(() => void vi.advanceTimersByTime(150));
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Próximamente');
-    fireEvent.mouseLeave(remove.parentElement as HTMLElement);
+  it('ya no queda ningún "Próximamente"', () => {
+    setup();
+    expect(screen.queryByText('Próximamente')).toBeNull();
     expect(screen.queryByRole('tooltip')).toBeNull();
-    fireEvent.click(remove);
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Próximamente');
-  });
-
-  it('pulsar no ejecuta ninguna acción (se cancela el clic) y no hay enlaces dentro de los botones', () => {
-    const { edit, remove } = setup();
-    expect(fireEvent.click(edit)).toBe(false);
-    expect(fireEvent.click(remove)).toBe(false);
-    expect(screen.queryAllByRole('link')).toHaveLength(0);
   });
 });

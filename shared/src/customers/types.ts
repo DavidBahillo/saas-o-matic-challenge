@@ -68,9 +68,17 @@ export interface Customer extends NewCustomer {
   simulationCount: number;
 }
 
+/** Página de clientes (spec 009, RF1): `page` es la efectiva, ya normalizada por el servidor. */
 export interface CustomerList {
   items: Customer[];
   total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** Resultado de DELETE /customers/:id (spec 009, RF20). */
+export interface DeleteCustomerResult {
+  deletedSimulations: number;
 }
 
 export type ApiErrorCode =

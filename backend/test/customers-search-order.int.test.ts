@@ -1,5 +1,5 @@
-// GET /customers: orden con la colación española, desempate por id y máximo de 50 resultados
-// con `total` de todas las coincidencias (T9, RF24). Filas de "Búsqueda y consulta" de la spec 001.
+// GET /customers: orden con la colación española, desempate por id y páginas de 20
+// con `total` de todas las coincidencias (T9, RF24; 009 RF1). Filas de "Búsqueda y consulta" de la spec 001.
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { CustomerList } from '@saas-o-matic/shared';
@@ -60,30 +60,33 @@ describe('RF24 · orden con colación española', () => {
   });
 });
 
-describe('RF24 · máximo de 50 resultados', () => {
-  // "Zeta" se inserta primero (id 1) para que el límite dependa del orden y no del id.
+describe('009 RF1 · páginas de 20 con orden estable y sin tope de 50', () => {
+  // "Zeta" se inserta primero (id 1) para que la página dependa del orden y no del id.
   function seed51(): void {
     const others = Array.from({ length: 50 }, (_, i) => `Cliente ${String(i + 1).padStart(2, '0')}`);
     seedNames(t, ['Zeta Cliente', ...others]);
   }
 
   it.each(['/customers', '/customers?q=cliente'])(
-    '%s con 51 coincidencias → 50 en items (sin "Zeta") y total 51',
+    '%s con 51 coincidencias → 3 páginas (20, 20, 11), total 51 y "Zeta" al final',
     async (path) => {
       seed51();
-      const body = await list(path);
-      expect(body.total).toBe(51);
-      expect(body.items).toHaveLength(50);
-      expect(body.items.map((c) => c.companyName)).not.toContain('Zeta Cliente');
-      expect(body.items[0]?.companyName).toBe('Cliente 01');
-      expect(body.items[49]?.companyName).toBe('Cliente 50');
+      const sep = path.includes('?') ? '&' : '?';
+      const pages = [await list(path), await list(`${path}${sep}page=2`), await list(`${path}${sep}page=3`)];
+      expect(pages.map((p) => p.items.length)).toEqual([20, 20, 11]);
+      expect(pages.map((p) => p.page)).toEqual([1, 2, 3]);
+      for (const p of pages) expect(p).toMatchObject({ total: 51, pageSize: 20 });
+      const names = pages.flatMap((p) => p.items.map((c) => c.companyName));
+      expect(new Set(names).size).toBe(51);
+      expect(names[0]).toBe('Cliente 01');
+      expect(names[50]).toBe('Zeta Cliente');
     },
   );
 
-  it('con exactamente 50 coincidencias devuelve todas', async () => {
-    seedNames(t, Array.from({ length: 50 }, (_, i) => `Cliente ${String(i).padStart(2, '0')}`));
+  it('con exactamente 20 coincidencias hay una sola página', async () => {
+    seedNames(t, Array.from({ length: 20 }, (_, i) => `Cliente ${String(i).padStart(2, '0')}`));
     const body = await list('/customers');
-    expect(body.total).toBe(50);
-    expect(body.items).toHaveLength(50);
+    expect(body).toMatchObject({ total: 20, page: 1, pageSize: 20 });
+    expect(body.items).toHaveLength(20);
   });
 });

@@ -120,16 +120,16 @@ describe('Visitas (RF15)', () => {
         'GET /api/customers/7/simulations': { body: { items: [] } },
       },
     });
-    await user.click(await screen.findByRole('link', { name: /Acme Inc/ }));
+    await user.click(await screen.findByRole('link', { name: /^Acme Inc/ }));
     await waitForSimulator();
     expect(select()).toHaveValue('USD');
     await pick(user, 'GBP');
     await user.click(screen.getByRole('link', { name: 'SaaS-O-Matic' }));
-    await user.click(await screen.findByRole('link', { name: /Acme Ibérica/ }));
+    await user.click(await screen.findByRole('link', { name: /^Acme Ibérica/ }));
     await waitForSimulator();
     expect(select()).toHaveValue('EUR');
     await user.click(screen.getByRole('link', { name: 'SaaS-O-Matic' }));
-    await user.click(await screen.findByRole('link', { name: /Acme Inc/ }));
+    await user.click(await screen.findByRole('link', { name: /^Acme Inc/ }));
     await waitForSimulator();
     expect(select()).toHaveValue('USD');
   });
@@ -144,7 +144,7 @@ describe('Visitas (RF15)', () => {
     await screen.findByText(/Acme Ibérica/);
     await ratesReady();
     await pick(user, 'USD');
-    await user.click(screen.getByRole('link', { name: /Acme Ibérica/ }));
+    await user.click(screen.getByRole('link', { name: /^Acme Ibérica/ }));
     await screen.findByRole('heading', { name: 'Cliente no encontrado' });
     expect(select()).toHaveValue('USD');
   });

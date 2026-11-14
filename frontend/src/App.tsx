@@ -4,6 +4,7 @@ import type { MouseEvent } from 'react';
 import { Route, Routes } from 'react-router';
 import { CustomerDetailPage } from './customers/CustomerDetailPage';
 import { CustomersPage } from './customers/CustomersPage';
+import { EditCustomerPage } from './customers/EditCustomerPage';
 import { NewCustomerPage } from './customers/NewCustomerPage';
 import { NotFoundPage } from './customers/NotFoundPage';
 import { CurrencyNotice } from './layout/CurrencyNotice';
@@ -64,6 +65,7 @@ function Shell() {
           <Route path="/" element={<CustomersPage />} />
           <Route path="/customers/new" element={<NewCustomerPage />} />
           <Route path="/customers/:id" element={<CustomerDetailPage />} />
+          <Route path="/customers/:id/edit" element={<EditCustomerPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

@@ -142,7 +142,7 @@ describe('RF30 · ruta o método inexistente → 404 NOT_FOUND antes que el tran
 
   it.each([
     ['get', '/foo'],
-    ['delete', '/customers/1'],
+    ['patch', '/customers/1'],
     ['put', '/customers'],
     ['patch', '/customers'],
     ['post', '/customers/1'],

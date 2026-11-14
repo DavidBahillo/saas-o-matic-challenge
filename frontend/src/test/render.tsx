@@ -10,7 +10,7 @@ import { mockFetch } from './mock-fetch';
 import type { FetchMock, MockHandler } from './mock-fetch';
 
 export interface RenderAppOptions {
-  route?: string;
+  route?: string | { pathname: string; state: unknown };
   /** Rutas "GET /api/..." del fetch sustituido. Por defecto /exchange-rates responde 200 y /customers una lista vacía. */
   routes?: Record<string, MockHandler>;
   /** true con vi.useFakeTimers: user-event sin esperas propias (delay null). */
@@ -18,8 +18,9 @@ export interface RenderAppOptions {
 }
 
 function LocationProbe() {
-  const { pathname, search } = useLocation();
-  return <output data-testid="location">{pathname + search}</output>;
+  const { pathname, search, ...rest } = useLocation();
+  const state: unknown = rest.state;
+  return <output data-testid="location" data-state={state === null ? '' : JSON.stringify(state)}>{pathname + search}</output>;
 }
 
 export function renderApp({ route = '/', routes = {}, fakeTimers = false }: RenderAppOptions = {}) {

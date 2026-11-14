@@ -3,6 +3,7 @@
 // company_name_search = toSearchKey(company_name); si toSearchKey cambia, hay que recalcularla
 // con una migración (plan §6.1).
 import type Database from 'better-sqlite3';
+import { migrateSimulationsCascade } from './simulations-cascade-migration';
 import { migrateSimulationCurrencyCheck } from './simulations-currency-check';
 import { SIMULATIONS_INDEX_DDL, simulationsTableDdl } from './simulations-ddl';
 import { migrateSimulationCurrency } from './simulations-migration';
@@ -26,10 +27,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS customers_country_tax_id_uq ON customers (coun
 const SIMULATIONS_DDL = `${simulationsTableDdl('simulations')}
 ${SIMULATIONS_INDEX_DDL}`;
 
-/** Crea customers (UNIQUE country, tax_id) y simulations (FK RESTRICT, RF13). Idempotente. */
+/** Crea customers (UNIQUE country, tax_id) y simulations (FK CASCADE, 009 RF23). Idempotente. */
 export function migrate(db: Database.Database): void {
   db.exec(DDL);
   db.exec(SIMULATIONS_DDL);
   migrateSimulationCurrency(db);
   migrateSimulationCurrencyCheck(db);
+  migrateSimulationsCascade(db);
 }

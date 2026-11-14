@@ -51,14 +51,13 @@ describe('migrate sobre una base de la 003 (RF20)', () => {
     expect(createSimulationsRepository(db).listByCustomer(1)).toEqual(first);
   });
 
-  it('mantiene la tabla customers y la FK ON DELETE RESTRICT', () => {
+  it('mantiene la tabla customers y la FK pasa a ON DELETE CASCADE (009)', () => {
     seedOldDatabase();
     migrate(db);
     expect(db.prepare<[], { n: number }>('SELECT COUNT(*) AS n FROM customers').get()?.n).toBe(1);
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     const fks = db.pragma('foreign_key_list(simulations)') as { on_delete: string; table: string }[];
-    expect(fks).toEqual([expect.objectContaining({ table: 'customers', on_delete: 'RESTRICT' })]);
-    expect(() => db.prepare('DELETE FROM customers WHERE id = 1').run()).toThrow(/FOREIGN KEY/);
+    expect(fks).toEqual([expect.objectContaining({ table: 'customers', on_delete: 'CASCADE' })]);
   });
 
   it('las simulaciones nuevas siguen añadiéndose tras migrar', () => {

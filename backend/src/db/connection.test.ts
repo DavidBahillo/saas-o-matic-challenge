@@ -104,7 +104,7 @@ describe('claves foráneas y tabla simulations (RF13)', () => {
     db.close();
   });
 
-  it('borrar un cliente con simulaciones lanza y sin simulaciones se borra', () => {
+  it('borrar un cliente borra en cascada sus simulaciones (009)', () => {
     const db = openDatabase(':memory:');
     migrate(db);
     const repo = createCustomersRepository(db);
@@ -112,14 +112,8 @@ describe('claves foráneas y tabla simulations (RF13)', () => {
     const without = repo.insert({ ...CUSTOMER, taxId: 'A58818501' });
     insertSimulation(db, withSim.id);
     const del = db.prepare('DELETE FROM customers WHERE id = ?');
-    // SQLite señala ON DELETE RESTRICT por la vía del trigger.
-    expect(() => { del.run(withSim.id); }).toThrow(
-      expect.objectContaining({
-        name: 'SqliteError',
-        code: 'SQLITE_CONSTRAINT_TRIGGER',
-        message: 'FOREIGN KEY constraint failed',
-      }),
-    );
+    expect(del.run(withSim.id).changes).toBe(1);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM simulations').get()).toEqual({ n: 0 });
     expect(del.run(without.id).changes).toBe(1);
     db.close();
   });

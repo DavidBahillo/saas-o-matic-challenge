@@ -60,9 +60,10 @@ export function customerNotFound(id: number): HttpError {
   return new HttpError(404, 'CUSTOMER_NOT_FOUND', `No existe el cliente ${String(id)}.`);
 }
 
-export function customerAlreadyExists(country: string, existingId: number): HttpError {
+/** Sin `existingId` cuando el cliente en conflicto ya no existe (carrera con un borrado, 009 RF15). */
+export function customerAlreadyExists(country: string, existingId?: number): HttpError {
   const message = `Ya existe un cliente con ese identificador fiscal en ${country}.`;
-  return new HttpError(409, 'CUSTOMER_ALREADY_EXISTS', message, { existingId });
+  return new HttpError(409, 'CUSTOMER_ALREADY_EXISTS', message, existingId === undefined ? undefined : { existingId });
 }
 
 export function internalError(): HttpError {

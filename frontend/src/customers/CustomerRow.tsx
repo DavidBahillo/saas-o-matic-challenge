@@ -8,7 +8,7 @@ import { CountryFlag } from '../ui/CountryFlag';
 import { RowActions } from './RowActions';
 import { formatDateOnly } from './format-since';
 
-export function CustomerRow({ customer }: { customer: Customer }) {
+export function CustomerRow({ customer, onDelete }: { customer: Customer; onDelete: (customer: Customer) => void }) {
   return (
     <tr role="row" className="customer-row">
       <td role="cell" className="customer-row__company">
@@ -32,7 +32,7 @@ export function CustomerRow({ customer }: { customer: Customer }) {
         <time dateTime={customer.createdAt}>{formatDateOnly(customer.createdAt)}</time>
       </td>
       <td role="cell" className="customer-row__actions">
-        <RowActions company={customer.companyName} />
+        <RowActions customer={customer} onDelete={onDelete} />
       </td>
     </tr>
   );

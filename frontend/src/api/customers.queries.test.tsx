@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { ACME, CUSTOMER_LIST_BODY, SIMULATION_USD } from '../test/fixtures';
 import { mockFetch } from '../test/mock-fetch';
-import { useCustomer, useCustomerSimulations, useCustomers } from './customers.queries';
+import { useCustomer, useCustomerForEdit, useCustomerSimulations, useCustomers } from './customers.queries';
+import { queryKeys } from './query-keys';
 import { createQueryClient } from './query-client';
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -24,6 +25,24 @@ describe('consultas de clientes', () => {
     const { result } = renderHook(() => useCustomers(' acme & co '), { wrapper });
     await waitFor(() => { expect(result.current.isSuccess).toBe(true); });
     expect(mock.calls[0]?.query.get('q')).toBe('acme & co');
+  });
+
+  it('useCustomers añade page solo si es mayor que 1 y lo combina con q', async () => {
+    const mock = mockFetch({ 'GET /api/customers': { body: CUSTOMER_LIST_BODY } });
+    const first = renderHook(() => useCustomers('', 1), { wrapper });
+    const third = renderHook(() => useCustomers('ac', 3), { wrapper });
+    await waitFor(() => { expect(first.result.current.isSuccess && third.result.current.isSuccess).toBe(true); });
+    expect(mock.calls.map((c) => [c.query.get('q'), c.query.get('page')])).toEqual([[null, null], ['ac', '3']]);
+  });
+
+  it('la clave de la lista incluye q y página', () => {
+    expect(queryKeys.customerList('ac', 2)).toEqual(['customers', 'list', 'ac', 2]);
+  });
+
+  it('useCustomerForEdit lee el cliente del servidor', async () => {
+    mockFetch({ 'GET /api/customers/7': { body: ACME } });
+    const { result } = renderHook(() => useCustomerForEdit('7'), { wrapper });
+    await waitFor(() => { expect(result.current.data?.companyName).toBe('Acme Ibérica SL'); });
   });
 
   it('useCustomer y useCustomerSimulations leen el detalle y { items }', async () => {

@@ -1,50 +1,36 @@
-// Acciones de fila de la lista de clientes (RF64 a RF66): "Editar" y "Borrar", sin función todavía.
-// Decisión: aria-disabled="true" y no `disabled` nativo, porque un botón con `disabled` no recibe foco ni anuncia su motivo;
-// así conservan el foco, el Tooltip "Próximamente" funciona con teclado y al tocar, y el motivo se anuncia con aria-describedby.
-// La pulsación se cancela (no hace nada). Los botones van por encima del enlace estirado de la fila (z-index), así que el
-// clic no llega a él; no se detiene la propagación para que el Tooltip pueda alternarse al tocar.
-import type { MouseEvent, ReactNode } from 'react';
+// Acciones de fila de la lista de clientes (RF19, RF30): "Editar" lleva a /customers/:id/edit (con la búsqueda y la página
+// de origen en el estado de navegación, D-7) y "Borrar" abre el diálogo de confirmación. Los controles van por encima del
+// enlace estirado de la fila (z-index de `.btn--icon`), así que el clic no llega a él.
+import type { Customer } from '@saas-o-matic/shared';
+import { Link, useLocation } from 'react-router';
 import { Button } from '../ui/Button';
 import { PencilIcon, TrashIcon } from '../ui/icons';
-import { Tooltip } from '../ui/Tooltip';
 
-const SOON = 'Próximamente';
-
-function ignore(event: MouseEvent): void {
-  event.preventDefault();
+export interface RowActionsProps {
+  customer: Customer;
+  onDelete: (customer: Customer) => void;
 }
 
-interface ActionProps {
-  label: string;
-  danger?: boolean;
-  children: ReactNode;
-}
-
-function Action({ label, danger = false, children }: ActionProps) {
-  return (
-    <Tooltip text={SOON} toggle>
-      <Button
-        variant="ghost"
-        className={danger ? 'btn--icon row-action row-action--danger' : 'btn--icon row-action'}
-        aria-label={label}
-        aria-disabled="true"
-        onClick={ignore}
-      >
-        {children}
-      </Button>
-    </Tooltip>
-  );
-}
-
-export function RowActions({ company }: { company: string }) {
+export function RowActions({ customer, onDelete }: RowActionsProps) {
+  const { pathname, search } = useLocation();
   return (
     <div className="row-actions">
-      <Action label={`Editar ${company}`}>
+      <Link
+        to={`/customers/${String(customer.id)}/edit`}
+        state={{ from: pathname + search }}
+        className="btn btn--ghost btn--md btn--icon row-action"
+        aria-label={`Editar ${customer.companyName}`}
+      >
         <PencilIcon />
-      </Action>
-      <Action label={`Borrar ${company}`} danger>
+      </Link>
+      <Button
+        variant="ghost"
+        className="btn--icon row-action row-action--danger"
+        aria-label={`Borrar ${customer.companyName}`}
+        onClick={() => { onDelete(customer); }}
+      >
         <TrashIcon />
-      </Action>
+      </Button>
     </div>
   );
 }

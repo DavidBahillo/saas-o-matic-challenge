@@ -251,3 +251,40 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 **Verificación.** 2348/2348 tests y lint en verde. Revisión en navegador a 1280, 1024, 375 y 360 px, ambos temas y presentación. Sin verificar a mano: forced-colors, lector de pantalla y táctil real.
 
 **Lección.** Un rediseño que conserva la estructura no es un rediseño: la composición hay que pedirla explícitamente.
+
+---
+
+## Etapa 11 · Clientes editables y borrables, con lista paginada (spec 009)
+**2026-11-14**
+
+**Punto de partida.** La lista de clientes tenía un tope de 50 resultados sin paginación, y los botones "Editar" y "Borrar" estaban desactivados con el rótulo "Próximamente". Pedí que la edición usara el mismo formulario del alta, con todos los datos ya cargados al pulsar "Editar".
+
+**Qué se hizo.** Recorrí el flujo `/sdd` completo:
+- El planner redactó la spec, a la que respondí 9 preguntas abiertas.
+- Por el tamaño de la spec, la revisión de QA la hizo el reviewer, que devolvió 8 bloqueantes, casi todos del contrato de la API, de la migración y de la atomicidad. Los resolví aceptando valores por defecto concretos. La spec quedó con 31 RF.
+- El planner escribió un plan de 6 tareas.
+- El implementer trabajó en 3 bloques: shared con migración y backend, después el frontend y al final la documentación con la comprobación en navegador.
+
+**Decisiones.**
+- Borrado físico en cascada de las simulaciones. Descarté bloquear con 409 y archivar, porque prefiero poder limpiar clientes de verdad. Esto enmienda D14 y obliga a reconstruir la tabla `simulations` con una migración idempotente.
+- 20 clientes por página, y el servidor normaliza `page` en lugar de dar un 400.
+- Editar y Borrar solo en la lista, no en el detalle.
+- Al editar se puede cambiar el país aunque haya simulaciones, porque esas quedan congeladas.
+- `PUT` con el cuerpo completo y `UNKNOWN_FIELD` primero. Del NIF duplicado se encarga el índice UNIQUE, así que el cliente nunca es duplicado de sí mismo y una carrera entre dos ediciones da 409.
+
+**Corrección de rumbo / control de calidad.**
+- La QA de la spec terminó en REQUIERE CORRECCIONES, y lo resolvimos en una vuelta.
+- El implementer se desvió del plan de forma justificada: un parser propio para el `PUT` y un 409 sin `existingId` en lugar de un 500.
+- En el bloque de frontend no se escribieron los tests en rojo antes que el código. Queda anotado.
+- En la validación usé dos reviewers en paralelo, uno de lógica y otro de UI. Los dos dieron APROBADO a la primera.
+
+**Incidencias.**
+- Unos servidores Vite viejos en 5173 y 5174 servían módulos desactualizados y la pantalla salía en blanco. Se verificó en :5199 y no se mataron esos procesos por permisos.
+- Se corrigió un desbordamiento anterior a esta spec en los campos de "Empresa" a 360 px.
+- El aviso que llega por `location.state` reaparecía al recargar. Ahora se limpia del historial.
+
+**Verificación.** 2515/2515 tests en verde y lint limpio. En navegador, con una BD temporal:
+- A 360 px, en modo claro y oscuro: paginación, edición precargada entrando por URL directa y borrado de un cliente con 2 simulaciones.
+- No se probaron a mano: Escape y clic fuera del diálogo, el diálogo en modo oscuro y el 409 al editar.
+
+**Lección.** Una QA exigente de la spec antes del plan hizo que la implementación saliera aprobada a la primera.

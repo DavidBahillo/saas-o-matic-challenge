@@ -12,7 +12,7 @@ export const SIMULATIONS_COLUMNS = `id, customer_id, users, storage, api_calls, 
 export function simulationsTableDdl(name: string): string {
   return `CREATE TABLE IF NOT EXISTS ${name} (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
-  customer_id      INTEGER NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+  customer_id      INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
   users            INTEGER NOT NULL CHECK (users BETWEEN 0 AND 100000),
   storage          INTEGER NOT NULL CHECK (storage BETWEEN 0 AND 1000000),
   api_calls        INTEGER NOT NULL CHECK (api_calls BETWEEN 0 AND 1000000),

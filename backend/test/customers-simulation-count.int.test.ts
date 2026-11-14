@@ -74,14 +74,14 @@ describe('RF2 · el contador solo sube con un 201', () => {
 });
 
 describe('RF3 · orden, total y límite no cambian; sin columna nueva', () => {
-  it('mantiene el orden por colación y el límite de 50 con total', async () => {
+  it('mantiene el orden por colación y la página de 20 con total (009)', async () => {
     const u = createTestApp();
     seedNames(u, ['Zeta', 'árbol', 'Beta']);
     for (let i = 0; i < 50; i += 1) seedNames(u, [`Cliente ${String(i).padStart(2, '0')}`]);
     const res = await request(u.app).get('/customers');
     const body = res.body as { items: { companyName: string }[]; total: number };
     expect(body.total).toBe(53);
-    expect(body.items).toHaveLength(50);
+    expect(body.items).toHaveLength(20);
     expect(body.items.slice(0, 2).map((c) => c.companyName)).toEqual(['árbol', 'Beta']);
     u.close();
   });

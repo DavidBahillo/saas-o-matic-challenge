@@ -13,6 +13,8 @@ import './styles/controls.css';
 import './styles/lists.css';
 import './styles/workspace.css';
 import './styles/simulator.css';
+import './styles/pagination.css';
+import './styles/dialog.css';
 
 applyTheme(document.documentElement, readTheme(browserStorage()));
 

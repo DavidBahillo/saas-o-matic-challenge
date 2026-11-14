@@ -53,11 +53,13 @@ export const RATES_UNAVAILABLE: MockReply = {
   body: { error: { code: 'EXCHANGE_RATE_UNAVAILABLE', message: 'Tipos de cambio no disponibles.' } },
 };
 
-export const CUSTOMER_LIST_BODY = { items: [ACME], total: 1 };
+export const CUSTOMER_LIST_BODY = { items: [ACME], total: 1, page: 1, pageSize: 20 };
 
 export const makeCustomer = (overrides: Partial<Customer>): Customer => ({ ...ACME, ...overrides });
 
-export const customerList = (items: Customer[], total = items.length): MockReply => ({ body: { items, total } });
+export const customerList = (items: Customer[], total = items.length, page = 1): MockReply => ({
+  body: { items, total, page, pageSize: 20 },
+});
 
 export const apiError = (status: number, code: string, message: string, details?: unknown): MockReply => ({
   status,

@@ -3,6 +3,8 @@ Estado: aprobada
 
 > **Implementación:** todos los importes se calculan, guardan y devuelven como enteros en céntimos (D2). La spec los redacta en euros, igual que la 002 (U9 de la 002). Los importes convertidos de la 004 son céntimos de la divisa de la simulación.
 >
+> **Enmendada por la 009:** la FK `simulations.customer_id` pasa de `ON DELETE RESTRICT` a `ON DELETE CASCADE`; borrar un cliente (`DELETE /customers/:id`) borra sus simulaciones. Las simulaciones siguen siendo inmutables (ver `specs/009-customers-crud-pagination/spec.md`).
+>
 > **Enmendada por la 004:** divisa, tipo de cambio congelado e importes convertidos se incorporan al contrato de la simulación (ver `specs/004-currency/spec.md`).
 
 ## Contexto y objetivo (por qué)

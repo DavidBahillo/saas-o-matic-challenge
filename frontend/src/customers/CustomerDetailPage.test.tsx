@@ -165,7 +165,7 @@ describe('CustomerDetailPage: reinicio del simulador (RF38)', () => {
     setField('Llamadas a la API (al mes)', '7');
     await user.click(screen.getByRole('link', { name: 'Clientes' }));
     await user.type(await screen.findByRole('searchbox', { name: 'Buscar clientes' }), 'port');
-    await user.click(await screen.findByRole('link', { name: /Portuguesa SA/ }));
+    await user.click(await screen.findByRole('link', { name: /^Portuguesa SA/ }));
     await waitFor(() => { expect(location()).toBe('/customers/9'); });
     await screen.findByRole('heading', { level: 1, name: 'Portuguesa SA' });
     await waitForSimulator();

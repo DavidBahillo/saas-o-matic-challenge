@@ -80,9 +80,9 @@ describe('CustomersPage: cabecera y lista (RF19, RF20, RF-bandera)', () => {
     expect(scope.getByText('growth')).toBeVisible();
     expect(scope.getByText('2 simulaciones')).toBeVisible();
     expect(scope.getByText('12 nov 2026')).toBeVisible();
-    expect(scope.getAllByRole('link')).toHaveLength(1);
-    expect(scope.getByRole('button', { name: 'Editar Acme Ibérica SL' })).toHaveAttribute('aria-disabled', 'true');
-    expect(scope.getByRole('button', { name: 'Borrar Acme Ibérica SL' })).toHaveAttribute('aria-disabled', 'true');
+    expect(scope.getAllByRole('link')).toHaveLength(2);
+    expect(scope.getByRole('link', { name: 'Editar Acme Ibérica SL' })).toHaveAttribute('href', '/customers/7/edit');
+    expect(scope.getByRole('button', { name: 'Borrar Acme Ibérica SL' })).not.toHaveAttribute('aria-disabled');
   });
 
   it('clientes con 0, 1 y 2 simulaciones usan el texto correcto y conservan el orden recibido', async () => {
@@ -91,7 +91,7 @@ describe('CustomersPage: cabecera y lista (RF19, RF20, RF-bandera)', () => {
     expect(screen.getByText('0 simulaciones')).toBeVisible();
     expect(screen.getByText('1 simulación')).toBeVisible();
     expect(screen.getByText('2 simulaciones')).toBeVisible();
-    const names = screen.getAllByRole('link', { name: /SA$|SL$/ }).map((l) => l.textContent);
+    const names = screen.getAllByRole('link', { name: /^(Cero SA|Uno SL|Acme Ibérica SL)$/ }).map((l) => l.textContent);
     expect(names).toEqual(['Cero SA', 'Uno SL', 'Acme Ibérica SL']);
   });
 
@@ -109,16 +109,16 @@ describe('CustomersPage: cabecera y lista (RF19, RF20, RF-bandera)', () => {
     expect(location()).toBe('/customers/7');
   });
 
-  it('con más de 50 coincidencias indica "Mostrando 50 de TOTAL"', async () => {
-    const items = Array.from({ length: 50 }, (_, i) =>
+  it('con más de una página muestra la paginación con el rango', async () => {
+    const items = Array.from({ length: 20 }, (_, i) =>
       makeCustomer({ id: i + 1, companyName: `Empresa ${String(i + 1)}` }),
     );
     renderApp({ routes: { 'GET /api/customers': customerList(items, 73) } });
-    expect(await screen.findByText('Mostrando 50 de 73')).toBeVisible();
-    expect(screen.getAllByRole('row')).toHaveLength(51);
+    expect(await screen.findByText('Mostrando 1-20 de 73')).toBeVisible();
+    expect(screen.getAllByRole('row')).toHaveLength(21);
   });
 
-  it('sin exceso no muestra "Mostrando"', async () => {
+  it('con una sola página no muestra la paginación', async () => {
     renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
     await screen.findByText('Acme Ibérica SL');
     expect(screen.queryByText(/Mostrando/)).toBeNull();

@@ -53,7 +53,7 @@ describe('migrateSimulationCurrencyCheck', () => {
     expect(() => { insertCurrency('CHF'); }).toThrow();
   });
 
-  it('reconstruye conservando filas, ids, orden, FK RESTRICT e índice', () => {
+  it('reconstruye conservando filas, ids, orden, FK CASCADE (009) e índice', () => {
     createOldDatabase();
     const before = createSimulationsRepository(db).listByCustomer(1);
     migrate(db);
@@ -62,7 +62,7 @@ describe('migrateSimulationCurrencyCheck', () => {
     expect(createSimulationsRepository(db).listByCustomer(1)).toEqual(before);
     expect(before.map((s) => s.id)).toEqual([2, 1]);
     const fks = db.pragma('foreign_key_list(simulations)') as { on_delete: string; table: string }[];
-    expect(fks).toEqual([expect.objectContaining({ table: 'customers', on_delete: 'RESTRICT' })]);
+    expect(fks).toEqual([expect.objectContaining({ table: 'customers', on_delete: 'CASCADE' })]);
     const index = db.prepare(`SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'simulations_customer_created_idx'`).get();
     expect(index).toBeDefined();
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);

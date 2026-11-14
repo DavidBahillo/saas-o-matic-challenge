@@ -62,7 +62,7 @@ describe('RF32 · los clientes siguen ahí tras reiniciar (CA4)', () => {
     expect(byId.status).toBe(200);
     expect(byId.body).toEqual(created.body);
     const list = await request(app).get('/customers').query({ q: 'IBÉRICA' });
-    expect(list.body).toEqual({ items: [created.body], total: 1 });
+    expect(list.body).toEqual({ items: [created.body], total: 1, page: 1, pageSize: 20 });
   });
 
   it('tras reiniciar, la unicidad se mantiene (409) y los ids continúan', async () => {
@@ -87,6 +87,6 @@ describe('RF32 · los clientes siguen ahí tras reiniciar (CA4)', () => {
     const rejected = await post(start().app, { ...CONTRACT_REQUEST, taxId: 'B12345675' });
     expect(rejected.status).toBe(400);
     const list = await request(restart().app).get('/customers');
-    expect(list.body).toEqual({ items: [], total: 0 });
+    expect(list.body).toEqual({ items: [], total: 0, page: 1, pageSize: 20 });
   });
 });

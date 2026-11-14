@@ -1,11 +1,12 @@
 // Esquemas Zod de GET /customers/:id y GET /customers?q= (plan §6.4, punto 6).
 // - id: entero decimal canónico entre 1 y MAX_SAFE_INTEGER, sin ceros a la izquierda, signos,
 //   decimales ni exponentes (RF22). Cualquier fallo → INVALID_ID en `id`.
+// - page (009): se normaliza con parsePageParam de shared/; nunca da error.
 // - q: solo `string | undefined`; un array (q=a&q=b, q[]=a) o un objeto (q[a]=b) → INVALID_TYPE.
 //   Tras el trim del Glosario, más de 100 code points → INVALID_LENGTH; vacío → sin filtro (RF24).
 //   Los parámetros desconocidos se ignoran: z.object descarta las claves que no declara.
 import { z } from 'zod';
-import { codePointLength, trimWhitespace } from '@saas-o-matic/shared';
+import { codePointLength, parsePageParam, trimWhitespace } from '@saas-o-matic/shared';
 import type { FieldError } from '@saas-o-matic/shared';
 import type { ParseResult } from './customer-body.schema';
 
@@ -62,4 +63,12 @@ export function parseSearchQuery(query: unknown): ParseResult<string | undefined
   }
   const q = result.data.q;
   return { ok: true, value: q === '' ? undefined : q };
+}
+
+/** GET /customers: `q` validado como siempre y `page` normalizado, que nunca da error (009, RF5). */
+export function parseListQuery(query: unknown): ParseResult<{ q: string | undefined; page: number }> {
+  const q = parseSearchQuery(query);
+  if (!q.ok) return q;
+  const raw = typeof query === 'object' && query !== null ? (query as Record<string, unknown>)['page'] : undefined;
+  return { ok: true, value: { q: q.value, page: parsePageParam(raw) } };
 }

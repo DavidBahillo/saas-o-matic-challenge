@@ -53,3 +53,11 @@ export function parseCreateCustomerBody(body: unknown): ParseResult<NewCustomer>
     ? { ok: true, value: result.data }
     : { ok: false, errors: toFieldErrors(result.error.issues) };
 }
+
+/** Cuerpo de PUT /customers/:id (009, RF10): las mismas reglas que el alta, con UNKNOWN_FIELD antes que el resto. */
+export function parseUpdateCustomerBody(body: unknown): ParseResult<NewCustomer> {
+  const parsed = parseCreateCustomerBody(body);
+  if (parsed.ok) return parsed;
+  const unknown = parsed.errors.filter((e) => e.code === 'UNKNOWN_FIELD');
+  return { ok: false, errors: [...unknown, ...parsed.errors.filter((e) => e.code !== 'UNKNOWN_FIELD')] };
+}

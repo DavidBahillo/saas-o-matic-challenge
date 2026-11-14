@@ -1,11 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { ACME, CUSTOMER_LIST_BODY, RATES_BODY, SIMULATION_USD } from '../test/fixtures';
-import { customerListSchema, customerSchema, exchangeRateListSchema, simulationListSchema } from './schemas';
+import { customerListSchema, customerSchema, deleteResultSchema, exchangeRateListSchema, simulationListSchema } from './schemas';
+
+describe('esquemas de la 009 (RF1, RF20)', () => {
+  it('la lista exige page y pageSize', () => {
+    expect(customerListSchema.safeParse({ items: [], total: 0 }).success).toBe(false);
+    expect(customerListSchema.safeParse({ items: [], total: 0, page: 1, pageSize: 20 }).success).toBe(true);
+  });
+
+  it('el borrado devuelve deletedSimulations entero no negativo', () => {
+    expect(deleteResultSchema.parse({ deletedSimulations: 14 })).toEqual({ deletedSimulations: 14 });
+    expect(deleteResultSchema.safeParse({ deletedSimulations: -1 }).success).toBe(false);
+    expect(deleteResultSchema.safeParse({}).success).toBe(false);
+  });
+});
 
 describe('esquemas de respuesta (RF34, RF35)', () => {
   it('aceptan los literales de la spec', () => {
     expect(customerSchema.parse(ACME)).toEqual(ACME);
-    expect(customerListSchema.parse(CUSTOMER_LIST_BODY).total).toBe(1);
+    expect(customerListSchema.parse(CUSTOMER_LIST_BODY)).toMatchObject({ total: 1, page: 1, pageSize: 20 });
     expect(exchangeRateListSchema.parse(RATES_BODY).items).toHaveLength(2);
   });
 

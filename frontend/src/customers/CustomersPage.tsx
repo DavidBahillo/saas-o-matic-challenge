@@ -1,69 +1,68 @@
-// Lista de clientes y búsqueda (RF19, RF20): la búsqueda vive en la URL (?q=) y en la cabecera de la lista.
-import { Link, useNavigate, useSearchParams } from 'react-router';
+// Lista de clientes, búsqueda y paginación (RF1 a RF6, RF19 a RF22, RF27): `q` y `page` viven en la URL; borrar y editar
+// terminan con un aviso (banner visible + región aria-live).
+import type { Customer } from '@saas-o-matic/shared';
+import { parsePageParam } from '@saas-o-matic/shared';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useCustomers } from '../api/customers.queries';
-import { generalMessage } from '../api/errors';
+import type { DeleteOutcome } from '../api/customers.mutations';
 import { SearchBox } from '../layout/SearchBox';
 import { useDocumentTitle } from '../layout/use-document-title';
-import { Button } from '../ui/Button';
-import { EmptyState, ErrorState, Skeleton } from '../ui/States';
-import { CustomerRow } from './CustomerRow';
+import { simulationsLabel } from '../lib/pluralize';
+import { LiveRegion } from '../ui/LiveRegion';
+import { CustomerListView } from './CustomerListView';
+import { DeleteCustomerDialog } from './DeleteCustomerDialog';
 import { customersCountLabel } from './count-label';
+import { listUrl, readNotice } from './list-url';
 
-const COLUMNS = ['Empresa', 'País y NIF', 'Plan', 'Simulaciones', 'Alta', 'Acciones'] as const;
-
-function NoCustomers({ q }: { q: string }) {
-  const navigate = useNavigate();
-  return (
-    <EmptyState
-      title={q === '' ? 'Todavía no hay clientes.' : `Sin resultados para «${q}»`}
-      action={
-        q === '' ? (
-          <Link to="/customers/new" className="btn btn--primary btn--md">
-            Dar de alta un cliente
-          </Link>
-        ) : (
-          <Button onClick={() => void navigate('/')}>Borrar búsqueda</Button>
-        )
-      }
-    />
-  );
+function deletedNotice(name: string, outcome: DeleteOutcome): string {
+  if (outcome.alreadyGone) return `El cliente «${name}» ya no existía.`;
+  if (outcome.deletedSimulations === 0) return `Cliente «${name}» borrado.`;
+  return `Cliente «${name}» borrado junto con ${simulationsLabel(outcome.deletedSimulations)}.`;
 }
 
-type CustomersQuery = ReturnType<typeof useCustomers>;
+/** Mantiene la URL en la página efectiva que devuelve el servidor (RF5, RF27), sin añadir entradas al historial. */
+function useCanonicalUrl(q: string, effectivePage: number | undefined): void {
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (effectivePage === undefined) return;
+    const target = listUrl(q, effectivePage);
+    if (pathname + search !== target) void navigate(target, { replace: true });
+  }, [q, effectivePage, pathname, search, navigate]);
+}
 
-function CustomerList({ query, q }: { query: CustomersQuery; q: string }) {
-  if (query.isPending) return <Skeleton lines={3} label="Cargando clientes…" />;
-  if (query.isError) return <ErrorState message={generalMessage(query.error)} onRetry={() => void query.refetch()} />;
-  const { items, total } = query.data;
-  if (items.length === 0) return <NoCustomers q={q} />;
-  return (
-    <>
-      {total > items.length && <p className="muted">{`Mostrando ${String(items.length)} de ${String(total)}`}</p>}
-      <table role="table" aria-label="Clientes" className="customer-list">
-        <thead role="rowgroup">
-          <tr role="row" className="customer-list__head">
-            {COLUMNS.map((name) => (
-              <th key={name} role="columnheader" scope="col">
-                {name}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody role="rowgroup">
-          {items.map((customer) => (
-            <CustomerRow key={customer.id} customer={customer} />
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
+/** El aviso ya se copió al estado local: se limpia del historial para que no reaparezca al recargar. */
+function useClearNotice(hasNotice: boolean): void {
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (hasNotice) void navigate(pathname + search, { replace: true, state: null });
+  }, [hasNotice, pathname, search, navigate]);
+}
+
+function useNoticeFromState(state: unknown) {
+  const initial = readNotice(state);
+  useClearNotice(initial !== '');
+  return useState(initial);
 }
 
 export function CustomersPage() {
   const [params] = useSearchParams();
+  const state: unknown = useLocation().state;
   const q = (params.get('q') ?? '').trim();
-  const query = useCustomers(q);
+  const page = parsePageParam(params.get('page'));
+  const query = useCustomers(q, page);
+  const [target, setTarget] = useState<Customer | undefined>(undefined);
+  const [notice, setNotice] = useNoticeFromState(state);
+  useCanonicalUrl(q, query.data?.page);
   useDocumentTitle('Clientes');
+
+  const handleDeleted = (outcome: DeleteOutcome) => {
+    if (target !== undefined) setNotice(deletedNotice(target.companyName, outcome));
+    setTarget(undefined);
+  };
+
   return (
     <section className="page">
       <div className="list-head">
@@ -76,7 +75,17 @@ export function CustomersPage() {
           </Link>
         </div>
       </div>
-      <CustomerList query={query} q={q} />
+      {notice !== '' && <p className="notice notice--success">{notice}</p>}
+      <LiveRegion message={notice} />
+      <CustomerListView query={query} q={q} onDelete={setTarget} />
+      {target !== undefined && (
+        <DeleteCustomerDialog
+          key={target.id}
+          customer={target}
+          onClose={() => { setTarget(undefined); }}
+          onDeleted={handleDeleted}
+        />
+      )}
     </section>
   );
 }

@@ -1,6 +1,6 @@
 // Esquemas Zod de las respuestas de éxito (RF34). `satisfies` los ata a los tipos de shared/ (D-P6).
 import { PLANS, TAX_ID_TYPES } from '@saas-o-matic/shared';
-import type { Currency, Customer, CustomerList, Simulation } from '@saas-o-matic/shared';
+import type { Currency, Customer, CustomerList, DeleteCustomerResult, Simulation } from '@saas-o-matic/shared';
 import { z } from 'zod';
 
 const int = z.number().int();
@@ -27,7 +27,13 @@ export const customerSchema = z.object({
 export const customerListSchema = z.object({
   items: z.array(customerSchema),
   total: int.nonnegative(),
+  page: int.positive(),
+  pageSize: int.positive(),
 }) satisfies z.ZodType<CustomerList>;
+
+export const deleteResultSchema = z.object({
+  deletedSimulations: int.nonnegative(),
+}) satisfies z.ZodType<DeleteCustomerResult>;
 
 const tierLineSchema = z.object({
   tier: z.union([z.literal(1), z.literal(2), z.literal(3)]),

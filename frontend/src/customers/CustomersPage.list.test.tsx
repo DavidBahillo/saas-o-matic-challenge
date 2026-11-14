@@ -1,4 +1,4 @@
-// RF55, RF56: roles explícitos, "Alta" como texto real, contador con el total y nota "Mostrando N de M".
+// RF55, RF56: roles explícitos, "Alta" como texto real, contador con el total y rango "Mostrando a-b de M".
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ACME, customerList, makeCustomer } from '../test/fixtures';
@@ -25,11 +25,11 @@ describe('lista de clientes: semántica (RF55)', () => {
 });
 
 describe('lista de clientes: contador (RF56)', () => {
-  it('con más resultados que filas, el contador muestra el total y la nota las filas', async () => {
-    const items = Array.from({ length: 50 }, (_, i) => makeCustomer({ id: i + 1, companyName: `Empresa ${String(i + 1)}` }));
+  it('con más resultados que filas, el contador muestra el total y la paginación el rango', async () => {
+    const items = Array.from({ length: 20 }, (_, i) => makeCustomer({ id: i + 1, companyName: `Empresa ${String(i + 1)}` }));
     renderApp({ routes: { 'GET /api/customers': customerList(items, 73) } });
     expect(await screen.findByText('73 clientes')).toBeVisible();
-    expect(screen.getByText('Mostrando 50 de 73')).toBeVisible();
+    expect(screen.getByText('Mostrando 1-20 de 73')).toBeVisible();
   });
 
   it('sin truncado, el contador coincide con las filas', async () => {

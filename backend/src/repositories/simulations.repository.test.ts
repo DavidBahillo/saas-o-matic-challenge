@@ -142,15 +142,11 @@ describe('insert y findById', () => {
   });
 });
 
-describe('borrado de clientes (RESTRICT)', () => {
-  it('borrar un cliente con simulaciones falla con FOREIGN KEY constraint failed', () => {
+describe('borrado de clientes (CASCADE, 009)', () => {
+  it('borrar un cliente con simulaciones borra también sus simulaciones', () => {
     repo.insert(SIM);
-    expect(() => db.prepare('DELETE FROM customers WHERE id = 1').run()).toThrow(
-      expect.objectContaining({
-        code: 'SQLITE_CONSTRAINT_TRIGGER',
-        message: 'FOREIGN KEY constraint failed',
-      }),
-    );
+    expect(db.prepare('DELETE FROM customers WHERE id = 1').run().changes).toBe(1);
+    expect(repo.findById(1)).toBeUndefined();
   });
 
   it('un cliente sin simulaciones se borra', () => {
