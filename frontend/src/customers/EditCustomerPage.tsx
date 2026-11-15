@@ -10,6 +10,7 @@ import { generalMessage, isNotFoundError } from '../api/errors';
 import { useDocumentTitle } from '../layout/use-document-title';
 import { ErrorState, Skeleton } from '../ui/States';
 import { CustomerForm } from './CustomerForm';
+import { FormCard } from './FormCard';
 import { safeFrom } from './list-url';
 
 function toValues(customer: Customer): NewCustomerValues {
@@ -19,12 +20,11 @@ function toValues(customer: Customer): NewCustomerValues {
 
 function NotFound() {
   return (
-    <section className="state">
-      <h1>Cliente no encontrado</h1>
+    <FormCard title="Cliente no encontrado">
       <Link to="/" className="btn btn--primary">
         Volver a la lista
       </Link>
-    </section>
+    </FormCard>
   );
 }
 
@@ -32,13 +32,10 @@ function EditForm({ id, customer, from }: { id: string; customer: Customer; from
   const navigate = useNavigate();
   const mutation = useUpdateCustomer(id);
   return (
-    <section className="page page--narrow">
-      <h1>Editar cliente</h1>
+    <FormCard title="Editar cliente">
       <CustomerForm
         key={id}
         initialValues={toValues(customer)}
-        submitLabel="Guardar cambios"
-        pendingLabel="Guardando…"
         cancelTo={from}
         pending={mutation.isPending}
         error={mutation.error}
@@ -50,7 +47,7 @@ function EditForm({ id, customer, from }: { id: string; customer: Customer; from
           });
         }}
       />
-    </section>
+    </FormCard>
   );
 }
 
@@ -64,9 +61,17 @@ function EditLoader({ id }: { id: string }) {
   if (loaded.current !== undefined) return <EditForm id={id} customer={loaded.current} from={safeFrom(state)} />;
   if (query.isError) {
     if (isNotFoundError(query.error)) return <NotFound />;
-    return <ErrorState message={generalMessage(query.error)} onRetry={() => void query.refetch()} />;
+    return (
+      <FormCard title="Editar cliente">
+        <ErrorState message={generalMessage(query.error)} onRetry={() => void query.refetch()} />
+      </FormCard>
+    );
   }
-  return <Skeleton lines={3} label="Cargando cliente…" />;
+  return (
+    <FormCard title="Editar cliente">
+      <Skeleton lines={3} label="Cargando cliente…" />
+    </FormCard>
+  );
 }
 
 export function EditCustomerPage() {

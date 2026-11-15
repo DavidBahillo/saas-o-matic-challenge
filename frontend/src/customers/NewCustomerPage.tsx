@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router';
 import { useCreateCustomer } from '../api/customers.mutations';
 import { useDocumentTitle } from '../layout/use-document-title';
 import { CustomerForm } from './CustomerForm';
+import { FormCard } from './FormCard';
 
 export function NewCustomerPage() {
   const navigate = useNavigate();
   const mutation = useCreateCustomer();
   useDocumentTitle('Nuevo cliente');
   return (
-    <section className="page page--narrow">
-      <h1>Nuevo cliente</h1>
+    <FormCard title="Nuevo cliente">
       <CustomerForm
         pending={mutation.isPending}
         error={mutation.error}
@@ -18,6 +18,6 @@ export function NewCustomerPage() {
           mutation.mutate(values, { onSuccess: (customer) => void navigate(`/customers/${String(customer.id)}`) });
         }}
       />
-    </section>
+    </FormCard>
   );
 }

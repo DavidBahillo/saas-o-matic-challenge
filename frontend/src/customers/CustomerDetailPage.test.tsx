@@ -80,7 +80,7 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
     ];
     renderDetail({ simulations: sims });
     const list = await screen.findByTestId('simulation-list');
-    const items = within(list).getAllByRole('row').slice(1).map((r) => r.textContent);
+    const items = Array.from(list.querySelectorAll('.sim-row:not(.sim-row--head)')).map((r) => r.textContent);
     expect(items[0]).toContain('30 usuarios');
     expect(items[1]).toContain('15 usuarios');
     expect(items[2]).toContain('5 usuarios');
@@ -99,8 +99,8 @@ describe('CustomerDetailPage: datos y lista (RF16, RF18)', () => {
   it('simulationCount 3 y 3 simulaciones en la lista coinciden en la pantalla', async () => {
     const sims = [1, 2, 3].map((id) => sim({ id }));
     renderDetail({ customer: makeCustomer({ simulationCount: 3 }), simulations: sims });
-    expect(await screen.findByText('3 simulaciones')).toBeVisible();
-    expect(within(await screen.findByTestId('simulation-list')).getAllByRole('row')).toHaveLength(4);
+    expect(await screen.findByRole('heading', { name: 'Simulaciones guardadas (3)' })).toBeVisible();
+    expect((await screen.findByTestId('simulation-list')).querySelectorAll('.sim-row:not(.sim-row--head)')).toHaveLength(3);
   });
 
   it('una simulación en USD con tipo 1,10 se muestra con 1,10 y sus importes guardados aunque el actual sea 1,20', async () => {

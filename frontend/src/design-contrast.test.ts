@@ -20,16 +20,19 @@ describe('ayudas de contraste', () => {
 
 describe.each(['dark', 'light'] as const)('contraste en el tema %s', (name) => {
   const tokens = themes[name];
-  const surface = (): ReturnType<typeof parseHex> => parseHex(tokens['--color-surface'] ?? '');
-  const color = (token: string): ReturnType<typeof parseHex> => {
-    const value = tokens[`--color-${token}`];
-    if (value === undefined) throw new Error(`falta --color-${token}`);
-    return blendOver(parseHex(value), surface());
+  const value = (token: string): string => {
+    const v = tokens[`--color-${token}`];
+    if (v === undefined) throw new Error(`falta --color-${token}`);
+    return v;
   };
+  /** Color de un token mezclado sobre la superficie (`surface`) o el fondo de página (`bg`). */
+  const mixOver = (token: string, over: 'surface' | 'bg'): ReturnType<typeof parseHex> =>
+    blendOver(parseHex(value(token)), parseHex(value(over)));
+  const applicable = PAIRS.filter((p) => p.themes === undefined || p.themes.includes(name));
 
-  it.each(PAIRS)('$fg sobre $bg llega a $min', ({ fg, bg, min }) => {
-    const base = color(bg);
-    const ratio = contrastRatio(blendOver(color(fg), base), base);
+  it.each(applicable)('$fg sobre $bg (sobre $over) llega a $min', ({ fg, bg, min, over = 'surface' }) => {
+    const base = mixOver(bg, over);
+    const ratio = contrastRatio(blendOver(mixOver(fg, over), base), base);
     expect(ratio, `${fg} sobre ${bg}: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(min);
   });
 });

@@ -4,7 +4,7 @@
 import type { Currency } from '@saas-o-matic/shared';
 import { useState } from 'react';
 import { SavedQuote } from '../customers/SavedQuote';
-import { Button } from '../ui/Button';
+import { SaveButton } from '../ui/SaveButton';
 import { RateDifference, SaveNotices } from './SaveNotices';
 import type { SimulatorSave } from './use-simulator-save';
 
@@ -29,15 +29,13 @@ export function SaveFooter({ currency, blocked, state }: FooterProps) {
           {attempted && blocked && <p className="field__error">{BLOCKED_MESSAGE}</p>}
         </div>
       </div>
-      <Button
-        variant="primary"
-        disabled={pending}
+      <SaveButton
+        pending={pending}
+        ariaLabel="Guardar simulación"
         aria-disabled={blocked || undefined}
         aria-describedby={blocked ? BLOCKED_ID : undefined}
         onClick={press}
-      >
-        {pending ? 'Guardando…' : 'Guardar simulación'}
-      </Button>
+      />
       {blocked && (
         <span id={BLOCKED_ID} className="sr-only">
           {BLOCKED_MESSAGE}

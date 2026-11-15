@@ -100,7 +100,7 @@ describe('Guardar: resultado (RF26)', () => {
     await screen.findByTestId('saved-quote');
     await waitFor(() => { expect(fetchMock.callsTo('GET /api/customers/7')).toHaveLength(2); });
     expect(fetchMock.callsTo('GET /api/customers/7/simulations')).toHaveLength(2);
-    expect(await screen.findByText('3 simulaciones')).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Simulaciones guardadas (3)' })).toBeVisible();
     expect(await screen.findByTestId('simulation-list')).toBeVisible();
     expect(screen.getByLabelText('Usuarios')).toHaveValue('15');
     expect(total().textContent).toBe(`169,40${NBSP}EUR`);

@@ -288,3 +288,29 @@ Cómo se ha construido SaaS-O-Matic con IA: qué se hizo en cada etapa, qué se 
 - No se probaron a mano: Escape y clic fuera del diálogo, el diálogo en modo oscuro y el 409 al editar.
 
 **Lección.** Una QA exigente de la spec antes del plan hizo que la implementación saliera aprobada a la primera.
+
+---
+
+## Etapa 12 · Auditoría de diseño: tema claro con contraste real y UI más legible
+**2026-11-14**
+
+**Punto de partida.** El tema claro era casi blanco y sus tokens apenas contrastaban entre sí; además había detalles de UI poco claros (botones sin fondo, paginación apretada, columnas mezcladas, flechas inconsistentes, textos largos en botones). Hice una auditoría de 25 puntos y la dejé primero como pendiente en `ai-workspace/ui-audit-pending.md`.
+
+**Qué se hizo.** Recorrí `/sdd` como spec 010. El planner convirtió la auditoría en 29 RF; respondí 5 dudas (línea del botón de tema, fondo de botones, columna Simulaciones en móvil, despliegue por fila, centrado del formulario). El implementer trabajó en 3 bloques: tokens claros y componentes compartidos (chevron único, iconos SVG propios, `PlanBadge`, `SaveButton`, `SelectShell`); lista, detalle y formularios; animaciones y documentación.
+
+**Decisiones.**
+- Fondo claro `#E9E9E9` con jerarquía fondo < surface-2 < superficie blanca; sage `#34D399` e info `#38BDF8` más claros y saturados.
+- Acepto que los rellenos sage/info queden a 1,6/1,8:1 contra el fondo (no textual): incompatible con quererlos claros; siempre llevan texto o borde.
+- Paginación no activa sobre `--color-surface` y no sobre `--color-bg`, porque sobre el fondo de página sería invisible.
+- Símbolos de divisa descartados: open.er-api.com no los da y no quise salirme del proveedor.
+- Iconos SVG propios en vez de una librería; chevron de `<select>` por `mask-image` para no escribir colores literales.
+
+**Corrección de rumbo / control de calidad.** La QA de la spec devolvió CAMBIOS NECESARIOS (3 bloqueantes: paginación invisible, superficies claras por encima del nuevo fondo, viabilidad del chevron en selects nativos) y cifras de contraste erróneas; se corrigió en una vuelta. En validación, el reviewer de lógica dio APROBADO; el de UI no tenía navegador, así que verifiqué yo y encontré el chevron de País y Plan fuera del campo; se corrigió en una vuelta.
+
+**Incidencias.** En el bloque 2 los tests se escribieron junto al código, no antes. Un script de Python convirtió archivos a CRLF y rompió los tests que leen `DESIGN.md`; se normalizó a LF.
+
+**Verificación.** 2637/2637 tests y lint limpio. En navegador: lista, paginación, detalle, formulario y header en claro y oscuro, y lista a 375 px sin desbordamiento. Sin verificar a mano: animaciones, tooltip con teclado, forced-colors y lector de pantalla.
+
+**Lección.** Un reviewer sin navegador no valida UI: la comprobación visual tiene que hacerla quien lo tenga.
+
+- **2026-11-15 · /feature · País y Plan en la misma fila.** Qué: en el formulario de alta y edición (`CustomerFields.tsx`), País y Plan van en una fila `.form-row` (2fr/1fr), apilada por debajo de 480 px, con el chevron dentro de cada select. Prompt: "quiero que pais y plan esten los 2 en la misma linea respetando su desplegable". Resultado: 2637/2637 tests en verde; verificado en navegador.

@@ -6,12 +6,12 @@ argument-hint: [título opcional de la etapa]
 Documenta **el proceso** de esta sesión como una nueva etapa del diario. No es una lista de prompts: es el relato de cómo se trabajó y por qué. Título sugerido: $ARGUMENTS
 
 ## Fuentes (buffers locales, no versionados)
-- `.claude/logs/prompts.jsonl`: lo que pidió el usuario (sirve para reconstruir la intención, no para copiarlo).
+- `.claude/logs/prompts.jsonl`: lo que pidió el usuario (sirve para reconstruir la intención, no para copiarlo). Si la conversación actual ya contiene la sesión, no lo leas; si lo lees, solo las entradas desde la última etapa.
 - `.claude/logs/activity.jsonl`: skills y subagentes usados.
 - `git log --oneline` y `git diff --stat` desde la última etapa, más los cambios en `specs/` y `MEMORY.md`.
 
 ## 1. Escribir la etapa al FINAL de `ai-workspace/journal.md`
-Numera con la siguiente etapa libre. Prosa breve, entre 10 y 25 líneas en total:
+No leas el journal entero: obtén el último número con `grep -n "^## Etapa" ai-workspace/journal.md | tail -1` y añade la etapa siguiente al final. Prosa breve, entre 10 y 25 líneas en total:
 
 ```
 ---

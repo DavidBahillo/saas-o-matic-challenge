@@ -1,6 +1,8 @@
 # 009 · Paginación, edición y borrado de clientes
 Estado: aprobada
 
+> **Enmendada por la 010 (auditoría de diseño UI):** RF7 (el formulario de edición, igual que el de alta, va en una tarjeta centrada y su botón de envío pasa a "Guardar" con icono en lugar de "Guardar cambios"; "Guardando…" durante el envío). Ver `specs/010-ui-design-audit/spec.md`.
+
 ## Contexto y objetivo (por qué)
 Hoy la lista de clientes muestra como mucho 50 y, si hay más, solo dice "Mostrando N de M" sin forma de ver el resto. Un cliente, una vez dado de alta, no se puede corregir (un NIF mal escrito, un correo que cambia, un cambio de plan) ni eliminar (un alta duplicada o de prueba). Los botones "Editar" y "Borrar" de la lista están deshabilitados con el aviso "Próximamente" (008, RF64 a RF67), que esta spec sustituye.
 

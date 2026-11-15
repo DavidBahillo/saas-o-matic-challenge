@@ -17,16 +17,16 @@ describe('NewCustomerPage: formulario (RF10, RF11)', () => {
     expect(control('Email')).toBeVisible();
   });
 
-  it('agrupa los controles en "Empresa" y "Contacto y plan" con un ancho máximo', () => {
+  it('tarjeta centrada con título y botones dentro, sin fieldset ni legend, y selects en SelectShell', () => {
     renderForm();
-    const company = screen.getByRole('group', { name: 'Empresa' });
-    const contact = screen.getByRole('group', { name: 'Contacto y plan' });
-    expect(within(company).getByLabelText('Empresa')).toBe(control('Empresa'));
-    expect(within(company).getByLabelText('País')).toBe(control('País'));
-    expect(within(company).getByLabelText('Identificador fiscal')).toBe(control('Identificador fiscal'));
-    expect(within(contact).getByLabelText('Email')).toBe(control('Email'));
-    expect(within(contact).getByLabelText('Plan')).toBe(control('Plan'));
-    expect(screen.getByRole('heading', { level: 1, name: 'Nuevo cliente' }).closest('.page')).toHaveClass('page--narrow');
+    expect(document.querySelector('fieldset, legend')).toBeNull();
+    for (const label of ['Empresa', 'País', 'Identificador fiscal', 'Email', 'Plan']) expect(control(label)).toBeVisible();
+    const card = screen.getByRole('heading', { level: 1, name: 'Nuevo cliente' }).closest('.form-card') as HTMLElement;
+    expect(card.closest('.form-page')).not.toBeNull();
+    expect(within(card).getByRole('button', { name: 'Guardar' })).toBeVisible();
+    expect(control('País').parentElement).toHaveClass('select-shell');
+    expect(control('Plan').parentElement).toHaveClass('select-shell');
+    expect(screen.queryByText('Crear cliente')).toBeNull();
   });
 
   it('envía los valores tal cual, sin normalizar', async () => {
@@ -80,10 +80,10 @@ describe('NewCustomerPage: formulario (RF10, RF11)', () => {
   it('durante el envío el botón queda deshabilitado', async () => {
     const { user } = renderForm({ 'POST /api/customers': () => NEVER });
     await user.click(submit());
-    expect(await screen.findByRole('button', { name: 'Creando…' })).toBeDisabled();
+    expect(await screen.findByRole('button', { name: 'Guardando…' })).toBeDisabled();
   });
 
-  it('doble clic en "Crear cliente": una sola petición', async () => {
+  it('doble clic en "Guardar": una sola petición', async () => {
     const { user, fetchMock } = renderForm({ 'POST /api/customers': () => NEVER });
     await user.dblClick(submit());
     expect(fetchMock.callsTo('POST /api/customers')).toHaveLength(1);
@@ -112,6 +112,6 @@ describe('NewCustomerPage: éxito (RF15)', () => {
     await waitFor(() => { expect(screen.getByTestId('location')).toHaveTextContent('/customers/12'); });
     await user.click(screen.getByRole('link', { name: 'SaaS-O-Matic' }));
     expect(await screen.findByText('Nueva SL')).toBeVisible();
-    expect(screen.getByText('0 simulaciones')).toBeVisible();
+    expect(screen.getByText('0', { selector: '.customer-row__sims' })).toBeVisible();
   });
 });

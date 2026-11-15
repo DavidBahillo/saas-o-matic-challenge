@@ -29,9 +29,10 @@ describe('lista de clientes: reparto de columnas y acciones a la derecha (T13, c
   const lists = css('lists.css');
 
   it('bandera, ISO y NIF no se parten en escritorio y las columnas tienen anchuras repartidas', () => {
-    expect(rules(lists).find((r) => r.selector === '.customer-row__country')?.body).toMatch(/white-space:\s*nowrap/);
-    expect(lists).toMatch(/th:first-child \{ width: 28%/);
-    expect(lists).toMatch(/th:nth-child\(2\) \{ width: 22%/);
+    expect(rules(lists).find((r) => r.selector === '.customer-row__country, .customer-row__taxid')?.body).toMatch(/white-space:\s*nowrap/);
+    expect(lists).toMatch(/th:first-child \{ width: 24%/);
+    expect(lists).toMatch(/th:nth-child\(2\) \{ width: 10%/);
+    expect(lists).toMatch(/th:nth-child\(3\) \{ width: 14%/);
   });
 
   it('en apilado el selector de las acciones supera la especificidad de ".customer-row > td" (display: block)', () => {

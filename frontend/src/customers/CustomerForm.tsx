@@ -1,5 +1,5 @@
 // Formulario de cliente, el mismo para alta y edición (RF10 a RF14, RF7): valores tal cual, un solo envío a la vez y errores
-// junto a su control. Sin `initialValues` es el alta ("Crear cliente"); con ellos, la edición ya rellena.
+// junto a su control. Sin `initialValues` es el alta; con ellos, la edición ya rellena. El botón es siempre "Guardar".
 import { PLANS } from '@saas-o-matic/shared';
 import { useEffect, useRef, useState } from 'react';
 import type { RefObject, SyntheticEvent } from 'react';
@@ -7,6 +7,7 @@ import { Link } from 'react-router';
 import type { NewCustomerValues } from '../api/customers.mutations';
 import { useSubmitLock } from '../lib/use-submit-lock';
 import { Button } from '../ui/Button';
+import { SaveButton } from '../ui/SaveButton';
 import { CustomerFields } from './CustomerFields';
 import { describeSubmitError } from './customer-form-errors';
 import type { SubmitErrorView } from './customer-form-errors';
@@ -19,8 +20,6 @@ export interface CustomerFormProps {
   onSubmit: (values: NewCustomerValues) => void;
   /** Valores con los que arranca el formulario (edición); sin ellos, los del alta. */
   initialValues?: NewCustomerValues;
-  submitLabel?: string;
-  pendingLabel?: string;
   /** Si se indica, se muestra un enlace "Cancelar" a esa ruta. */
   cancelTo?: string;
 }
@@ -61,8 +60,6 @@ export function CustomerForm({
   error,
   onSubmit,
   initialValues = INITIAL,
-  submitLabel = 'Crear cliente',
-  pendingLabel = 'Creando…',
   cancelTo,
 }: CustomerFormProps) {
   const [values, setValues] = useState<NewCustomerValues>(initialValues);
@@ -87,9 +84,7 @@ export function CustomerForm({
         onChange={(key, value) => { setValues((current) => ({ ...current, [key]: value })); }}
       />
       <div className="form__actions">
-        <Button type="submit" variant="primary" disabled={pending}>
-          {pending ? pendingLabel : submitLabel}
-        </Button>
+        <SaveButton type="submit" pending={pending} />
         <CancelLink to={cancelTo} />
       </div>
     </form>

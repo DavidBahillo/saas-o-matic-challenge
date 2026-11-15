@@ -30,6 +30,9 @@
 .chart { display: flex; flex-direction: column; gap: var(--space-sm); margin: 0; }
 .stack { display: flex; min-height: 40px; border: 1px solid var(--color-border-control); border-radius: var(--radius-full); background: var(--color-surface-2); }
 .stack__item { position: relative; display: flex; flex-basis: 0; min-width: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .stack__item { transition: flex-grow 250ms ease; }
+}
 .stack__seg { display: flex; flex: 1; margin: 0; padding: 0; border: 0; cursor: default; align-items: center; justify-content: center; min-width: 0; box-shadow: inset 2px 0 0 var(--color-surface); font-family: var(--font-mono); font-size: var(--fs-caption); font-weight: 500; }
 .stack > .stack__item:first-child .stack__seg { box-shadow: none; border-radius: var(--radius-full) 0 0 var(--radius-full); }
 .stack > .stack__item:last-child .stack__seg { border-radius: 0 var(--radius-full) var(--radius-full) 0; }

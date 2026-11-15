@@ -8,7 +8,7 @@ import { EmptyState, ErrorState, Skeleton } from '../ui/States';
 import { CustomerRow } from './CustomerRow';
 import { Pagination } from './Pagination';
 
-const COLUMNS = ['Empresa', 'País y NIF', 'Plan', 'Simulaciones', 'Alta', 'Acciones'] as const;
+const COLUMNS = ['Empresa', 'País', 'NIF', 'Plan', 'Simulaciones', 'Alta', 'Acciones'] as const;
 
 function NoCustomers({ q }: { q: string }) {
   const navigate = useNavigate();

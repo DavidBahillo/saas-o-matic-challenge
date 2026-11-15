@@ -1,6 +1,9 @@
 // Iconos como SVG en línea con currentColor y aria-hidden (RF-tema4, RF10). Sin dependencias.
 import type { ReactNode } from 'react';
 
+/** Única geometría del chevron: la usa ChevronIcon y la máscara CSS de los select (chevron-css.test.ts). */
+export const CHEVRON_PATH = 'm6 9 6 6 6-6';
+
 export interface IconProps { size?: number; className?: string }
 
 function Icon({ size = 20, className, children }: IconProps & { children: ReactNode }) {
@@ -43,7 +46,7 @@ export function MoonIcon(props: IconProps) {
 export function ChevronIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="m6 9 6 6 6-6" />
+      <path d={CHEVRON_PATH} />
     </Icon>
   );
 }
@@ -86,3 +89,49 @@ export function TrashIcon(props: IconProps) {
   );
 }
 
+
+export function SaveIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <path d="M17 21v-8H7v8M7 3v5h8" />
+    </Icon>
+  );
+}
+
+export function GlobeIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" />
+    </Icon>
+  );
+}
+
+export function IdCardIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <circle cx="8" cy="11" r="2" />
+      <path d="M5 16a3 3 0 0 1 6 0M14 10h5M14 14h5" />
+    </Icon>
+  );
+}
+
+export function MailIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-10 6L2 7" />
+    </Icon>
+  );
+}
+
+export function CalendarIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </Icon>
+  );
+}

@@ -6,7 +6,7 @@ import { renderApp } from './render';
 import type { RenderAppOptions } from './render';
 
 export const control = (name: string) => screen.getByLabelText(name);
-export const submit = () => screen.getByRole('button', { name: 'Crear cliente' });
+export const submit = () => screen.getByRole('button', { name: 'Guardar' });
 export const validation = (...fields: unknown[]): MockReply =>
   apiError(400, 'VALIDATION_ERROR', 'Datos no válidos.', { fields });
 export const field = (name: string, code: string, message: string, extra: object = {}) => ({

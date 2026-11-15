@@ -3,6 +3,8 @@ Estado: cerrada (validada)
 
 > **Enmendada por la 009:** los botones "Editar" y "Borrar" de la lista (RF64 a RF67, "Próximamente") pasan a estar activos y la lista se pagina (ver `specs/009-customers-crud-pagination/spec.md`).
 
+> **Enmendada por la 010 (auditoría de diseño UI):** RF12 (los chips de plan dejan de ser neutros y llevan color propio), RF19 (lista con País y NIF separados, solo el número en Simulaciones y botones y paginación con fondo), RF21/RF40 (plan junto al nombre y datos con icono), RF30 (el formulario va en tarjeta, sin grupos "Empresa" y "Contacto y plan"), RF39 (la flecha de los `select` es el chevron único) y RF48 (el botón pasa a "Presentar" con el atajo en un tooltip; el atajo sigue siendo Alt+P). Ver `specs/010-ui-design-audit/spec.md`.
+
 ## Contexto y objetivo (por qué)
 `DESIGN.md` se ha sustituido por completo por el sistema Verdana Health (navy + sage, Plus Jakarta Sans / DM Sans / Fira Code, base de 8 px, radio 8 px, sombras difusas). Es la nueva fuente de verdad visual. El frontend actual usa la paleta anterior (turquesa, púrpura y rosa, radios de 6 y 12 px, sin sombras), carga Inter y presenta todo como tarjetas iguales y un simulador apilado, sin jerarquía clara.
 

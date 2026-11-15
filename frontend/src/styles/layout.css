@@ -56,7 +56,7 @@
 }
 .logo:hover { color: var(--color-sage-text); }
 .nav__link:hover { color: var(--color-text); }
-.nav__link--active { border-bottom-color: var(--color-sage); color: var(--color-text); }
+.nav__link--active { border-bottom-color: var(--color-sage-text); color: var(--color-text); }
 .content {
   max-width: 1200px;
   margin: 0 auto;

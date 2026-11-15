@@ -1,9 +1,10 @@
 /* Contexto del detalle, espacio de trabajo, cifra de usuarios, escalera, recursos, hoja y presentación (RF21 a RF28, RF30). Solo tokens. */
 .detail { gap: var(--space-xl); }
 .customer-context { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "data" "action"; justify-items: start; gap: var(--space-md); padding-bottom: var(--space-xl); border-bottom: 1px solid var(--color-border); }
-.customer-context h1 { grid-area: name; max-width: 100%; }
+.customer-context__name { grid-area: name; min-width: 0; max-width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm) var(--space-md); }
+.customer-context h1 { min-width: 0; max-width: 100%; }
 .customer-context__meta { grid-area: data; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm) var(--space-md); color: var(--color-text-muted); font-size: var(--fs-body-sm); }
-.customer-context__id { display: inline-flex; align-items: center; gap: var(--space-sm); }
+.customer-context__item { display: inline-flex; min-width: 0; align-items: center; gap: var(--space-sm); }
 .customer-context__present { grid-area: action; }
 @media (min-width: 640px) {
   .customer-context { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name action" "data data"; align-items: center; }
@@ -57,6 +58,10 @@
 .ladder__step--dim.ladder__step--1 { border-color: var(--color-chart-1); }
 .ladder__step--dim.ladder__step--2 { border-color: var(--color-chart-2); }
 .ladder__step--dim.ladder__step--3 { border-color: var(--color-chart-3); }
+/* En claro el sage nuevo daría 1,7:1 sobre el escalón: el borde discontinuo usa el borde de control (spec 010, RF3). */
+[data-theme="light"] .ladder__step--dim.ladder__step--1,
+[data-theme="light"] .ladder__step--dim.ladder__step--2,
+[data-theme="light"] .ladder__step--dim.ladder__step--3 { border-color: var(--color-border-control); }
 
 .resources { padding-top: var(--space-lg); border-top: 1px solid var(--color-border); }
 .resources summary { display: flex; align-items: center; min-height: 44px; font-weight: 500; cursor: pointer; }

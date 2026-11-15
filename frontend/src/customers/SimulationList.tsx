@@ -1,5 +1,5 @@
 // Simulaciones guardadas del cliente (RF30, RF57): tabla semántica con filas de 48 px expandibles, la más reciente primero,
-// cada una en su divisa. Cada fila lleva un botón con aria-expanded y aria-controls que muestra su detalle en una fila oculta.
+// cada una en su divisa. Cada fila lleva un botón con aria-expanded y aria-controls que despliega su detalle con una transición suave (RF18).
 import type { Simulation } from '@saas-o-matic/shared';
 import { useState } from 'react';
 import { formatDateTime } from '../lib/format-date';
@@ -44,9 +44,11 @@ function SimulationRow({ sim, open, onToggle }: RowProps) {
           </button>
         </td>
       </tr>
-      <tr role="row" id={detailId} className="sim-detail" hidden={!open}>
+      <tr role="row" id={detailId} className="sim-detail" data-open={open}>
         <td role="cell" colSpan={5}>
-          <SavedQuote simulation={sim} testId="simulation-quote" />
+          <div className="sim-detail__panel" inert={!open}>
+            <SavedQuote simulation={sim} testId="simulation-quote" />
+          </div>
         </td>
       </tr>
     </tbody>

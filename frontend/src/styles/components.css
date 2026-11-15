@@ -46,14 +46,39 @@
   line-height: var(--lh-h2);
   color-scheme: inherit;
 }
-/* Flecha de los <select> (RF39): chevron relleno con dos degradados en currentColor, con su borde derecho a --space-md del campo. */
+/* <select> (RF39 de la 008): el relleno derecho deja sitio al chevron, que vive en .select-shell (spec 010, RF12 y RF24). */
 select.input {
   appearance: none;
   padding-right: calc(var(--space-md) + var(--space-lg));
-  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position: calc(100% - var(--space-md) - var(--space-sm)) 50%, calc(100% - var(--space-md)) 50%;
-  background-size: var(--space-sm) var(--space-sm), var(--space-sm) var(--space-sm);
-  background-repeat: no-repeat;
+}
+/* Chevron único: la misma geometría que ui/icons (CHEVRON_PATH) como máscara, pintada con tokens. */
+/* El shell se ajusta al ancho del select: así el chevron (right: --space-md) queda siempre dentro de su borde derecho. */
+.select-shell { position: relative; display: block; width: fit-content; max-width: 100%; }
+.select-shell > select { display: block; max-width: 100%; }
+.select-shell::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: var(--space-md);
+  width: var(--space-md);
+  height: var(--space-md);
+  transform: translateY(-50%);
+  pointer-events: none;
+  background-color: var(--color-text-muted);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+.select-shell:has(select:hover)::after { background-color: var(--color-text); }
+.select-shell:has(select:focus-visible)::after { background-color: var(--color-focus); }
+.select-shell:has(select:disabled)::after { opacity: 0.4; }
+@media (forced-colors: active) {
+  .select-shell::after { forced-color-adjust: none; background-color: ButtonText; }
 }
 .input option { background: var(--color-surface); color: var(--color-text); }
 .input::placeholder { color: var(--color-text-muted); opacity: 1; }
@@ -91,6 +116,9 @@ input[type="number"], .input--mono { font-family: var(--font-mono); font-variant
 .badge--warning { border-color: transparent; background: var(--color-warning-bg); color: var(--color-warning-text); }
 .badge--error { border-color: transparent; background: var(--color-error-bg); color: var(--color-error-text); }
 .badge--info { border-color: transparent; background: var(--color-info-bg); color: var(--color-info-text); }
+.badge--plan-starter { border-color: transparent; background: var(--color-plan-starter-bg); color: var(--color-info-text); }
+.badge--plan-growth { border-color: transparent; background: var(--color-plan-growth-bg); color: var(--color-plan-growth-text); }
+.badge--plan-enterprise { border-color: transparent; background: var(--color-plan-enterprise-bg); color: var(--color-text); }
 .badge--success { border-color: transparent; background: var(--color-success-bg); color: var(--color-success-text); }
 
 .notice {

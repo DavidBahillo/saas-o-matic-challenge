@@ -96,4 +96,4 @@
   cursor: pointer;
 }
 .theme-toggle__btn:hover { background: var(--color-ghost-hover); color: var(--color-text); }
-.theme-toggle__btn--active, .theme-toggle__btn--active:hover { background: var(--color-action); color: var(--color-on-action); box-shadow: inset 0 -3px 0 var(--color-on-action); }
+.theme-toggle__btn--active, .theme-toggle__btn--active:hover { background: var(--color-action); color: var(--color-on-action); box-shadow: inset 0 -3px 0 var(--color-toggle-line); }

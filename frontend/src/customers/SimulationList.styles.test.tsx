@@ -57,7 +57,7 @@ describe('desglose abierto (RF61, RF63)', () => {
   });
 
   it('el desglose y su región ocupan la fila sin tarjeta (CSS)', () => {
-    expect(lists).toMatch(/\.sim-detail > td \{[^}]*display: block/);
+    expect(lists).toMatch(/\.sim-detail > td \{[^}]*display: grid/);
     expect(lists).toMatch(/\.saved-quote \{[^}]*min-width: 0/);
     expect(lists).not.toMatch(/\.sim-detail[^{]*\{[^}]*border:/);
   });

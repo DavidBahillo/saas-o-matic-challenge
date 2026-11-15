@@ -6,7 +6,6 @@ import { useCustomer, useCustomerSimulations } from '../api/customers.queries';
 import { ApiError, generalMessage } from '../api/errors';
 import { Simulator } from '../simulator/Simulator';
 import { useDocumentTitle } from '../layout/use-document-title';
-import { simulationsLabel } from '../lib/pluralize';
 import { useCurrency } from '../state/currency-context';
 import { usePresentation, usePresentationHotkeys } from '../state/presentation-context';
 import { useCurrencyPreselection } from '../state/use-currency-preselection';
@@ -59,8 +58,9 @@ function VisitBody({ customer, id }: { customer: Customer; id: string }) {
       </div>
       {!active && (
         <section aria-labelledby="saved-title">
-          <h2 id="saved-title">Simulaciones guardadas</h2>
-          <p className="muted">{simulationsLabel(customer.simulationCount)}</p>
+          <h2 id="saved-title">
+            Simulaciones guardadas (<span className="tabular">{customer.simulationCount}</span>)
+          </h2>
           <Simulations id={id} onCreateFirst={() => simulatorRef.current?.querySelector('input')?.focus()} />
         </section>
       )}

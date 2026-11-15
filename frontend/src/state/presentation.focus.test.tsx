@@ -17,17 +17,17 @@ async function openDetail() {
 describe('modo presentación: foco y anuncio (RF47)', () => {
   it('al entrar con el botón el foco va a "Salir de la presentación" y se anuncia', async () => {
     const { user } = await openDetail();
-    await user.click(screen.getByRole('button', { name: /Modo presentación/ }));
+    await user.click(screen.getByRole('button', { name: 'Presentar' }));
     expect(screen.getByRole('button', { name: 'Salir de la presentación' })).toHaveFocus();
     expect(await screen.findByText('Modo presentación activado')).toBeInTheDocument();
   });
 
-  it('con el atajo y con Escape, el foco vuelve a "Modo presentación" y se anuncia', async () => {
+  it('con el atajo y con Escape, el foco vuelve a "Presentar" y se anuncia', async () => {
     const { user } = await openDetail();
     await user.keyboard(ALT_P);
     expect(screen.getByRole('button', { name: 'Salir de la presentación' })).toHaveFocus();
     await user.keyboard('{Escape}');
-    expect(screen.getByRole('button', { name: /Modo presentación/ })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Presentar' })).toHaveFocus();
     expect(await screen.findByText('Modo presentación desactivado')).toBeInTheDocument();
   });
 
@@ -38,9 +38,9 @@ describe('modo presentación: foco y anuncio (RF47)', () => {
     expect(region?.textContent).toBe('');
   });
 
-  it('el botón declara el atajo en su texto y en aria-keyshortcuts', async () => {
+  it('el botón declara el atajo en aria-keyshortcuts', async () => {
     await openDetail();
-    const button = screen.getByRole('button', { name: 'Modo presentación (Alt+P)' });
+    const button = screen.getByRole('button', { name: 'Presentar' });
     expect(button).toHaveAttribute('aria-keyshortcuts', 'Alt+P');
   });
 });

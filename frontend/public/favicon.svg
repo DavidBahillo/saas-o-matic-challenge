@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <style>
     .bg { fill: #0F172A; }
-    .dot { fill: #059669; }
+    .dot { fill: #34D399; }
     @media (prefers-color-scheme: dark) {
       .bg { fill: #487898; }
       .dot { fill: #68D8A8; }

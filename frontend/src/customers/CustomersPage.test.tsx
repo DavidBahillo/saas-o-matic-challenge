@@ -59,11 +59,11 @@ describe('CustomersPage: cabecera y lista (RF19, RF20, RF-bandera)', () => {
     expect(await screen.findByText('3 clientes')).toBeVisible();
   });
 
-  it('tiene cabecera de columnas: empresa, país y NIF, plan, simulaciones, alta y acciones', async () => {
+  it('tiene cabecera de columnas: empresa, país, NIF, plan, simulaciones, alta y acciones', async () => {
     renderApp({ routes: { 'GET /api/customers': customerList([ACME]) } });
     await screen.findByText('Acme Ibérica SL');
     const names = screen.getAllByRole('columnheader').map((h) => h.textContent);
-    expect(names).toEqual(['Empresa', 'País y NIF', 'Plan', 'Simulaciones', 'Alta', 'Acciones']);
+    expect(names).toEqual(['Empresa', 'País', 'NIF', 'Plan', 'Simulaciones', 'Alta', 'Acciones']);
     expect(screen.getByRole('table', { name: 'Clientes' })).toHaveClass('customer-list');
   });
 
@@ -78,19 +78,19 @@ describe('CustomersPage: cabecera y lista (RF19, RF20, RF-bandera)', () => {
     expect(scope.getByText('ES')).toBeVisible();
     expect(scope.getByRole('img', { name: 'España' })).toBeVisible();
     expect(scope.getByText('growth')).toBeVisible();
-    expect(scope.getByText('2 simulaciones')).toBeVisible();
+    expect(scope.getByText('2', { selector: '.customer-row__sims' })).toBeVisible();
     expect(scope.getByText('12 nov 2026')).toBeVisible();
     expect(scope.getAllByRole('link')).toHaveLength(2);
     expect(scope.getByRole('link', { name: 'Editar Acme Ibérica SL' })).toHaveAttribute('href', '/customers/7/edit');
     expect(scope.getByRole('button', { name: 'Borrar Acme Ibérica SL' })).not.toHaveAttribute('aria-disabled');
   });
 
-  it('clientes con 0, 1 y 2 simulaciones usan el texto correcto y conservan el orden recibido', async () => {
+  it('clientes con 0, 1 y 2 simulaciones muestran solo el número y conservan el orden recibido', async () => {
     renderApp({ routes: { 'GET /api/customers': customerList([ZERO, ONE, ACME]) } });
     await screen.findByText('Cero SA');
-    expect(screen.getByText('0 simulaciones')).toBeVisible();
-    expect(screen.getByText('1 simulación')).toBeVisible();
-    expect(screen.getByText('2 simulaciones')).toBeVisible();
+    expect(screen.getByText('0', { selector: '.customer-row__sims' })).toBeVisible();
+    expect(screen.getByText('1', { selector: '.customer-row__sims' })).toBeVisible();
+    expect(screen.getByText('2', { selector: '.customer-row__sims' })).toBeVisible();
     const names = screen.getAllByRole('link', { name: /^(Cero SA|Uno SL|Acme Ibérica SL)$/ }).map((l) => l.textContent);
     expect(names).toEqual(['Cero SA', 'Uno SL', 'Acme Ibérica SL']);
   });

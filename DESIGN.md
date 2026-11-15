@@ -58,6 +58,11 @@ The single source of truth. This first CSS block is identical to `frontend/src/s
   --color-on-chart-vat: #0B1120;
   --color-tooltip-bg: #D8E0F8;
   --color-tooltip-text: #0B1120;
+  --color-plan-starter-bg: #78D0F824;
+  --color-plan-growth-bg: #68D8A824;
+  --color-plan-growth-text: #68D8A8;
+  --color-plan-enterprise-bg: #48789840;
+  --color-toggle-line: #FFFFFF;
 
   --shadow-sm: none;
   --shadow: none;
@@ -110,22 +115,22 @@ The single source of truth. This first CSS block is identical to `frontend/src/s
 
 [data-theme="light"] {
   /* Tema claro (Verdana) */
-  --color-bg: #F8FAFC;
+  --color-bg: #E9E9E9;
   --color-surface: #FFFFFF;
-  --color-surface-2: #F1F5F9;
-  --color-border: #E2E8F0;
+  --color-surface-2: #EEF1F5;
+  --color-border: #94A3B8;
   --color-border-control: #64748B;
   --color-text: #0F172A;
   --color-text-muted: #475569;
   --color-action: #0F172A;
   --color-action-hover: #020617;
   --color-on-action: #FFFFFF;
-  --color-sage: #059669;
+  --color-sage: #34D399;
   --color-on-sage: #0F172A;
   --color-sage-text: #047857;
   --color-sage-text-hover: #065F46;
-  --color-info: #0EA5E9;
-  --color-info-text: #0369A1;
+  --color-info: #38BDF8;
+  --color-info-text: #075985;
   --color-success: #22C55E;
   --color-success-text: #166534;
   --color-warning: #EAB308;
@@ -138,17 +143,17 @@ The single source of truth. This first CSS block is identical to `frontend/src/s
   --color-success-bg: #22C55E15;
   --color-warning-bg: #EAB30815;
   --color-error-bg: #EF444415;
-  --color-info-bg: #0EA5E915;
-  --color-hover: #F8FAFC;
-  --color-active: #0F172A06;
-  --color-ghost-hover: #F1F5F9;
-  --color-secondary-hover: #0F172A0A;
+  --color-info-bg: #38BDF826;
+  --color-hover: #EEF1F5;
+  --color-active: #0F172A14;
+  --color-ghost-hover: #0F172A14;
+  --color-secondary-hover: #0F172A1A;
   --color-focus: #047857;
   --color-focus-ring: #04785333;
-  --color-selection: #05966933;
+  --color-selection: #34D39959;
   --color-chart-1: #0F172A;
-  --color-chart-2: #059669;
-  --color-chart-3: #0A9BDC;
+  --color-chart-2: #34D399;
+  --color-chart-3: #38BDF8;
   --color-chart-vat: #475569;
   --color-on-chart-1: #FFFFFF;
   --color-on-chart-2: #0F172A;
@@ -156,6 +161,11 @@ The single source of truth. This first CSS block is identical to `frontend/src/s
   --color-on-chart-vat: #FFFFFF;
   --color-tooltip-bg: #0F172A;
   --color-tooltip-text: #F8FAFC;
+  --color-plan-starter-bg: #38BDF826;
+  --color-plan-growth-bg: #34D39926;
+  --color-plan-growth-text: #065F46;
+  --color-plan-enterprise-bg: #0F172A14;
+  --color-toggle-line: #047857;
 
   --shadow-sm: 0 1px 3px #0F172A08;
   --shadow: 0 2px 6px #0F172A0D;
@@ -168,19 +178,22 @@ The single source of truth. This first CSS block is identical to `frontend/src/s
 
 ## Colors
 
-Original Verdana values (light theme), kept as fills and borders:
+Light theme values (spec 010 audit of the Verdana originals), kept as fills and borders:
 
 - **Primary Navy** (#0F172A): Primary actions, strong headers
-- **Secondary Slate** (#64748B): Secondary text, borders
-- **Tertiary Sage** (#059669): Links, CTAs, highlights
-- **Background** (#F8FAFC): Page background
-- **Surface Default** (#FFFFFF): Card backgrounds
+- **Secondary Slate** (#64748B): Secondary text, control borders
+- **Tertiary Sage** (#34D399): Fills of chart tier 2 and accents (the original #059669 was replaced by a lighter, more saturated sage; it only carries dark text)
+- **Background** (#E9E9E9): Page background, darker than before so that white cards stand out
+- **Surface Default** (#FFFFFF): Card backgrounds; `--color-surface-2` (#EEF1F5) sits between the two
+- **Border** (#94A3B8): Dividers and card borders on the new background
 - **Success** (#22C55E): Confirmed, valid
 - **Warning** (#EAB308): Pending, caution
 - **Error** (#EF4444): Errors, invalid
-- **Info** (#0EA5E9): Informational
+- **Info** (#38BDF8): Informational and chart tier 3 (lighter than the original #0EA5E9)
 
-Sage (#059669) and the success and warning fills are never used as text on light surfaces; text uses `--color-sage-text` and the `--color-*-text` tokens. The destructive fill is `--color-error-strong` (white text reaches AA). Field borders use `--color-border-control` (3:1 or more), not `--color-border`.
+Hierarchy of surfaces in the light theme: `--color-bg` is darker than `--color-surface-2`, which is darker than `--color-surface`; hover fills are darker than the surface they sit on. Sage (#34D399) and the success and warning fills are never used as text on light surfaces; text uses `--color-sage-text` and the `--color-*-text` tokens. The destructive fill is `--color-error-strong` (white text reaches AA). Field borders use `--color-border-control` (3:1 or more), not `--color-border`.
+
+Known contrast limitation (accepted, declared): in the light theme the sage and info fills against the page background are 1.6:1 and 1.8:1, below the 3:1 of non-text contrast; they always carry their name as text (tier names, chip labels), so nothing depends on colour alone. In the dark theme `--color-text-muted` over `--color-selection` is 4.31:1, inherited from spec 008. Everything else is covered by `design-contrast.test.ts`.
 
 ## Typography
 
@@ -265,13 +278,14 @@ Sizes: sm (6px 14px, 14px, 32px), md (10px 22px, 14px, 44px), lg (12px 28px, 16p
 ---
 
 ### Chips
-- **Neutral** (plan, currency): surface-2 fill, `--color-text` text, 1px `--color-border` border.
+- **Neutral** (currency): surface-2 fill, `--color-text` text, 1px `--color-border` border.
+- **Plan** (`PlanBadge`): its own colour per plan from the `--color-plan-*` tokens (starter: info blue, growth: sage, enterprise: the theme navy), subtle fill and text of 4.5:1 or more in both themes; the plan name is always visible text, and status colours are never used for plans.
 - **Success / Warning / Error / Info**: `--color-*-bg` fill, `--color-*-text` text, no border.
 - Padding 4px 12px | Radius 4px | Font 12px/500, uppercase by CSS only (the DOM text is unchanged), tracking 0.5px.
 ---
 
 ### Lists
-Row height 48px minimum (customers: 64px), padding 8px 16px, 1px `--color-border` divider, `--color-hover` on hover (with a visible border), `--color-active` when pressed. Label DM Sans 16px/400, description 14px/400 `--color-text-muted`.
+Row height 48px minimum (customers: 64px), padding 8px 16px, 1px `--color-border` divider, `--color-hover` on hover (with a visible border and a `--color-sage-text` bar), `--color-active` when pressed. Label DM Sans 16px/400, description 14px/400 `--color-text-muted`.
 ---
 
 ### Checkboxes
@@ -287,21 +301,36 @@ Row height 48px minimum (customers: 64px), padding 8px 16px, 1px `--color-border
 ---
 
 ### Theme switch
-Two always-visible icon buttons (sun for light, moon for dark), no visible text, accessible names "Tema claro" and "Tema oscuro", `aria-pressed` on the active one (filled `--color-action`) and an outlined inactive one. 44px minimum.
+Two always-visible icon buttons (sun for light, moon for dark), no visible text, accessible names "Tema claro" and "Tema oscuro", `aria-pressed` on the active one (filled `--color-action`, with a 3px inset bottom line in `--color-toggle-line`, white in dark and sage green in light) and an outlined inactive one. 44px minimum.
+
+### Icons
+Own inline SVG icons in `ui/icons` (`aria-hidden`, `currentColor`, no dependency): chevron, save, globe, ID card, mail and calendar. The chevron has a single geometry (`CHEVRON_PATH`) used everywhere: inline in buttons and, in native `<select>` fields, as a CSS mask in the field shell. In "Simulaciones guardadas" the same chevron turns by `transform` (no icon swap).
+
+### Form card
+The new and edit customer forms sit in a card (`FormCard`) centred horizontally, 560px at most, holding the page title, fields, errors and buttons; no `fieldset` or `legend`, the field labels are the names.
+
+### Action buttons
+"Presentar" (tooltip "Alt+P" on hover and focus, `aria-keyshortcuts="Alt+P"`) and "Guardar" (save icon; "Guardando…" without icon while sending; accessible name "Guardar simulación" in the quote sheet). The row actions of the customer list use a `--color-bg` fill with a `--color-border-control` border; pagination buttons use `--color-surface`, the same border and a gap of at least `--space-md`.
+
+## Motion
+
+All new transitions live inside `@media (prefers-reduced-motion: no-preference)` (a test enforces it) and last 250ms with `ease`; with `reduce` everything changes instantly (the global `reduce` block in `base.css` stays as a safety net).
+- **Saved simulation detail**: the row opens with `grid-template-rows` from 0fr to 1fr on an inner panel plus opacity; the panel is `inert` from the start of the fold and `visibility: hidden` once it ends; toggling mid-way reverses from the current height.
+- **Tier bar**: `flex-grow` of each segment; entering tiers grow from 0, leaving ones shrink to 0 and unmount (`transitionend` or 350ms fallback), inert and without text; the full/abbreviated/no-text decision uses the final width, never a mid-transition measure; the total and the table do not animate.
 
 ## Deviations from the Verdana original
 
 - Interactive controls keep 44px minimum (md is 44px, not 42px); sm (32px) exists only as a component.
 - Text fields use 16px (Body), not 14px.
-- Plan chips (starter, growth, enterprise) are informational and use the neutral chip; status chips use success, warning, error and info.
+- Plan chips (starter, growth, enterprise) are informational and have their own colour per plan (spec 010, amending the neutral chip of 008); status chips use success, warning, error and info.
 - Dark theme derived from the Verdana Dark reference (approximate sampled values) with steel blue (`--color-action`) as the control color on dark surfaces.
 - Links: `--color-sage-text`, 2px underline, 3px on hover, no visited style. Focus: 2px `--color-focus` outline with 2px offset.
 
 ## Screen composition
 
 - **Header**: brand, "Clientes" navigation with a 2px sage active indicator (`aria-current="page"` only on the exact route), compact currency select labelled "Divisa", and the theme switch.
-- **Customers**: H1 with the total count ("Mostrando N de M" when truncated), search and "Nuevo cliente"; dense list with column headers, rows of 64px minimum with a single link covering the row; stacked below 768px.
-- **Customer detail**: header with the name on its own row and, right below, one wrapping line with flag, tax ID, email, plan chip and date; the presentation button sits at the right of the name row from 640px and under the data line below it; from 1024px two columns (5/12 configuration, 7/12 quote sheet, 48px gap), one column below with the sheet after the configuration.
+- **Customers**: H1 with the total count ("Mostrando N de M" when truncated), search and "Nuevo cliente"; dense list with seven column headers (Empresa, País, NIF, Plan, Simulaciones, Alta, Acciones), rows of 64px minimum with a single link covering the row; the simulations cell shows only the number; stacked below 768px.
+- **Customer detail**: header with the name and the plan chip on the same row and, right below, one wrapping line with flag, tax ID, email and date, each with its icon; the saved simulations title reads "Simulaciones guardadas (N)"; the presentation button sits at the right of the name row from 640px and under the data line below it; from 1024px two columns (5/12 configuration, 7/12 quote sheet, 48px gap), one column below with the sheet after the configuration.
 - **Quote sheet**: radius 16px, titled "Presupuesto", currency chip, the total always in EUR (no VAT-included note, no rates time, no base/VAT line, no percentage subtitle), converted preview directly below the total if the currency is not EUR, tier bar (names only, no amounts: "Tramo N" / "IVA 21 %", then "TN" / "21 %", then no text; abbreviated or empty segments are focusable and show the full name in the tooltip; no legend), a centred full-width table (Base, VAT and Total labels in the "Concepto" column under the tiers, amounts in Subtotal) and a footer with the save button; sticky only from 1024 x 800px.
 - **Tier ladder**: three equal squares in a row, left-aligned above the slider, 96px per side (`calc(var(--space-2xl) * 2)`, 120px in presentation capped at a third of the usable width) with `--space-sm` gaps, in the tier colours (navy, sage, info); each shows the price and the range inside; text that does not fit the inner width is abbreviated ("10 €", "51+") with the full text for screen readers; an unreached tier is dimmed with a dashed border; no legend under the slider (marks at 10 and 50 stay); the slider fill uses `--color-action`.
 - **Saved simulations**: a semantic table (Usuarios, Total, Fecha, Divisa) with rows of 48px, stacked below 640px; each row has a button (`aria-expanded`, `aria-controls`) that shows or hides a row with the stored breakdown.

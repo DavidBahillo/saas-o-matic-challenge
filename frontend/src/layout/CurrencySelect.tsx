@@ -5,6 +5,7 @@ import { useId } from 'react';
 import type { ChangeEvent } from 'react';
 import { currencyName } from '../lib/currency-names';
 import { useCurrency } from '../state/currency-context';
+import { SelectShell } from '../ui/SelectShell';
 
 function isCurrency(value: string): value is Currency {
   return CURRENCIES.some((c) => c === value);
@@ -29,13 +30,15 @@ export function CurrencySelect() {
       <label htmlFor={id} className="currency__label sr-only">
         Divisa
       </label>
-      <select id={id} name="currency" autoComplete="off" className="input" value={currency} onChange={handleChange}>
-        {CURRENCIES.map((c) => (
-          <option key={c} value={c} disabled={!isAvailable(c)}>
-            {optionLabel(c, status !== 'loading' && !isAvailable(c))}
-          </option>
-        ))}
-      </select>
+      <SelectShell>
+        <select id={id} name="currency" autoComplete="off" className="input" value={currency} onChange={handleChange}>
+          {CURRENCIES.map((c) => (
+            <option key={c} value={c} disabled={!isAvailable(c)}>
+              {optionLabel(c, status !== 'loading' && !isAvailable(c))}
+            </option>
+          ))}
+        </select>
+      </SelectShell>
     </div>
   );
 }

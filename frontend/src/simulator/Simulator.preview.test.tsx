@@ -1,6 +1,6 @@
 // Vista previa del simulador (RF19 a RF23, RF40): tablas "Tramos e IVA", "Control de usuarios" y "Divisa" de la spec.
 import { calculateQuote } from '@saas-o-matic/shared';
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { formatMoney } from '../lib/format-money';
 import { renderDetail, saveButton, setField, slider, total, usersField, waitForSimulator } from '../test/detail';
@@ -94,7 +94,8 @@ describe('Simulador: gráfico (RF21, RF40)', () => {
   it('0 usuarios: sin segmentos y sin porcentaje', async () => {
     await openFor('ES', '0');
     expect(screen.queryByText(/sale del tramo/)).toBeNull();
-    expect(screen.getByTestId('stack-bar').children).toHaveLength(0);
+    // Los segmentos salen con una transición y se desmontan al terminar (RF19).
+    await waitFor(() => { expect(screen.getByTestId('stack-bar').children).toHaveLength(0); });
   });
 });
 

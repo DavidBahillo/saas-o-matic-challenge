@@ -26,11 +26,11 @@ describe('tabla del desglose centrada (RF42)', () => {
 describe('flecha de los select (RF39)', () => {
   const rule = rules(css('components.css')).find((r) => r.selector === 'select.input');
 
-  it('appearance none, relleno con calc de tokens y chevron en currentColor a --space-md del borde', () => {
+  it('appearance none y relleno con calc de tokens; el chevron va en .select-shell (spec 010)', () => {
     expect(rule?.body).toMatch(/appearance:\s*none/);
     expect(rule?.body).toMatch(/padding-right:\s*calc\(var\(--space-md\) \+ var\(--space-lg\)\)/);
-    expect(rule?.body).toMatch(/currentColor/);
-    expect(rule?.body).toMatch(/background-position:[^;]*calc\(100% - var\(--space-md\)\) 50%/);
+    const chevron = rules(css('components.css')).find((r) => r.selector === '.select-shell::after');
+    expect(chevron?.body).toMatch(/right:\s*var\(--space-md\)/);
   });
 });
 
@@ -102,7 +102,7 @@ describe('lista de clientes: CSS (RF55)', () => {
     const head = all.find((r) => r.selector === '.customer-list > thead' && /clip-path/.test(r.body));
     expect(head?.body).not.toMatch(/display:\s*none/);
     expect(lists).not.toMatch(/content:\s*'Alta/);
-    expect(all.some((r) => r.selector === '.customer-row__since-label' && /display:\s*none/.test(r.body))).toBe(true);
+    expect(all.some((r) => r.selector === '.customer-row__since-label, .customer-row__label' && /display:\s*none/.test(r.body))).toBe(true);
   });
 
   it('correo y NIF son seleccionables por encima del enlace estirado y las cifras son tabulares', () => {

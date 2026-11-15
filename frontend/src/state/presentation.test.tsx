@@ -45,7 +45,7 @@ describe('modo presentación: activar y salir', () => {
   it('el botón de presentación activa y el de salida desactiva, sin perder los valores del simulador', async () => {
     const { user } = await openDetail();
     fireEvent.change(usersField(), { target: { value: '30' } });
-    await user.click(screen.getByRole('button', { name: /Modo presentación/ }));
+    await user.click(screen.getByRole('button', { name: 'Presentar' }));
     expect(header()).toBeNull();
     expect(usersField()).toHaveValue('30');
     await user.click(screen.getByRole('button', { name: 'Salir de la presentación' }));

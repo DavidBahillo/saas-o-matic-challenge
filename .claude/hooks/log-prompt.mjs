@@ -5,7 +5,7 @@
 import { appendFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const MAX_CHARS = 1500;
+const MAX_CHARS = 400;
 const MIN_CHARS = 15;
 const TRIVIAL = /^(s[ií]|no|ok|vale|venga|adelante|perfecto|gracias|aprobado|correcto|hazlo|sigue|continúa|continua)\b[\s.!¡?¿,]*$/i;
 const PASTED = /<pasted_content[^>]*>([\s\S]*?)<\/pasted_content[^>]*>/g;

@@ -47,6 +47,11 @@
   --color-on-chart-vat: #0B1120;
   --color-tooltip-bg: #D8E0F8;
   --color-tooltip-text: #0B1120;
+  --color-plan-starter-bg: #78D0F824;
+  --color-plan-growth-bg: #68D8A824;
+  --color-plan-growth-text: #68D8A8;
+  --color-plan-enterprise-bg: #48789840;
+  --color-toggle-line: #FFFFFF;
 
   --shadow-sm: none;
   --shadow: none;
@@ -99,22 +104,22 @@
 
 [data-theme="light"] {
   /* Tema claro (Verdana) */
-  --color-bg: #F8FAFC;
+  --color-bg: #E9E9E9;
   --color-surface: #FFFFFF;
-  --color-surface-2: #F1F5F9;
-  --color-border: #E2E8F0;
+  --color-surface-2: #EEF1F5;
+  --color-border: #94A3B8;
   --color-border-control: #64748B;
   --color-text: #0F172A;
   --color-text-muted: #475569;
   --color-action: #0F172A;
   --color-action-hover: #020617;
   --color-on-action: #FFFFFF;
-  --color-sage: #059669;
+  --color-sage: #34D399;
   --color-on-sage: #0F172A;
   --color-sage-text: #047857;
   --color-sage-text-hover: #065F46;
-  --color-info: #0EA5E9;
-  --color-info-text: #0369A1;
+  --color-info: #38BDF8;
+  --color-info-text: #075985;
   --color-success: #22C55E;
   --color-success-text: #166534;
   --color-warning: #EAB308;
@@ -127,17 +132,17 @@
   --color-success-bg: #22C55E15;
   --color-warning-bg: #EAB30815;
   --color-error-bg: #EF444415;
-  --color-info-bg: #0EA5E915;
-  --color-hover: #F8FAFC;
-  --color-active: #0F172A06;
-  --color-ghost-hover: #F1F5F9;
-  --color-secondary-hover: #0F172A0A;
+  --color-info-bg: #38BDF826;
+  --color-hover: #EEF1F5;
+  --color-active: #0F172A14;
+  --color-ghost-hover: #0F172A14;
+  --color-secondary-hover: #0F172A1A;
   --color-focus: #047857;
   --color-focus-ring: #04785333;
-  --color-selection: #05966933;
+  --color-selection: #34D39959;
   --color-chart-1: #0F172A;
-  --color-chart-2: #059669;
-  --color-chart-3: #0A9BDC;
+  --color-chart-2: #34D399;
+  --color-chart-3: #38BDF8;
   --color-chart-vat: #475569;
   --color-on-chart-1: #FFFFFF;
   --color-on-chart-2: #0F172A;
@@ -145,6 +150,11 @@
   --color-on-chart-vat: #FFFFFF;
   --color-tooltip-bg: #0F172A;
   --color-tooltip-text: #F8FAFC;
+  --color-plan-starter-bg: #38BDF826;
+  --color-plan-growth-bg: #34D39926;
+  --color-plan-growth-text: #065F46;
+  --color-plan-enterprise-bg: #0F172A14;
+  --color-toggle-line: #047857;
 
   --shadow-sm: 0 1px 3px #0F172A08;
   --shadow: 0 2px 6px #0F172A0D;

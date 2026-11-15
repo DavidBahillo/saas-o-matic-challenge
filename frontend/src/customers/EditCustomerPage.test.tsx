@@ -1,6 +1,6 @@
 // RF7 a RF12, RF14, RF16, RF18, RF30: edición con el formulario del alta y datos precargados del servidor.
 import { PLANS } from '@saas-o-matic/shared';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ACME, NEVER, apiError, customerList, deferred, makeCustomer } from '../test/fixtures';
 import { control, field, validation } from '../test/new-customer';
@@ -8,7 +8,7 @@ import { renderApp } from '../test/render';
 import type { RenderAppOptions } from '../test/render';
 
 const location = () => screen.getByTestId('location').textContent;
-const save = () => screen.getByRole('button', { name: 'Guardar cambios' });
+const save = () => screen.getByRole('button', { name: 'Guardar' });
 const SAVED = makeCustomer({ companyName: 'Acme Iberia SL', plan: 'enterprise' });
 
 function setup(options: RenderAppOptions = {}) {
@@ -18,7 +18,8 @@ function setup(options: RenderAppOptions = {}) {
 describe('EditCustomerPage: datos precargados (RF7, RF8, RF9)', () => {
   it('por URL directa muestra los cinco campos ya rellenos con los datos del servidor', async () => {
     const { fetchMock } = setup();
-    expect(await screen.findByRole('heading', { level: 1, name: 'Editar cliente' })).toBeVisible();
+    await screen.findByLabelText('Empresa');
+    expect(screen.getByRole('heading', { level: 1, name: 'Editar cliente' })).toBeVisible();
     expect(control('Empresa')).toHaveValue('Acme Ibérica SL');
     expect(control('País')).toHaveValue('ES');
     expect(control('Identificador fiscal')).toHaveValue('B12345674');
@@ -29,12 +30,15 @@ describe('EditCustomerPage: datos precargados (RF7, RF8, RF9)', () => {
     expect(document.title).toBe('Editar cliente · SaaS-O-Matic');
   });
 
-  it('usa los mismos controles que el alta (grupos y etiquetas)', async () => {
+  it('usa los mismos controles que el alta (cinco etiquetas, sin grupos)', async () => {
     setup();
     await screen.findByLabelText('Empresa');
-    expect(screen.getByRole('group', { name: 'Empresa' })).toBeVisible();
-    expect(screen.getByRole('group', { name: 'Contacto y plan' })).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Crear cliente' })).toBeNull();
+    for (const label of ['Empresa', 'País', 'Identificador fiscal', 'Email', 'Plan']) expect(control(label)).toBeVisible();
+    expect(document.querySelector('fieldset, legend')).toBeNull();
+    const card = screen.getByRole('heading', { level: 1, name: 'Editar cliente' }).closest('.form-card') as HTMLElement;
+    expect(within(card).getByRole('button', { name: 'Guardar' })).toBeVisible();
+    expect(within(card).getByRole('link', { name: 'Cancelar' })).toBeVisible();
+    expect(screen.queryByText('Guardar cambios')).toBeNull();
   });
 
   it('mientras carga muestra un esqueleto y no el formulario', () => {
@@ -47,6 +51,7 @@ describe('EditCustomerPage: datos precargados (RF7, RF8, RF9)', () => {
     setup({ routes: { 'GET /api/customers/7': apiError(404, 'CUSTOMER_NOT_FOUND', 'No existe.') } });
     expect(await screen.findByRole('heading', { name: 'Cliente no encontrado' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Volver a la lista' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('heading', { name: 'Cliente no encontrado' }).closest('.form-card')).not.toBeNull();
   });
 
   it('un id no válido (INVALID_ID) también es "no encontrado"', async () => {
