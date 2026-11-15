@@ -36,8 +36,8 @@ Breve: menos de 60 líneas. Solo decisiones vigentes y estado. El histórico est
 | 006-readme-seed | completada · reviewer APROBADO (0 vueltas de corrección) · interfaz con datos no verificada en navegador (sin cambios de UI) |
 | 007-live-currencies-flags | validada (reviewer lógica y UI: APROBADO, 1 vuelta de corrección UI) · pendientes cerradas por la 008 (contraste en ambos temas por test; teclado y respaldo sin red, en su CA6/CA7) |
 | 008-verdana-redesign | cerrada · validada (reviewer UI APROBADO tras 1 vuelta; auditorías web-design-guidelines: 0 críticos, hallazgos corregidos en rondas 4 y 5) · rondas 1 a 5 y T1 a T13 implementadas · 2348 tests y lint en verde · verificado en navegador a 1280, 1024, 375 y 360 px en ambos temas y en presentación · sin verificar a mano: forced-colors, lector de pantalla, zoom del 200 % y dispositivo táctil real |
-| 009-customers-crud-pagination | implementada (T1 a T6) · 2514 tests y lint en verde · pendiente de validación del reviewer · verificada en navegador (ver journal) |
-| 010-ui-design-audit | validada · reviewer lógica APROBADO; UI verificada en navegador por el coordinador (1 vuelta: chevron de select fuera del campo) · 2637 tests y lint en verde · sin verificar a mano: animaciones, tooltip con teclado, forced-colors y lector de pantalla |
+| 009-customers-crud-pagination | validada (2026-11-15) · reviewer: RF1 a RF31 y CA1 a CA10 cumplen; CA11 pendiente por 1 error de lint (`CustomerFields` 42 líneas, regresión de la 010) · 2637 tests en verde · verificada en navegador |
+| 010-ui-design-audit | validada · reviewer lógica APROBADO; UI verificada en navegador por el coordinador (1 vuelta: chevron de select fuera del campo) · 2637 tests y lint en verde · verificado en navegador (2026-11-15): tooltip "Alt+P" con Tab y cierre con Escape sin salir de la presentación, despliegue animado de 250 ms con flecha que gira · sin verificar: forced-colors y lector de pantalla (no automatizables aquí) · lint con 1 error pendiente |
 
 ## Pendiente para otra spec
 - Sin verificar a mano: forced-colors, lector de pantalla, zoom del 200 % y dispositivo táctil real.

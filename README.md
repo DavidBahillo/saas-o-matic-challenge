@@ -66,12 +66,14 @@ curl -X POST http://localhost:3000/simulations -H "Content-Type: application/jso
 
 ## Reglas de negocio
 - Los importes se manejan en céntimos enteros.
-- Precio por usuario y mes, por tramos: 10 EUR hasta 10 usuarios, 8 EUR de 11 a 50 y 5 EUR a partir de 51. Se admiten de 0 a 100 000 usuarios. El almacenamiento y las llamadas a la API se guardan, pero no suman al precio.
+- Precio por usuario y mes, por tramos: 10 EUR hasta 10 usuarios, 8 EUR de 11 a 50 y 5 EUR a partir de 51. Se admiten de 0 a 100 000 usuarios.
+- El almacenamiento y las llamadas a la API se guardan con cada simulación, pero no suman al precio: el enunciado solo fija tarifa por usuario y no se inventan reglas de negocio. Quedan persistidos para poder tarifarlos más adelante ampliando `shared/src/pricing/` (decisión D4 en `MEMORY.md`).
 - El IVA se calcula sobre el coste base con el tipo del país del cliente: ES 21 %, PT 23 %, FR 20 %, DE 19 %, IT 22 %, GB 20 %, US 0 % y 0 % para el resto de países ISO válidos.
 - El precio se calcula siempre en euros. Divisas disponibles (lista fija de `shared/`): EUR, USD, GBP, CHF, SEK, NOK, DKK, PLN, CZK, CAD, AUD, NZD, MXN, BRL, RON, HKD, SGD, CNY, ILS, ZAR, TRY, THB y AED. Al abrir un cliente, el simulador arranca con la divisa de su país (EUR si no tiene una en la lista o sus tipos no están disponibles). La conversión se hace una sola vez al crear la simulación, y se congelan la divisa, el tipo de cambio y su fecha: las lecturas posteriores no recalculan.
 
 ## Tipos de cambio y banderas (servicios externos)
-- Los tipos vienen de open.er-api.com a través del backend: una sola petición por snapshot, guardado en memoria 24 h, petición compartida entre llamadas simultáneas y 60 s de enfriamiento tras un fallo. El proveedor limita las peticiones (una actualización diaria; bloqueo temporal si se abusa).
+- La interfaz consulta los tipos a open.er-api.com **a través del backend** (`GET /exchange-rates`) y no directamente desde el navegador, por diseño: la conversión que se guarda usa un tipo controlado por el servidor (nunca se confía en valores del cliente), un único snapshot compartido respeta el límite del proveedor, los tests no usan la red y no hace falta CORS. Para el usuario el resultado es el mismo: cambia la divisa y ve los costes convertidos al momento, con estados de carga y error.
+- Detalles de la caché: una sola petición por snapshot, guardado en memoria 24 h, petición compartida entre llamadas simultáneas y 60 s de enfriamiento tras un fallo. El proveedor limita las peticiones (una actualización diaria; bloqueo temporal si se abusa).
 - Las banderas se cargan desde el CDN `flagcdn.com` (no se guardan en el repositorio). Sin red o con el CDN caído la aplicación funciona y muestra solo el código del país. El CDN ve la IP del navegador.
 
 ## Flujo de trabajo (SDD)
@@ -79,3 +81,4 @@ Las funcionalidades se desarrollan con specs: especificación, plan, tareas, imp
 - Principios del proyecto: [docs/constitution.md](docs/constitution.md).
 - Decisiones vigentes y estado de cada spec: [MEMORY.md](MEMORY.md).
 - Specs: [specs/](specs/).
+- Arquitectura, base de datos y directrices dadas a la IA: [ai-workspace/architecture.md](ai-workspace/architecture.md).

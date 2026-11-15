@@ -8,6 +8,7 @@ Esta carpeta documenta el **proceso**: cómo se planificó, se dirigió y se aud
 - Decisiones vigentes: [`MEMORY.md`](../MEMORY.md)
 
 ## 2. Arquitectura y directrices para la IA
+- **Resumen de arquitectura, esquema de la base de datos y organización de carpetas: [`architecture.md`](architecture.md)**
 - Reglas globales para la IA: [`CLAUDE.md`](../CLAUDE.md)
 - Sistema de diseño (oscuro por defecto): [`DESIGN.md`](../DESIGN.md)
 - Sistema multiagente, adaptado del flujo coordinador → planner → implementer → reviewer:
