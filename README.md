@@ -2,39 +2,82 @@
 
 Herramienta interna para que el equipo comercial simule y presupueste suscripciones SaaS multidivisa. Permite registrar clientes, calcular el precio por tramos de usuarios con el IVA de su país y guardar presupuestos en 23 divisas con el tipo de cambio congelado.
 
-## Requisitos
-- Node.js 22 o superior (`engines` del `package.json`).
-- npm (incluido con Node), con soporte de workspaces.
+## Puesta en marcha (paso a paso)
+Sigue estos pasos en orden la primera vez que clones el repositorio.
 
-## Instalación
+### 1. Requisitos previos
+- **Node.js 22 o superior** (lo exige `engines` del `package.json`). Compruébalo con `node -v`.
+- **npm** (viene con Node). Compruébalo con `npm -v`.
+- **Git**.
+- **Conexión a internet**, para instalar dependencias y, ya en marcha, para los tipos de cambio (open.er-api.com) y las banderas (flagcdn.com).
+- `better-sqlite3` es un módulo nativo. Normalmente se descarga precompilado, pero si no hay binario para tu sistema o tu versión de Node, `npm install` lo compila y necesitas:
+  - **Windows**: Python 3 y Visual Studio Build Tools con la carga de trabajo "Desarrollo para el escritorio con C++".
+  - **macOS**: `xcode-select --install`.
+  - **Linux**: `python3`, `make` y `g++` (en Debian/Ubuntu, `sudo apt install build-essential python3`).
+
+### 2. Clonar el repositorio
+```bash
+git clone https://github.com/DavidBahillo/saas-o-matic-challenge.git
+cd saas-o-matic-challenge
 ```
+
+### 3. Instalar las dependencias (una sola vez, en la raíz)
+```bash
 npm install
 ```
+El repositorio es un monorepo con **npm workspaces** (`shared`, `backend` y `frontend`), así que este único comando, ejecutado en la raíz, instala las dependencias de los tres paquetes y enlaza `@saas-o-matic/shared`. **No ejecutes `npm install` dentro de `backend/` ni de `frontend/`**: crearía lockfiles y dependencias duplicadas. Para añadir una dependencia a un solo paquete, hazlo también desde la raíz: `npm install <paquete> -w @saas-o-matic/backend`.
 
-## Arranque
-```
-npm run dev
-```
-Levanta a la vez el backend y el frontend:
-- Backend (Express): `http://localhost:3000`.
-- Frontend (Vite): `http://localhost:5173` (el puerto por defecto de Vite; `frontend/vite.config.ts` no lo cambia).
-- El frontend reenvía las peticiones `/api/...` al backend quitando el prefijo `/api` (proxy de Vite, sin CORS). El destino por defecto es `http://localhost:3000` y se cambia con `BACKEND_URL`.
-
-## Datos de ejemplo
-```
+### 4. Cargar datos de ejemplo (recomendado)
+```bash
 npm run seed
 ```
-Carga datos de demostración en la base configurada (`DB_PATH`): 9 clientes de distintos países, planes y tipos de identificador fiscal, y 14 simulaciones en EUR, USD y GBP (el seed solo usa esas tres) (una de ellas en cada límite de tramo). Un cliente no tiene simulaciones y otro tiene varias.
-- Es idempotente: si ejecutas el comando otra vez informa "0 creados, 9 ya existentes". Los clientes que ya existen no se modifican ni reciben simulaciones, y los datos de otros clientes no se tocan.
+Sin este paso la aplicación arranca vacía. La base de datos SQLite se crea sola en `backend/data/saas-o-matic.db`. La primera vez verás:
+```
+Clientes: 9 creados, 0 ya existentes
+Simulaciones: 14 creadas
+```
+Detalles del seed:
+- Carga 9 clientes de distintos países, planes y tipos de identificador fiscal, y 14 simulaciones en EUR, USD y GBP (una en cada límite de tramo). Un cliente no tiene simulaciones y otro tiene varias.
+- Es idempotente: si lo ejecutas otra vez informa "0 creados, 9 ya existentes". Los clientes que ya existen no se modifican ni reciben simulaciones, y los datos de otros clientes no se tocan.
 - No usa la red: las simulaciones en USD y GBP congelan tipos fijos (1,10 USD y 0,85 GBP por euro).
 - Es todo o nada: si un dato no es válido o algo falla, no se guarda nada y el comando termina con código 1.
 
-## Tests y lint
+### 5. Arrancar la aplicación
+```bash
+npm run dev
 ```
+Levanta a la vez el backend y el frontend (los logs salen con el prefijo `[backend]` y `[frontend]`):
+- Backend (Express): `http://localhost:3000`. Verás `SaaS-O-Matic backend escuchando en http://localhost:3000`.
+- Frontend (Vite): `http://localhost:5173`.
+- El frontend reenvía las peticiones `/api/...` al backend quitando el prefijo `/api` (proxy de Vite, sin CORS).
+
+### 6. Abrir la aplicación
+- Abre **http://localhost:5173** en el navegador.
+- Para comprobar que el backend responde, abre http://localhost:3000/customers: debe devolver un JSON con los clientes.
+
+### 7. Comprobar que todo está bien (opcional)
+```bash
 npm test
+```
+```bash
 npm run lint
 ```
-`npm test` ejecuta todos los tests (Vitest) y `npm run lint` pasa ESLint y la comprobación de tipos de los tres paquetes. Existe también `npm run test:quiet`, con salida reducida.
+`npm test` ejecuta todos los tests (Vitest) y `npm run lint` pasa ESLint y la comprobación de tipos de los tres paquetes. Existe también `npm run test:quiet`, con salida reducida. Los tests no usan la red ni tu base de datos.
+
+### 8. Parar la aplicación
+Pulsa `Ctrl+C` en la terminal donde corre `npm run dev`: se detienen el backend y el frontend a la vez.
+
+## Problemas frecuentes
+| Síntoma | Solución |
+|---|---|
+| `npm install` falla compilando `better-sqlite3` (`node-gyp`, `gyp ERR!`) | Instala las herramientas de compilación del paso 1 y repite `npm install`. |
+| `EBADENGINE` o errores de sintaxis al arrancar | Tu Node es anterior a la 22: actualízalo (por ejemplo con nvm). |
+| `EADDRINUSE` en el puerto 3000 | Otro proceso usa el puerto: ciérralo o arranca con otro `PORT` (y el mismo valor en `BACKEND_URL`, ver abajo). |
+| Vite arranca en 5174 u otro puerto | El 5173 estaba ocupado; usa la URL que muestra la terminal. |
+| La interfaz carga pero las peticiones fallan | El backend no está levantado o `BACKEND_URL` no apunta a su puerto. |
+| Las divisas distintas de EUR no muestran tipo de cambio | Sin conexión a open.er-api.com. Funciona en EUR; reintenta pasados 60 s. |
+| Las banderas no se ven | Sin conexión a flagcdn.com: se muestra solo el código del país. |
+| Quiero empezar con la base de datos vacía | Para la app, borra `backend/data/` y, si quieres datos, vuelve a ejecutar `npm run seed`. |
 
 ## Estructura del monorepo
 - `shared/`: lógica pura compartida (tramos, IVA, divisas, validadores de identificador fiscal).
@@ -47,21 +90,41 @@ npm run lint
 | `PORT` | `3000` | Puerto del backend (entero de 1 a 65535). |
 | `DB_PATH` | `backend/data/saas-o-matic.db` | Ruta del archivo SQLite; no puede estar vacía. Se crea si no existe. También la usa `npm run seed`. |
 | `EXCHANGE_RATES_URL` | `https://open.er-api.com/v6/latest/EUR` | URL https del proveedor de tipos de cambio (open.er-api.com, sin clave, base EUR). Si no es https, el backend no arranca. |
+| `BACKEND_URL` | `http://localhost:3000` | Destino del proxy `/api` del frontend (Vite). Si cambias `PORT`, pon aquí el mismo puerto. |
+
+El proyecto **no lee archivos `.env`**: crear uno no tiene efecto. Las variables se pasan en la terminal al lanzar el comando. Por ejemplo, para usar el puerto 4000:
+
+bash (Linux, macOS, Git Bash):
+```bash
+PORT=4000 BACKEND_URL=http://localhost:4000 npm run dev
+```
+PowerShell (Windows):
+```powershell
+$env:PORT="4000"; $env:BACKEND_URL="http://localhost:4000"; npm run dev
+```
+En PowerShell las variables duran lo que la sesión de la terminal.
 
 ## API
 | Endpoint | Descripción |
 |---|---|
 | `POST /customers` | Da de alta un cliente. |
-| `GET /customers` | Lista los clientes, con `simulationCount`. |
+| `GET /customers` | Lista paginada de clientes, con `simulationCount` (parámetros opcionales `q` de búsqueda y `page`). |
 | `GET /customers/:id` | Detalle de un cliente. |
+| `PUT /customers/:id` | Edita un cliente. |
+| `DELETE /customers/:id` | Borra un cliente y, en cascada, sus simulaciones. |
 | `POST /simulations` | Crea una simulación con el precio congelado. |
 | `GET /simulations/:id` | Detalle de una simulación. |
 | `GET /customers/:id/simulations` | Simulaciones de un cliente, las más recientes primero. |
 | `GET /exchange-rates` | Tipos de cambio vigentes de las divisas disponibles (las que el proveedor no trae o trae inválidas se omiten). |
 
 Ejemplo de petición (con el backend en marcha y un cliente con id 1, por ejemplo tras `npm run seed`):
-```
+bash:
+```bash
 curl -X POST http://localhost:3000/simulations -H "Content-Type: application/json" -d '{"customerId":1,"users":25,"storage":100,"apiCalls":5000,"currency":"EUR"}'
+```
+PowerShell (las comillas simples del ejemplo anterior no funcionan ahí):
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:3000/simulations -ContentType "application/json" -Body '{"customerId":1,"users":25,"storage":100,"apiCalls":5000,"currency":"EUR"}'
 ```
 
 ## Reglas de negocio
